@@ -81,8 +81,7 @@
 			Vec3 lin_velocity     = Null3;
 			Vec3 lin_acceleration = Null3;
 			Vec3 ang_velocity     = Null3;
-			Vec3 tangent          = Null3;
-			Vec3 binormal         = Null3;
+			Vec3 tangent          = Null3;	// direction of lin_velocity
 			std::vector<std::vector<float> > inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
 			float drag_coeff  	  = 0;
 			float mass 	   		  = 0;
@@ -93,10 +92,10 @@
 			void update_lin_velocity(Vec3 n, float P);
 			void set_lin_velocity(Vec3 velocity);
 			void old_mass_center(void);
+			void move(float dt, Vec3 acceleration);
+			void pull(Vec3 n, float overlap);
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
-			virtual void move(float dt, Vec3 acceleration) = 0;
-			virtual void pull(Vec3 n, float overlap);
 			virtual void select(bool selection) = 0;
 		protected:
 			virtual void init_inertia_tensor(void) = 0;
@@ -125,7 +124,6 @@
 			Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color);
 			Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity);
 			~Sphere(void);
-			void move(float dt, Vec3 acceleration);
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
 			void select(bool selection);
@@ -142,6 +140,7 @@
 	class Cuboid : public Object{
 		public:
 			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color);
+			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity);
 			~Cuboid(void);
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
@@ -149,8 +148,6 @@
 			float m_i = 0;
 			std::vector<Vec3> orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
-			// void pull(Vec3 n, float overlap);
-			void move(float dt, Vec3 acceleration);
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
 			void select(bool selection);

@@ -63,25 +63,29 @@ Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
 	colli.normal = sph->mass_center - closest;
 	colli.distance = colli.normal.Length();
 	if(colli.distance) colli.normal /= colli.distance;
-	colli.overlap = (sph->radius - colli.distance);
+	colli.overlap = sph->radius - colli.distance;
 	colli.collision = colli.distance <= sph->radius;
 	return colli;
 }
-bool Collision::sphere2aabb(Sphere* sph, Cuboid* cub){
-	float distance = 0;
-	for(unsigned int i = 0; i < VEC_DIM; ++i){
-		if(sph->mass_center.p[i] < cub->pmin.p[i])
-			distance += (sph->mass_center.p[i]-cub->pmin.p[i])*(sph->mass_center.p[i]-cub->pmin.p[i]);
-		else if(sph->mass_center.p[i] > cub->pmax.p[i])
-			distance += (sph->mass_center.p[i]-cub->pmax.p[i])*(sph->mass_center.p[i]-cub->pmax.p[i]);
+Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
+	Collision_Info colli;
+	colli.normal = plane->normal;
+	colli.distance = distance_plane2point(plane,cub->mass_center);
+	float r = 0;
+	for(int i = 0; i < VEC_DIM; ++i){
+		r += cub->hl.p[i]*fabs(colli.normal*cub->orientation[i]);
 	}
-	return distance <= sph->radius*sph->radius;
+	colli.overlap = r - colli.distance;
+	colli.collision = colli.distance <= r;
+	return colli;
 }
-// bool Collision::sphere2obb(Sphere* sph, Cuboid* cub){
-	// Vec3 distance_vec = sph->mass_center - cub.mass_center;
-	// for(unsigned int i = 0; i < cub->orientation.size(); ++i){
-		// if((distance_vec*cub->orientation[i])*(distance_vec*cub->orientation[i]) > (sph->radius + cub->hl[i])*(sph->radius + cub->hl[i]))
-			// return false;
+// bool Collision::sphere2aabb(Sphere* sph, Cuboid* cub){
+	// float distance = 0;
+	// for(unsigned int i = 0; i < VEC_DIM; ++i){
+		// if(sph->mass_center.p[i] < cub->pmin.p[i])
+			// distance += (sph->mass_center.p[i]-cub->pmin.p[i])*(sph->mass_center.p[i]-cub->pmin.p[i]);
+		// else if(sph->mass_center.p[i] > cub->pmax.p[i])
+			// distance += (sph->mass_center.p[i]-cub->pmax.p[i])*(sph->mass_center.p[i]-cub->pmax.p[i]);
 	// }
-	// return true;
+	// return distance <= sph->radius*sph->radius;
 // }

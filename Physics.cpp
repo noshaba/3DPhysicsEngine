@@ -33,6 +33,9 @@ float Physics::relative_momentum_wall(Object* obj, Vec3 n){
 }
 void Physics::update(void){
 	if(!this->frozen){
+	
+		////////////////////////////////////////////////////// Spheres //////////////////////////////////////////////////////
+	
 		for(unsigned int i = 0; i < __spheres.size(); ++i){
 			////////////////////////////////
 			// Movement & External Forces //
@@ -72,8 +75,8 @@ void Physics::update(void){
 				if(i==j) continue;
 				__colli = Collision::sphere2sphere(__spheres[i],__spheres[j]);
 				if(__colli.collision){
-					__spheres[i]->pull(__colli.normal,__colli.overlap);
-					__spheres[j]->pull(-__colli.normal,__colli.overlap);
+					__spheres[i]->pull(__colli.normal,__colli.overlap*.5);
+					__spheres[j]->pull(-__colli.normal,__colli.overlap*.5);
 					__r_1 = .5*(__spheres[j]->mass_center - __spheres[i]->mass_center);
 					__r_2 = -__r_1;
 					__P = this->relative_momentum(__spheres[i],__spheres[j],__r_1,__r_2,__colli.normal);
@@ -89,9 +92,43 @@ void Physics::update(void){
 			for(unsigned int j = 0; j < __cuboids.size(); ++j){
 				__colli = Collision::sphere2obb(__spheres[i],__cuboids[j]);
 				if(__colli.collision){
-					__spheres[i]->pull(__colli.normal,__colli.overlap);
-					//__cuboids[j]->pull(-__colli.normal,__colli.overlap);
+					__spheres[i]->pull(__colli.normal,__colli.overlap*.5);
+					__cuboids[j]->pull(-__colli.normal,__colli.overlap*.5);
 					__spheres[i]->update_lin_velocity(__colli.normal,this->relative_momentum_wall(__spheres[i],__colli.normal));
+				}
+			}
+		}
+		
+		////////////////////////////////////////////////////// Cuboids //////////////////////////////////////////////////////
+		
+		for(unsigned int i = 0; i < __cuboids.size(); ++i){
+			////////////////////////////////
+			// Movement & External Forces //
+			////////////////////////////////
+			__drag = -(__cuboids[i]->drag_coeff/__cuboids[i]->mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->tangent;
+
+			__acceleration = this->gravity+__drag;
+			__cuboids[i]->move(this->dt,__acceleration);
+			
+			//////////////////////////////////////////////////////////////////////
+			// If a cuboid is too fast and moves out of the box pull it back in //
+			//////////////////////////////////////////////////////////////////////
+
+			if(Collision::outside_scene(__cuboids[i],__cage->planes)){
+				__cuboids[i]->old_mass_center();
+				__n = Collision::get_collided_wall(__cuboids[i],__cage->planes)->normal;
+				__cuboids[i]->update_lin_velocity(__n,this->relative_momentum_wall(__cuboids[i],__n));
+			}
+			
+			/////////////////////////////
+			// Collision against walls //
+			/////////////////////////////
+			
+			for(unsigned int j = 0; j < __cage->planes.size(); ++j){
+				__colli = Collision::obb2plane(__cuboids[i],__cage->planes[j]);
+				if(__colli.collision){
+					__cuboids[i]->pull(__colli.normal,__colli.overlap);
+					__cuboids[i]->update_lin_velocity(__colli.normal,this->relative_momentum_wall(__cuboids[i],__colli.normal));
 				}
 			}
 		}

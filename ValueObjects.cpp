@@ -207,6 +207,14 @@ void Object::pull(Vec3 n, float overlap){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
 		*(this->vertex_buffer[i]) += n*overlap;
 }
+void Object::move(float dt, Vec3 acceleration){
+	this->mass_center_old = this->mass_center;
+	this->lin_acceleration = acceleration;
+	this->set_lin_velocity(this->lin_velocity + dt*acceleration);
+	this->mass_center = this->mass_center + dt*this->lin_velocity;
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); i++)
+		*(this->vertex_buffer[i]) += dt*this->lin_velocity;
+}
 // {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
  // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
 Cage::Cage(std::vector<Vec3*> vertex_buffer){
@@ -283,14 +291,6 @@ void Sphere::init(float radius, Vec3 mass_center, float mass, float drag_coeff, 
 }
 void Sphere::select(bool selection){
 	this->is_selected = selection;
-}
-void Sphere::move(float dt, Vec3 acceleration){
-	this->mass_center_old = this->mass_center;
-	this->lin_acceleration = acceleration;
-	this->set_lin_velocity(this->lin_velocity + dt*acceleration);
-	this->mass_center = this->mass_center + dt*this->lin_velocity;
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); i++)
-		*(this->vertex_buffer[i]) += dt*this->lin_velocity;
 }
 void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	Quaternion q(n,theta);
@@ -381,6 +381,10 @@ void Sphere::draw(void){
 Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color){
 	this->init(pmin,pmax,mass,drag_coeff,color);
 }
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity){
+	this->init(pmin,pmax,mass,drag_coeff,color);
+	this->set_lin_velocity(init_lin_velocity);
+}
 Cuboid::~Cuboid(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)
 		delete this->planes[i];
@@ -437,7 +441,6 @@ void Cuboid::init_inertia_tensor(void){
 	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
 		this->inertia_tensor[i][i] = (this->mass/12.0)*(s*s-s.p[i]*s.p[i]);
 }
-void Cuboid::move(float dt, Vec3 acceleration){}
 void Cuboid::scale(int scale_dir, float factor){
 	if(this->radius < 5){
 		if(scale_dir == SCALE_A) {
