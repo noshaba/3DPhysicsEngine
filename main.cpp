@@ -152,16 +152,31 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 					game->add_cuboid(new Cuboid(Vec3(-1,-6,-1),Vec3(1,-4,1),8,1,new Vec3(0,1,0)));
 					break;
 			}
-		} else {
+		} else if(mods == GLFW_MOD_CONTROL) {
 			switch(key){
-				case GLFW_KEY_P:
-					game->physics.frozen = !game->physics.frozen;
-					break;
 				case GLFW_KEY_EQUAL:
 					game->scale_selected_object(.1);
 					break;
 				case GLFW_KEY_MINUS:
 					game->scale_selected_object(-.1);
+					break;
+				case GLFW_KEY_UP:
+					game->rotate_selected_object(view->camera->horizontal,-5);
+					break;
+				case GLFW_KEY_DOWN:
+					game->rotate_selected_object(view->camera->horizontal,5);
+					break;
+				case GLFW_KEY_LEFT:
+					game->rotate_selected_object(YVec3,-5);
+					break;
+				case GLFW_KEY_RIGHT:
+					game->rotate_selected_object(YVec3,5);
+					break;
+			}
+		} else {
+			switch(key){
+				case GLFW_KEY_P:
+					game->physics.frozen = !game->physics.frozen;
 					break;
 				case GLFW_KEY_1:
 					game->scale_dir = SCALE_X;
@@ -178,45 +193,60 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			}
 		}
 	} else if(action == GLFW_REPEAT){
-		switch (key){
-			case GLFW_KEY_W:
-				view->camera->move(FRONT,1);
-				break;
-			case GLFW_KEY_S:
-				view->camera->move(BACK,1);
-				break;
-			case GLFW_KEY_A:
-				view->camera->move(LEFT,1);
-				break;
-			case GLFW_KEY_D:
-				view->camera->move(RIGHT,1);
-				break;
-			case GLFW_KEY_SPACE:
-				view->camera->move(UP,1);
-				break;
-			case GLFW_KEY_X:
-				view->camera->move(DOWN,1);
-				break;
-			case GLFW_KEY_UP:
-				view->camera->rotate(UP,1);
-				break;
-			case GLFW_KEY_DOWN:
-				view->camera->rotate(DOWN,1);
-				break;
-			case GLFW_KEY_RIGHT:
-				view->camera->rotate(RIGHT,1);
-				break;
-			case GLFW_KEY_LEFT:
-				view->camera->rotate(LEFT,1);
-				break;
-			case GLFW_KEY_EQUAL:
-					game->scale_selected_object(.1);
+		if(mods == GLFW_MOD_CONTROL){
+			switch (key){
+				case GLFW_KEY_EQUAL:
+						game->scale_selected_object(.1);
+						break;
+				case GLFW_KEY_MINUS:
+					game->scale_selected_object(-.1);
 					break;
-			case GLFW_KEY_MINUS:
-				game->scale_selected_object(-.1);
-				break;
-			default:
-				break;
+				case GLFW_KEY_UP:
+					game->rotate_selected_object(view->camera->horizontal,-5);
+					break;
+				case GLFW_KEY_DOWN:
+					game->rotate_selected_object(view->camera->horizontal,5);
+					break;
+				case GLFW_KEY_LEFT:
+					game->rotate_selected_object(YVec3,-5);
+					break;
+				case GLFW_KEY_RIGHT:
+					game->rotate_selected_object(YVec3,5);
+					break;
+			}
+		} else {
+			switch(key){
+				case GLFW_KEY_W:
+					view->camera->move(FRONT,1);
+					break;
+				case GLFW_KEY_S:
+					view->camera->move(BACK,1);
+					break;
+				case GLFW_KEY_A:
+					view->camera->move(LEFT,1);
+					break;
+				case GLFW_KEY_D:
+					view->camera->move(RIGHT,1);
+					break;
+				case GLFW_KEY_SPACE:
+					view->camera->move(UP,1);
+					break;
+				case GLFW_KEY_X:
+					view->camera->move(DOWN,1);
+					break;
+				case GLFW_KEY_UP:
+					view->camera->rotate(UP,1);
+					break;
+				case GLFW_KEY_DOWN:
+					view->camera->rotate(DOWN,1);
+					break;
+				case GLFW_KEY_RIGHT:
+					view->camera->rotate(RIGHT,1);
+					break;
+				case GLFW_KEY_LEFT:
+					view->camera->rotate(LEFT,1);
+					break;
+			}
 		}
 	}
 }

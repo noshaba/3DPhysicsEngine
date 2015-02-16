@@ -60,6 +60,11 @@ void Object_Model::scale_selected_object(int scale_dir, float factor){
 		}
 	}
 }
+void Object_Model::rotate_selected_object(const Vec3 &n, float theta){
+	if(this->selected_object) {
+		this->selected_object->rotate(n,theta,this->selected_object->mass_center);
+	}
+}
 void Object_Model::update_total_volume(void){
 	this->total_volume_x3 = 0;
 	for(unsigned int i = 0; i < this->objects.size(); ++i)

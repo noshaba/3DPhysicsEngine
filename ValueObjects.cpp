@@ -163,7 +163,7 @@ void Plane::init_plane_normal(void){
 }
 void Plane::draw(void){
 	if(this->color){
-		this->material_color(GL_FRONT_AND_BACK,*(this->color));
+		this->material_color(GL_FRONT,*(this->color));
 		glBegin(GL_POLYGON);
 		glNormal3fv(this->normal.p);
 		for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
@@ -171,7 +171,7 @@ void Plane::draw(void){
 		}
 		glEnd();
 	} else {
-		this->material_color(GL_FRONT_AND_BACK,Vec3(1,1,1));
+		this->material_color(GL_FRONT,Vec3(1,1,1));
 		glBegin(GL_LINE_LOOP);
 		glNormal3f(0,0,1);
 		for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
@@ -300,7 +300,7 @@ void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->normals.size(); ++i){
 		this->normals[i] = q*this->normals[i];
 	}
-	this->mass_center = q*this->mass_center;
+	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
 }
 void Sphere::init_inertia_tensor(void){
 	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
@@ -478,6 +478,10 @@ void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->planes.size(); ++i){
 		this->planes[i]->normal = q*this->planes[i]->normal;
 	}
+	for(unsigned int i = 0; i < this->orientation.size(); ++i){
+		this->orientation[i] = q*this->orientation[i];
+	}
+	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
 }
 void Cuboid::draw(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)

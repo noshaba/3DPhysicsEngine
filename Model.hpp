@@ -18,6 +18,7 @@
 			void select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos);
 			void deselect_all_objects(void);
 			void scale_selected_object(int scale_dir, float factor);
+			void rotate_selected_object(const Vec3 &n, float theta);
 			void draw(void);
 	};
 

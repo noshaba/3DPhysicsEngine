@@ -48,6 +48,9 @@ void Game::scale_selected_object(float factor){
 		this->volume_err();
 	}
 }
+void Game::rotate_selected_object(const Vec3 &n, float theta){
+	this->object_model->rotate_selected_object(n,theta);
+}
 void Game::draw(void){
 	this->cage->draw();
 	this->object_model->draw();
