@@ -76,17 +76,32 @@
 	
 	class Object : public Render_Object{
 		public:
-			Vec3 mass_center_old  = Null3;
-			Vec3 mass_center      = Null3;
-			Vec3 lin_velocity     = Null3;
-			Vec3 lin_acceleration = Null3;
-			Vec3 ang_velocity     = Null3;
+		
+			/// primary physics state
+			Vec3 mass_center_old  = Null3;	// position of the mass center in previous frame
+			Vec3 mass_center      = Null3;	// position of mass center
+			Vec3 momentum		  = Null3;	// momentum in kilograms per second
+			Vec3 ang_momentum	  = Null3;	// angular momentum
+			Quaternion orientation_q = Quaternion(Null3,0);	// orientation represented by a unit quaternion
+			
+			/// secondary physics state
+			Vec3 lin_velocity     = Null3;	// linear velocity in meters per second
 			Vec3 tangent          = Null3;	// direction of lin_velocity
-			std::vector<std::vector<float> > inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
+			Vec3 ang_velocity     = Null3;	// angular velocity
+			
+			/// tertiary physics state
+			Vec3 lin_acceleration = Null3;	// linear acceleration
+
+			
+			std::vector<std::vector<float> > inertia_tensor     = {{0,0,0},{0,0,0},{0,0,0}};
+			std::vector<std::vector<float> > inv_inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
 			float drag_coeff  	  = 0;
 			float mass 	   		  = 0;
+			float m_i 			  = 0; 
+			float inverse_mass 	  = 0;
 			float omega           = 0;
 			float velocity        = 0;
+			float volume 		  = 0;
 			float volume_x3 	  = 0;
 			float radius 		  = 0;
 			void update_lin_velocity(Vec3 n, float P);
@@ -145,7 +160,6 @@
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
 			Vec3 hl   = Null3;
-			float m_i = 0;
 			std::vector<Vec3> orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);

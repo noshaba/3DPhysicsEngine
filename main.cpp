@@ -291,64 +291,6 @@ int main() {
 	while(!glfwWindowShouldClose(window)) {
 		glfwMakeContextCurrent(window);
 		game->update();
-		// for(unsigned int i = 0; i < spheres.size(); ++i){
-			//////////////////////////////
-			// Movement & External Forces //
-			//////////////////////////////
-			// drag = -(spheres[i]->drag_coeff/spheres[i]->mass*spheres[i]->lin_velocity.Length2())*spheres[i]->tangent;
-
-			// acceleration = gravity+drag;
-			// spheres[i]->move(dt,acceleration);
-			
-			////////////////////////////////////////////////////////////////////
-			// If a sphere is too fast and moves out of the box pull it back in //
-			////////////////////////////////////////////////////////////////////
-
-			// if(Collision::outside_scene(spheres[i],cage->planes)){
-				// spheres[i]->old_mass_center();
-				// n = Collision::get_collided_wall(spheres[i],cage->planes)->normal;
-				// spheres[i]->update_lin_velocity(n,spheres[i]->relative_momentum_wall(n));
-			// }
-			
-			// for(unsigned int j = 0; j < cage->planes.size(); ++j){
-				// colli = Collision::sphere2plane(spheres[i],cage->planes[j]);
-				// if(colli.collision){
-					// spheres[i]->pull(colli.normal,colli.overlap);
-					// spheres[i]->update_lin_velocity(colli.normal,spheres[i]->relative_momentum_wall(colli.normal));
-				// }
-			// }
-			
-			/////////////////////////////
-			// Collision against cuboids //
-			/////////////////////////////
-			
-			// for(unsigned int j = 0; j < cuboids.size(); ++j){
-				// if(Collision::sphere2aabb(spheres[i],cuboids[j])){
-					// if(Collision::sphere2obb(spheres[i],cuboids[j])){
-						
-					// }
-				// }
-			// }
-			
-			///////////////////////////////////
-			// Collision against other spheres //
-			///////////////////////////////////
-			
-			// for(unsigned int j = 0; j < spheres.size(); ++j){
-				// if(i==j) continue;
-				// colli = Collision::sphere2sphere(spheres[i],spheres[j]);
-				// if(colli.collision){
-					// spheres[i]->pull(colli.normal,colli.overlap);
-					// spheres[j]->pull(-colli.normal,colli.overlap);
-					// r_1 = .5*(spheres[j]->mass_center - spheres[i]->mass_center);
-					// r_2 = -r_1;
-					// P = Object::relative_momentum(spheres[i],spheres[j],r_1,r_2,colli.normal);
-					// spheres[i]->update_lin_velocity(colli.normal,P);
-					// spheres[j]->update_lin_velocity(-colli.normal,P);
-				// }
-			// }
-			
-		// }
 		render3Dscene();
 		render2Dhud();
 		// make it appear (before this, it's hidden in the rear buffer)

@@ -283,10 +283,12 @@ void Sphere::init(float radius, Vec3 mass_center, float mass, float drag_coeff, 
 	this->radius = radius;
 	this->mass_center = mass_center;
 	this->mass = mass;
+	if(this->mass) this->inverse_mass = 1.0/mass;
 	this->drag_coeff = drag_coeff;
 	this->color = color;
 	this->init_inertia_tensor();
 	this->init_vertex_buffer();
+	this->m_i = this->mass/(float) this->vertex_buffer.size();
 	this->update_volume();
 }
 void Sphere::select(bool selection){
@@ -305,6 +307,7 @@ void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 void Sphere::init_inertia_tensor(void){
 	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
 		this->inertia_tensor[i][i] = .4*this->mass*this->radius*this->radius;
+	this->inv_inertia_tensor = !this->inertia_tensor;	
 }
 void Sphere::init_vertex_buffer(void){
 	double  a1, a1d = M_PI / this->res,
@@ -342,6 +345,7 @@ void Sphere::scale(int scale_dir, float factor){
 }
 void Sphere::update_volume(void){
 	this->volume_x3 = 4 * M_PI * this->radius * this->radius * this->radius;
+	this->volume    = this->volume_x3/3.0;
 };
 void Sphere::draw(void){
 	unsigned int counter = 0;
@@ -397,6 +401,7 @@ void Cuboid::init(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* colo
 	this->pmax = pmax;
 	for(unsigned int i = 0; i < VEC_DIM; ++i) this->hl.p[i] = (this->pmax.p[i] - this->pmin.p[i]) * .5;
 	this->mass = mass;
+	if(this->mass) this->inverse_mass = 1.0/mass;
 	this->drag_coeff = drag_coeff;
 	this->color = color;
 	this->init_vertex_buffer();
@@ -440,6 +445,7 @@ void Cuboid::init_inertia_tensor(void){
 	Vec3 s(this->pmax-this->pmin);
 	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
 		this->inertia_tensor[i][i] = (this->mass/12.0)*(s*s-s.p[i]*s.p[i]);
+	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 void Cuboid::scale(int scale_dir, float factor){
 	if(this->radius < 5){
@@ -471,7 +477,8 @@ void Cuboid::select(bool selection){
 		this->planes[i]->is_selected = selection;
 }
 void Cuboid::update_volume(void){
-	this->volume_x3 = this->hl.p[0] * this->hl.p[1] * this->hl.p[2] * 18;
+	this->volume    = this->hl.p[0] * this->hl.p[1] * this->hl.p[2] * 6;
+	this->volume_x3 = 3*this->volume;
 }
 void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	Quaternion q(n,theta);

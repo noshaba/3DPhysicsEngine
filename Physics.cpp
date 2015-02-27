@@ -20,13 +20,13 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 	Vec3 v_2 = obj2->lin_velocity;
 	Vec3 w_1 = obj1->ang_velocity;
 	Vec3 w_2 = obj2->ang_velocity;
-	float m_1 = obj1->mass;
-	float m_2 = obj2->mass;
-	std::vector<std::vector<float> > I_1 = obj1->inertia_tensor;
-	std::vector<std::vector<float> > I_2 = obj2->inertia_tensor;
+	float m_1 = obj1->inverse_mass;
+	float m_2 = obj2->inverse_mass;
+	std::vector<std::vector<float> > I_1 = obj1->inv_inertia_tensor;
+	std::vector<std::vector<float> > I_2 = obj2->inv_inertia_tensor;
 	
 	float v = n*(v_1+(w_1%r_1)-v_2-(w_2%r_2));
-	return -2*v/(1/m_1+1/m_2+n*(((I_1|(r_1%n))%r_1)+((I_2|(r_2%n))%r_2)));
+	return -2*v/(m_1+m_2+n*(((I_1*(r_1%n))%r_1)+((I_2*(r_2%n))%r_2)));
 }
 float Physics::relative_momentum_wall(Object* obj, Vec3 n){
 	return -2*(n*obj->lin_velocity)*obj->mass;
