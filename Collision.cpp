@@ -27,10 +27,10 @@ Vec3 Collision::closest_point_on_OBB(Vec3 p, Cuboid* cub){
 	Vec3 closest = cub->mass_center;
 	float distance;
 	for(unsigned int i = 0; i < VEC_DIM; ++i){
-		distance = distance_vec * cub->orientation[i];
+		distance = distance_vec * cub->axis_orientation[i];
 		if(distance >  cub->hl.p[i]) distance =  cub->hl.p[i];
 		if(distance < -cub->hl.p[i]) distance = -cub->hl.p[i];
-		closest += distance * cub->orientation[i];
+		closest += distance * cub->axis_orientation[i];
 	}
 	return closest;
 }
@@ -73,7 +73,7 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	colli.distance = distance_plane2point(plane,cub->mass_center);
 	float r = 0;
 	for(int i = 0; i < VEC_DIM; ++i){
-		r += cub->hl.p[i]*fabs(colli.normal*cub->orientation[i]);
+		r += cub->hl.p[i]*fabs(colli.normal*cub->axis_orientation[i]);
 	}
 	colli.overlap = r - colli.distance;
 	colli.collision = colli.distance <= r;

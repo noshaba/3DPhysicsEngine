@@ -80,14 +80,13 @@
 			/// primary physics state
 			Vec3 mass_center_old  = Null3;	// position of the mass center in previous frame
 			Vec3 mass_center      = Null3;	// position of mass center
-			Vec3 momentum		  = Null3;	// momentum in kilograms per second
-			Vec3 ang_momentum	  = Null3;	// angular momentum
-			Quaternion orientation_q = Quaternion(Null3,0);	// orientation represented by a unit quaternion
+			Quaternion orientation = Quaternion(Null3,0);	// orientation represented by a unit quaternion
 			
 			/// secondary physics state
 			Vec3 lin_velocity     = Null3;	// linear velocity in meters per second
 			Vec3 tangent          = Null3;	// direction of lin_velocity
 			Vec3 ang_velocity     = Null3;	// angular velocity
+			Quaternion spin 	  = Quaternion(Null3,180);  // quaternion rate of change in orientation
 			
 			/// tertiary physics state
 			Vec3 lin_acceleration = Null3;	// linear acceleration
@@ -160,7 +159,7 @@
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
 			Vec3 hl   = Null3;
-			std::vector<Vec3> orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+			std::vector<Vec3> axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);

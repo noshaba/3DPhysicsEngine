@@ -488,8 +488,8 @@ void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->planes.size(); ++i){
 		this->planes[i]->normal = q*this->planes[i]->normal;
 	}
-	for(unsigned int i = 0; i < this->orientation.size(); ++i){
-		this->orientation[i] = q*this->orientation[i];
+	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
+		this->axis_orientation[i] = q*this->axis_orientation[i];
 	}
 	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
 }
