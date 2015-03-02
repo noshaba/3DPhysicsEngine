@@ -7,7 +7,7 @@
 	class Physics{
 		private:
 			float dt, __P;
-			Vec3 gravity, __acceleration, __drag, __n, __r_1, __r_2;
+			Vec3 gravity, __acceleration, __drag, __n, __r,__r_1, __r_2;
 			Collision::Collision_Info __colli;
 			Cage* __cage;
 			std::vector<Sphere*> __spheres;
@@ -22,6 +22,7 @@
 			void add_sphere(Sphere* sphere);
 			void add_cuboid(Cuboid* cuboid);
 			void update(void);
+			void draw_collision_point(void);
 	};
 
 #endif

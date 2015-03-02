@@ -10,6 +10,7 @@ class Collision{
 			float distance;
 			float overlap;
 			Vec3 normal;
+			Vec3 point;
 		};
 		static float distance_plane2point(Plane* plane,Vec3 point);
 		static Plane* get_collided_wall(Object* obj, std::vector<Plane*> walls);

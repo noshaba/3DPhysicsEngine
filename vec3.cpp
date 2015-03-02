@@ -122,7 +122,7 @@ void Vec3::MinMaxExpand(Vec3& min, Vec3& max) const {
 }
 
 void Vec3::Print(char *c = NULL) const {
-  if(c == NULL)
+  if(!c)
     strcpy(c, "Vec3");
 
   printf("%s = (", c);

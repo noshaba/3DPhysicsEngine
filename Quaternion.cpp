@@ -6,6 +6,19 @@ Quaternion::Quaternion(const Vec3 &normal, float theta){
 	this->w = cos(theta);
 	this->axis = normal*sin(theta);
 }
+Quaternion::Quaternion(float w, const Vec3 &axis){
+	this->w = w;
+	this->axis = axis;
+}
+Quaternion::Quaternion(const Vec3 &ang_v){
+	float l = ang_v.Length();
+	float theta = l/2;
+	this->w = cos(theta);
+	if(l)
+		this->axis = (ang_v/(float)l)*sin(theta);
+	else 
+		this->axis = Null3;
+}
 const Quaternion Quaternion::operator*(const Quaternion& q) const{
 	Quaternion r;
 	Vec3 axs = this->axis;
@@ -28,7 +41,7 @@ const Quaternion Quaternion::operator+(const Quaternion &q) const{
 	r.axis = this->axis + q.axis;
 	return r;
 }
-const std::vector<std::vector<float> > Quaternion::matrix(){
+const std::vector<std::vector<float> > Quaternion::matrix() const{
 	float fTx  = 2.0f*this->axis.p[0];
 	float fTy  = 2.0f*this->axis.p[1];
 	float fTz  = 2.0f*this->axis.p[2];

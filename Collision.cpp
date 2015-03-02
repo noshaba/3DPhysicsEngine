@@ -46,6 +46,10 @@ Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	colli.overlap = sph->radius - colli.distance;
 	colli.normal = plane->normal;
 	colli.collision = colli.distance <= sph->radius;
+	if(colli.collision){
+		sph->pull(colli.normal,colli.overlap);
+		colli.point = sph->mass_center + colli.normal*sph->radius;
+	}
 	return colli;
 }
 Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
@@ -53,8 +57,13 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	colli.normal = sph1->mass_center - sph2->mass_center;
 	colli.distance = colli.normal.Length();
 	if(colli.distance) colli.normal /= colli.distance;
-	colli.overlap = .5*(sph1->radius+sph2->radius-colli.distance);
+	colli.overlap = sph1->radius+sph2->radius-colli.distance;
 	colli.collision = colli.distance <= sph1->radius + sph2->radius;
+	if(colli.collision){
+		sph1->pull(colli.normal,colli.overlap*.5);
+		sph2->pull(-colli.normal,colli.overlap*.5);
+		colli.point = sph1->mass_center - colli.normal*sph1->radius;
+	}
 	return colli;
 }
 Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
@@ -65,18 +74,26 @@ Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
 	if(colli.distance) colli.normal /= colli.distance;
 	colli.overlap = sph->radius - colli.distance;
 	colli.collision = colli.distance <= sph->radius;
+	if(colli.collision){
+		sph->pull(colli.normal,colli.overlap*.5);
+		cub->pull(-colli.normal,colli.overlap*.5);
+		colli.point = closest;
+	}
 	return colli;
 }
 Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	Collision_Info colli;
 	colli.normal = plane->normal;
 	colli.distance = distance_plane2point(plane,cub->mass_center);
-	float r = 0;
+	colli.point = Null3;
 	for(int i = 0; i < VEC_DIM; ++i){
-		r += cub->hl.p[i]*fabs(colli.normal*cub->axis_orientation[i]);
+		colli.point.p[i] = cub->hl.p[i]*(colli.normal*cub->axis_orientation[i]);
 	}
+	float r = colli.point.Length();
 	colli.overlap = r - colli.distance;
 	colli.collision = colli.distance <= r;
+	if(colli.collision)
+		cub->pull(colli.normal,colli.overlap);
 	return colli;
 }
 // bool Collision::sphere2aabb(Sphere* sph, Cuboid* cub){

@@ -27,7 +27,7 @@
 			std::vector<Vec3*> vertex_buffer;
 			bool is_selected = false;
 			virtual void draw(void) = 0;
-			virtual void material_color(int side, Vec3 color);
+			static void material_color(int side, Vec3 color);
 		protected:
 			Vec3* color;
 	};
@@ -76,7 +76,6 @@
 	
 	class Object : public Render_Object{
 		public:
-		
 			/// primary physics state
 			Vec3 mass_center_old  = Null3;	// position of the mass center in previous frame
 			Vec3 mass_center      = Null3;	// position of mass center
@@ -90,7 +89,6 @@
 			
 			/// tertiary physics state
 			Vec3 lin_acceleration = Null3;	// linear acceleration
-
 			
 			std::vector<std::vector<float> > inertia_tensor     = {{0,0,0},{0,0,0},{0,0,0}};
 			std::vector<std::vector<float> > inv_inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
@@ -103,13 +101,14 @@
 			float volume 		  = 0;
 			float volume_x3 	  = 0;
 			float radius 		  = 0;
-			void update_lin_velocity(Vec3 n, float P);
+			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
 			void old_mass_center(void);
 			void move(float dt, Vec3 acceleration);
 			void pull(Vec3 n, float overlap);
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
+			virtual void rotate(const Quaternion &q, const Vec3 rotation_point) = 0;
 			virtual void select(bool selection) = 0;
 		protected:
 			virtual void init_inertia_tensor(void) = 0;
@@ -139,6 +138,7 @@
 			Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity);
 			~Sphere(void);
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
+			void rotate(const Quaternion &q, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
 			void select(bool selection);
 			void draw(void);
@@ -162,6 +162,7 @@
 			std::vector<Vec3> axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
+			void rotate(const Quaternion &q, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
 			void select(bool selection);
 			void draw(void);

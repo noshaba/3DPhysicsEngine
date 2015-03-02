@@ -154,16 +154,16 @@
 		return result;
 	};
 	
-	inline std::vector<std::vector<float> > operator!(std::vector<std::vector<float> > mat33){
+	inline std::vector<std::vector<float> > operator!(std::vector<std::vector<float> > mat){
 		std::vector<std::vector<float> > inverse = {{0,0,0},{0,0,0},{0,0,0}};
-		if(mat33.size() == 3 && mat33[0].size() == 3){
+		if(mat.size() == 3 && mat[0].size() == 3){
 			float det3 = 0;
-			for(unsigned int i = 0; i < mat33.size(); ++i)
-				det3 += (mat33[0][i]*(mat33[1][(i+1)%3]*mat33[2][(i+2)%3] - mat33[1][(i+2)%3]*mat33[2][(i+1)%3]));
+			for(unsigned int i = 0; i < mat.size(); ++i)
+				det3 += (mat[0][i]*(mat[1][(i+1)%3]*mat[2][(i+2)%3] - mat[1][(i+2)%3]*mat[2][(i+1)%3]));
 			
-			for(unsigned int i = 0; i < mat33.size(); ++i)
-				for(unsigned int j = 0; j < mat33[0].size(); ++j)
-					inverse[j][i] = ((mat33[(i+1)%3][(j+1)%3] * mat33[(i+2)%3][(j+2)%3]) - (mat33[(i+1)%3][(j+2)%3]*mat33[(i+2)%3][(j+1)%3]))/det3;
+			for(unsigned int i = 0; i < mat.size(); ++i)
+				for(unsigned int j = 0; j < mat[0].size(); ++j)
+					inverse[j][i] = ((mat[(i+1)%3][(j+1)%3] * mat[(i+2)%3][(j+2)%3]) - (mat[(i+1)%3][(j+2)%3]*mat[(i+2)%3][(j+1)%3]))/det3;
 
 			return inverse;
 		}
@@ -181,25 +181,4 @@
 		std::cerr << "Matrix dimensions must agree!" << std::endl;
 		return Null3;
 	};
-	
-	// inline Vec3 operator|(std::vector<std::vector<float> > mat33, const Vec3& v3){
-		// if(mat33.size() == 3 && mat33[0].size() == 3){
-			// std::vector<std::vector<float> > v,result;
-			// std::vector<std::vector<float> > inverse = {{0,0,0},{0,0,0},{0,0,0}};
-			// float det3 = 0;
-			// for(unsigned int i = 0; i < mat33.size(); ++i)
-				// det3 += (mat33[0][i]*(mat33[1][(i+1)%3]*mat33[2][(i+2)%3] - mat33[1][(i+2)%3]*mat33[2][(i+1)%3]));
-			
-			// for(unsigned int i = 0; i < mat33.size(); ++i)
-				// for(unsigned int j = 0; j < mat33[0].size(); ++j)
-					// inverse[j][i] = ((mat33[(i+1)%3][(j+1)%3] * mat33[(i+2)%3][(j+2)%3]) - (mat33[(i+1)%3][(j+2)%3]*mat33[(i+2)%3][(j+1)%3]))/det3;
-			
-			// v = {{v3.p[0]},{v3.p[1]},{v3.p[2]}};
-			// result = inverse*v;
-			// return Vec3(result[0][0],result[1][0],result[2][0]);
-		// }
-		// std::cerr << "Matrix dimensions must agree!" << std::endl;
-		// return Null3;
-	// };
-	
 #endif
