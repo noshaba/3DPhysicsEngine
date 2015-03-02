@@ -193,12 +193,18 @@ void Plane::draw(void){
 void Object::set_lin_velocity(Vec3 velocity){
 	this->lin_velocity = velocity;
 	this->velocity = velocity.Length();
-	if(this->velocity != 0)
-		this->tangent = this->lin_velocity/this->velocity;
+	if(this->velocity)
+		this->lin_velocity_n = this->lin_velocity/this->velocity;
+}
+void Object::set_ang_velocity(Vec3 ang_velocity){
+	this->ang_velocity = ang_velocity;
+	this->omega = ang_velocity.Length();
+	if(this->omega)
+		this->ang_velocity_n = this->ang_velocity/this->omega;
 }
 void Object::update_velocities(Vec3 n, Vec3 r, float P){
 	this->set_lin_velocity(this->lin_velocity + P*n*this->inverse_mass);
-	this->ang_velocity = this->ang_velocity + (this->inv_inertia_tensor*(r%n))*P;
+	this->set_ang_velocity(this->ang_velocity + (this->inv_inertia_tensor*(r%n))*P);
 	// this->orientation.normalize();
 	// this->spin.axis = this->ang_velocity;
 	// this->spin = this->spin*0.5*this->orientation;
@@ -213,12 +219,16 @@ void Object::pull(Vec3 n, float overlap){
 }
 void Object::move(float dt, Vec3 acceleration){
 	this->mass_center_old = this->mass_center;
-	this->lin_acceleration = acceleration;
 	this->set_lin_velocity(this->lin_velocity + dt*acceleration);
 	this->mass_center = this->mass_center + dt*this->lin_velocity;
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); i++)
 		*(this->vertex_buffer[i]) += dt*this->lin_velocity;
 	// this->orientation = this->orientation + this->spin*dt;
+}
+void Object::integrate(float dt, Vec3 acceleration, Vec3 ang_acceleration){
+	this->move(dt,acceleration);
+	this->set_ang_velocity(this->ang_velocity+dt*ang_acceleration);
+	this->rotate(Quaternion(dt*ang_acceleration),this->mass_center);
 }
 // {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
  // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
@@ -533,6 +543,13 @@ void Cuboid::rotate(const Quaternion &q, const Vec3 rotation_point){
 	// std::vector<std::vector<float> > RT = ~R;
 	// this->inertia_tensor = R*this->inertia_tensor*RT;
 	// this->inv_inertia_tensor = !this->inertia_tensor;
+	// std::cout << "Cub I:" << std::endl;
+	// for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i){
+		// for(unsigned int j = 0; j < this->inertia_tensor[0].size(); ++j){
+			// std::cout << this->inertia_tensor[i][j] << ' ';
+		// }
+		// std::cout << std::endl;
+	// }
 }
 void Cuboid::draw(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)

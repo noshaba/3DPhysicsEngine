@@ -10,7 +10,7 @@ Plane* Collision::get_collided_wall(Object* obj, std::vector<Plane*> walls){
 	float hit_time;
 	float shortest_distance = FLT_MAX;
 	for(unsigned int i = 0; i < walls.size(); ++i){
-		hit_time = (obj->mass_center-*(walls[i]->vertex_buffer[0]))*walls[i]->normal/(obj->tangent*walls[i]->normal);
+		hit_time = (obj->mass_center-*(walls[i]->vertex_buffer[0]))*walls[i]->normal/(obj->lin_velocity_n*walls[i]->normal);
 		if(!hit_time || isnan(hit_time)){
 			return walls[i];
 		}

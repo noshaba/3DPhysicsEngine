@@ -83,12 +83,10 @@
 			
 			/// secondary physics state
 			Vec3 lin_velocity     = Null3;	// linear velocity in meters per second
-			Vec3 tangent          = Null3;	// direction of lin_velocity
+			Vec3 lin_velocity_n   = Null3;	// direction of lin_velocity
 			Vec3 ang_velocity     = Null3;	// angular velocity
+			Vec3 ang_velocity_n   = Null3;  // direction of ang_velocity
 			Quaternion spin 	  = Quaternion(Null3,180);  // quaternion rate of change in orientation
-			
-			/// tertiary physics state
-			Vec3 lin_acceleration = Null3;	// linear acceleration
 			
 			std::vector<std::vector<float> > inertia_tensor     = {{0,0,0},{0,0,0},{0,0,0}};
 			std::vector<std::vector<float> > inv_inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
@@ -101,10 +99,13 @@
 			float volume 		  = 0;
 			float volume_x3 	  = 0;
 			float radius 		  = 0;
+			Vec3 r 				  = Null3;
 			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
+			void set_ang_velocity(Vec3 ang_velocity);
 			void old_mass_center(void);
 			void move(float dt, Vec3 acceleration);
+			void integrate(float dt, Vec3 acceleration,Vec3 ang_acceleration);
 			void pull(Vec3 n, float overlap);
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;

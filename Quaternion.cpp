@@ -6,9 +6,11 @@ Quaternion::Quaternion(const Vec3 &normal, float theta){
 	this->w = cos(theta);
 	this->axis = normal*sin(theta);
 }
-Quaternion::Quaternion(float w, const Vec3 &axis){
+Quaternion::Quaternion(float w, const Vec3 axis){
 	this->w = w;
 	this->axis = axis;
+	if(this->axis.Length2()) this->axis.Normalize();
+	this->axis *= sin(this->w);
 }
 Quaternion::Quaternion(const Vec3 &ang_v){
 	float l = ang_v.Length();

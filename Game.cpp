@@ -54,5 +54,4 @@ void Game::rotate_selected_object(const Vec3 &n, float theta){
 void Game::draw(void){
 	this->cage->draw();
 	this->object_model->draw();
-	this->physics.draw_collision_point();
 }
