@@ -14,7 +14,6 @@
 			std::vector<Cuboid*> __cuboids;
 			float relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2, Vec3 n);
 			float relative_momentum(Object* obj, Vec3 r, Vec3 n);
-			float relative_momentum_wall(Object* obj, Vec3 n);
 		public:
 			bool frozen;
 			Physics(void);

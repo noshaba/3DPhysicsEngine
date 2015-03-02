@@ -4,7 +4,7 @@
 Physics::Physics(void){
 	this->frozen = false;
 	this->dt = 1/100.0;
-	this->gravity = Vec3(0,-9.81,0);
+	this->gravity = Vec3(0,0,0);
 }
 Physics::~Physics(void){}
 void Physics::add_cage(Cage* cage){
@@ -40,9 +40,6 @@ float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	float rv = n*(v+(w%r));
 	return -2*rv/(m+n*(((I*(r%n))%r)));
 }
-float Physics::relative_momentum_wall(Object* obj, Vec3 n){
-	return -2*(n*obj->lin_velocity)*obj->mass;
-}
 void Physics::draw_collision_point(void){
 	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,1,1));
 	glPointSize(10);
@@ -60,18 +57,16 @@ void Physics::update(void){
 			////////////////////////////////
 			// Movement & External Forces //
 			////////////////////////////////
-			__drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
-
-			__acceleration = this->gravity+__drag;
-			// __spheres[i]->move(this->dt,__acceleration);
+			// __drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
+			// __friction = -(__spheres[i]->drag_coeff*__spheres[i]->ang_velocity.Length2())*__spheres[i]->ang_velocity_n;
+			
+			__acceleration = this->gravity;
 			
 			__force  = __spheres[i]->mass*this->gravity;
 			__torque = __spheres[i]->r%__force;
-			
-			__friction = -(__spheres[i]->drag_coeff*__spheres[i]->mass*__spheres[i]->ang_velocity.Length2())*__spheres[i]->ang_velocity_n;
-			__ang_acceleration = __spheres[i]->inv_inertia_tensor*(__torque+__friction);
+		
+			__ang_acceleration = __spheres[i]->inv_inertia_tensor*(__torque);
 			__spheres[i]->integrate(this->dt,__acceleration,__ang_acceleration);
-			std::cout << __spheres[i]->omega << std::endl;
 			
 			//////////////////////////////////////////////////////////////////////
 			// If a sphere is too fast and moves out of the box pull it back in //
@@ -97,10 +92,6 @@ void Physics::update(void){
 					__spheres[i]->r = __r;
 					__P = this->relative_momentum(__spheres[i],__r,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__r,__P);
-					// __r.Print("r");
-					// __colli.point.Print("C");
-					// __colli.normal.Print("N");
-					// std::cout << __P << std::endl;
 				}
 			}
 			
@@ -117,15 +108,8 @@ void Physics::update(void){
 					__r_2 = __colli.point - __spheres[j]->mass_center;
 					__spheres[j]->r = __r_2;
 					__P = this->relative_momentum(__spheres[i],__spheres[j],__r_1,__r_2,__colli.normal);
-					// __spheres[i]->lin_velocity.Print("sph1");
-					// __spheres[j]->lin_velocity.Print("sph2");
 					__spheres[i]->update_velocities(__colli.normal,__r_1,__P);
 					__spheres[j]->update_velocities(__colli.normal,__r_2,-__P);
-					// __colli.point.Print("C");
-					// __spheres[i]->lin_velocity.Print("sph1");
-					// __spheres[j]->lin_velocity.Print("sph2");
-					// this->frozen = true;
-					// return;
 				}
 			}
 			
@@ -143,13 +127,6 @@ void Physics::update(void){
 					__P = this->relative_momentum(__spheres[i],__cuboids[j],__r_1,__r_2,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__r_1,__P);
 					__cuboids[j]->update_velocities(__colli.normal,__r_2,-__P);
-					// __r_1.Print("r1");
-					// __r_2.Print("r2");
-					// __colli.point.Print("C");
-					// __colli.normal.Print("N");
-					// std::cout << __P << std::endl;
-					// this->frozen = true;
-					// return;
 				}
 			}
 		}
@@ -160,16 +137,16 @@ void Physics::update(void){
 			////////////////////////////////
 			// Movement & External Forces //
 			////////////////////////////////
-			__drag = -(__cuboids[i]->drag_coeff*__cuboids[i]->inverse_mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->lin_velocity_n;
+			// __drag = -(__cuboids[i]->drag_coeff*__cuboids[i]->inverse_mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->lin_velocity_n;
+			// __friction = -(__cuboids[i]->drag_coeff*__cuboids[i]->ang_velocity.Length2())*__cuboids[i]->ang_velocity_n;
 
-			__acceleration = this->gravity+__drag;
-			// __cuboids[i]->move(this->dt,__acceleration);
+			__acceleration = this->gravity;
 			
-			__force  = __cuboids[i]->mass*__acceleration;
+			__force  = __cuboids[i]->mass*(this->gravity);
 			__torque = __cuboids[i]->r%__force;
 			
-			__friction = -(__cuboids[i]->drag_coeff*__cuboids[i]->mass*__cuboids[i]->ang_velocity.Length2())*__cuboids[i]->ang_velocity_n;
-			__ang_acceleration = __cuboids[i]->inv_inertia_tensor*(__torque+__friction);
+			__ang_acceleration = __cuboids[i]->inv_inertia_tensor*(__torque);
+			
 			__cuboids[i]->integrate(this->dt,__acceleration,__ang_acceleration);
 			
 			//////////////////////////////////////////////////////////////////////
