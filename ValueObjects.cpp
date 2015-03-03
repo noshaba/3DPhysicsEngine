@@ -304,6 +304,8 @@ void Sphere::init(float radius, Vec3 mass_center, float mass, float drag_coeff, 
 	this->init_vertex_buffer();
 	this->m_i = this->mass/(float) this->vertex_buffer.size();
 	this->update_volume();
+	this->static_friction  = 0.5f;
+	this->dynamic_friction = 0.3f; 
 }
 void Sphere::select(bool selection){
 	this->is_selected = selection;

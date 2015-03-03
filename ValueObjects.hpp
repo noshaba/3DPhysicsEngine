@@ -90,16 +90,19 @@
 			
 			std::vector<std::vector<float> > inertia_tensor     = {{0,0,0},{0,0,0},{0,0,0}};
 			std::vector<std::vector<float> > inv_inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
-			float drag_coeff  	  = 0;
-			float mass 	   		  = 0;
-			float m_i 			  = 0; 
-			float inverse_mass 	  = 0;
-			float omega           = 0;
-			float velocity        = 0;
-			float volume 		  = 0;
-			float volume_x3 	  = 0;
-			float radius 		  = 0;
-			Vec3 r 				  = Null3;
+			float drag_coeff  	   = 0;
+			float mass 	   		   = 0;
+			float m_i 			   = 0; 
+			float inverse_mass 	   = 0;
+			float omega            = 0;
+			float velocity         = 0;
+			float volume 		   = 0;
+			float volume_x3 	   = 0;
+			float radius 		   = 0;
+			float static_friction  = 0.4f;
+			float dynamic_friction = 0.2f; 
+			float restitution	   = 0.2f;
+			Vec3 r 				   = Null3;
 			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
 			void set_ang_velocity(Vec3 ang_velocity);
@@ -128,6 +131,9 @@
 			void rotate(const Vec3 &n, float theta);
 			void add_object(Object* object);
 			float volume_x3 = 12000;
+			float static_friction  = 0.4f;
+			float dynamic_friction = 0.2f; 
+			float restitution	   = 0.2f;
 		private:
 			std::vector<std::vector<unsigned int> > index_buffer;
 			void init_planes(void);

@@ -288,11 +288,12 @@ int main() {
 		return -1;
 	}
 	// init_scene();
-	Cuboid* cub = new Cuboid(Vec3(-1,-1,-1),Vec3(1,1,1),1,0, new Vec3(1,0,0));
-	Sphere* sph = new Sphere(1,Vec3(5,0,0),1,0, new Vec3(1,0,0), Vec3(-10,0,1));
-	game->add_cuboid(cub);
+	// Cuboid* cub = new Cuboid(Vec3(-1,-1,-1),Vec3(1,1,1),1,0, new Vec3(1,0,0), Vec3(-10,0,1));
+	// Sphere* sph = new Sphere(1,Vec3(5,0,0),1,0, new Vec3(1,0,0), Vec3(-10,1,1));
+	// sph->set_ang_velocity(Vec3(0,5,0));
+	// game->add_cuboid(cub);
 	// game->add_sphere(new Sphere(2,Vec3(0,0,0),1,0, new Vec3(1,0,0)));
-	game->add_sphere(sph);
+	// game->add_sphere(sph);
 	// std::cout << "Cub inv_I:" << std::endl;
 	// for(unsigned int i = 0; i < cub->inv_inertia_tensor.size(); ++i){
 		// for(unsigned int j = 0; j < cub->inv_inertia_tensor[0].size(); ++j){
