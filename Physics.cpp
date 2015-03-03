@@ -4,7 +4,7 @@
 Physics::Physics(void){
 	this->frozen = false;
 	this->dt = 1/100.0;
-	this->gravity = Vec3(0,0,0);
+	this->gravity = Vec3(0,-9.81,0);
 }
 Physics::~Physics(void){}
 void Physics::add_cage(Cage* cage){
@@ -41,7 +41,7 @@ float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	return -2*rv/(m+n*(((I*(r%n))%r)));
 }
 void Physics::draw_collision_point(void){
-	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,1,1));
+	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,0,0));
 	glPointSize(10);
 	glBegin(GL_POINTS);
 	glNormal3f(0,0,1);
@@ -62,11 +62,11 @@ void Physics::update(void){
 			
 			__acceleration = this->gravity;
 			
-			__force  = __spheres[i]->mass*this->gravity;
-			__torque = __spheres[i]->r%__force;
+			// __force  = __spheres[i]->mass*this->gravity;
+			// __torque = __spheres[i]->r%__force;
 		
-			__ang_acceleration = __spheres[i]->inv_inertia_tensor*(__torque);
-			__spheres[i]->integrate(this->dt,__acceleration,__ang_acceleration);
+			// __ang_acceleration = __spheres[i]->inv_inertia_tensor*(__torque);
+			__spheres[i]->integrate(this->dt,__acceleration,Null3);
 			
 			//////////////////////////////////////////////////////////////////////
 			// If a sphere is too fast and moves out of the box pull it back in //
@@ -74,11 +74,7 @@ void Physics::update(void){
 
 			if(Collision::outside_scene(__spheres[i],__cage->planes)){
 				__spheres[i]->old_mass_center();
-				__n = Collision::get_collided_wall(__spheres[i],__cage->planes)->normal;
-				__r = -__spheres[i]->radius*__n;
-				__spheres[i]->r = __r;
-				__P = this->relative_momentum(__spheres[i],__r,__n);
-				__spheres[i]->update_velocities(__n,__r,__P);
+				Collision::pull_to_closest_wall(__spheres[i],__cage->planes);
 			}
 			
 			/////////////////////////////
@@ -92,6 +88,9 @@ void Physics::update(void){
 					__spheres[i]->r = __r;
 					__P = this->relative_momentum(__spheres[i],__r,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__r,__P);
+					__colli.point.Print("contact");
+					this->frozen = true;
+					return;
 				}
 			}
 			
@@ -142,12 +141,12 @@ void Physics::update(void){
 
 			__acceleration = this->gravity;
 			
-			__force  = __cuboids[i]->mass*(this->gravity);
-			__torque = __cuboids[i]->r%__force;
+			// __force  = __cuboids[i]->mass*(this->gravity);
+			// __torque = __cuboids[i]->r%__force;
 			
-			__ang_acceleration = __cuboids[i]->inv_inertia_tensor*(__torque);
+			// __ang_acceleration = __cuboids[i]->inv_inertia_tensor*(__torque);
 			
-			__cuboids[i]->integrate(this->dt,__acceleration,__ang_acceleration);
+			__cuboids[i]->integrate(this->dt,__acceleration,Null3);
 			
 			//////////////////////////////////////////////////////////////////////
 			// If a cuboid is too fast and moves out of the box pull it back in //
@@ -155,14 +154,7 @@ void Physics::update(void){
 
 			if(Collision::outside_scene(__cuboids[i],__cage->planes)){
 				__cuboids[i]->old_mass_center();
-				__n = Collision::get_collided_wall(__cuboids[i],__cage->planes)->normal;
-				__r = Null3;
-				for(int j = 0; j < VEC_DIM; ++j){
-					__r.p[j] = __cuboids[i]->hl.p[j]*(__n*__cuboids[i]->axis_orientation[j])-__cuboids[i]->mass_center.p[j];
-				}
-				__cuboids[i]->r = __r;
-				__P = this->relative_momentum(__cuboids[i],__r,__n);
-				__cuboids[i]->update_velocities(__n,__r,__P);
+				Collision::pull_to_closest_wall(__cuboids[i],__cage->planes);
 			}
 			
 			/////////////////////////////
@@ -176,6 +168,9 @@ void Physics::update(void){
 					__cuboids[i]->r = __r;
 					__P = this->relative_momentum(__cuboids[i],__r,__colli.normal);
 					__cuboids[i]->update_velocities(__colli.normal,__r,__P);
+					__colli.point.Print("contact");
+					this->frozen = true;
+					return;
 				}
 			}
 		}

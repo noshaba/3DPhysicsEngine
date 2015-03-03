@@ -16,6 +16,8 @@ class Collision{
 		static Plane* get_collided_wall(Object* obj, std::vector<Plane*> walls);
 		static Vec3 closest_point_on_OBB(Vec3 p, Cuboid* cub);
 		static bool outside_scene(Object* obj, std::vector<Plane*> walls);
+		static float radius_along_normal(Object* obj, Vec3 normal);
+		static void pull_to_closest_wall(Object* obj, std::vector<Plane*> walls);
 		// static bool sphere2aabb(Sphere* sph, Cuboid* cub);
 		static Collision_Info sphere2obb(Sphere* sph, Cuboid* cub);
 		static Collision_Info sphere2plane(Sphere* sph, Plane* plane);

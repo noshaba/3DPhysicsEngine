@@ -40,6 +40,26 @@ bool Collision::outside_scene(Object* obj, std::vector<Plane*> walls){
 			return true;
 	return false;
 }
+float Collision::radius_along_normal(Object* obj, Vec3 normal){
+	if(Sphere* sph = dynamic_cast<Sphere*>(obj))
+		return sph->radius;
+	if(Cuboid* cub = dynamic_cast<Cuboid*>(obj)){
+		Vec3 r = Null3;
+		for(int i = 0; i < VEC_DIM; ++i){
+			r.p[i] = cub->hl.p[i]*(normal*cub->axis_orientation[i]);
+		}
+		return r.Length();
+	}
+}
+void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
+	Plane* plane = Collision::get_collided_wall(obj,walls);
+	Collision_Info colli;
+	colli.normal = plane->normal;
+	colli.distance = distance_plane2point(plane,obj->mass_center);
+	float r = radius_along_normal(obj,colli.normal);
+	colli.overlap = r - colli.distance;
+	obj->pull(colli.normal,colli.overlap);
+}
 Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	Collision_Info colli;
 	colli.distance = distance_plane2point(plane,sph->mass_center);
@@ -48,7 +68,7 @@ Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	colli.collision = colli.distance <= sph->radius;
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap);
-		colli.point = sph->mass_center + colli.normal*sph->radius;
+		colli.point = sph->mass_center - colli.normal*sph->radius;
 	}
 	return colli;
 }
@@ -85,15 +105,31 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	Collision_Info colli;
 	colli.normal = plane->normal;
 	colli.distance = distance_plane2point(plane,cub->mass_center);
-	colli.point = Null3;
+	Vec3 rv = Null3;
 	for(int i = 0; i < VEC_DIM; ++i){
-		colli.point.p[i] = cub->hl.p[i]*(colli.normal*cub->axis_orientation[i]);
+		rv.p[i] = cub->hl.p[i]*(colli.normal*cub->axis_orientation[i]);
 	}
-	float r = colli.point.Length();
+	float r = rv.Length();
 	colli.overlap = r - colli.distance;
 	colli.collision = colli.distance <= r;
-	if(colli.collision)
+	if(colli.collision){
 		cub->pull(colli.normal,colli.overlap);
+		float min = FLT_MAX;
+		float projection;
+		unsigned int num = 0;
+		for(unsigned int i = 0; i < cub->vertex_buffer.size(); ++i){
+			projection = *(cub->vertex_buffer[i])*colli.normal;
+			if(projection < min){
+				num = 1;
+				min = projection;
+				colli.point = *(cub->vertex_buffer[i]);
+			} else if(projection == min){
+				num++;
+				colli.point += *(cub->vertex_buffer[i]);
+			}
+		}
+		colli.point /= (float) num;
+	}
 	return colli;
 }
 // bool Collision::sphere2aabb(Sphere* sph, Cuboid* cub){
