@@ -205,9 +205,6 @@ void Object::set_ang_velocity(Vec3 ang_velocity){
 void Object::update_velocities(Vec3 n, Vec3 r, float P){
 	this->set_lin_velocity(this->lin_velocity + P*n*this->inverse_mass);
 	this->set_ang_velocity(this->ang_velocity + (this->inv_inertia_tensor*(r%n))*P);
-	// this->orientation.normalize();
-	// this->spin.axis = this->ang_velocity;
-	// this->spin = this->spin*0.5*this->orientation;
 }
 void Object::old_mass_center(void){
 	this->mass_center = this->mass_center_old;

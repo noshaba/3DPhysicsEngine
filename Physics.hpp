@@ -22,7 +22,6 @@
 			void add_sphere(Sphere* sphere);
 			void add_cuboid(Cuboid* cuboid);
 			void update(void);
-			void draw_collision_point(void);
 	};
 
 #endif

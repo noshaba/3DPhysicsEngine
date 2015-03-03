@@ -2,6 +2,16 @@
 
 #include "Collision.hpp"
 
+std::vector<Vec3> Collision::manifold;
+void Collision::draw_manifold(void){
+	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,0,0));
+	glPointSize(10);
+	glBegin(GL_POINTS);
+	glNormal3f(0,0,1);
+	for(unsigned int i = 0; i < Collision::manifold.size(); ++i)
+		glVertex3fv(Collision::manifold[i].p);
+	glEnd();
+}
 float Collision::distance_plane2point(Plane* plane,Vec3 point){
 	return fabs((point - *(plane->vertex_buffer[0]))*plane->normal); 
 }
@@ -61,6 +71,7 @@ void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
 	obj->pull(colli.normal,colli.overlap);
 }
 Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
+	sph->manifold.clear();
 	Collision_Info colli;
 	colli.distance = distance_plane2point(plane,sph->mass_center);
 	colli.overlap = sph->radius - colli.distance;
@@ -68,11 +79,14 @@ Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	colli.collision = colli.distance <= sph->radius;
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap);
-		colli.point = sph->mass_center - colli.normal*sph->radius;
+		sph->manifold.push_back(sph->mass_center - colli.normal*sph->radius);
+		Collision::manifold.push_back(sph->mass_center - colli.normal*sph->radius);
 	}
 	return colli;
 }
 Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
+	sph1->manifold.clear();
+	sph2->manifold.clear();
 	Collision_Info colli;
 	colli.normal = sph1->mass_center - sph2->mass_center;
 	colli.distance = colli.normal.Length();
@@ -82,11 +96,15 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	if(colli.collision){
 		sph1->pull(colli.normal,colli.overlap*.5);
 		sph2->pull(-colli.normal,colli.overlap*.5);
-		colli.point = sph1->mass_center - colli.normal*sph1->radius;
+		sph1->manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
+		sph2->manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
+		Collision::manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
 	}
 	return colli;
 }
 Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
+	sph->manifold.clear();
+	cub->manifold.clear();
 	Collision_Info colli;
 	Vec3 closest = Collision::closest_point_on_OBB(sph->mass_center,cub);
 	colli.normal = sph->mass_center - closest;
@@ -97,11 +115,14 @@ Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap*.5);
 		cub->pull(-colli.normal,colli.overlap*.5);
-		colli.point = closest;
+		sph->manifold.push_back(closest);
+		cub->manifold.push_back(closest);
+		Collision::manifold.push_back(closest);
 	}
 	return colli;
 }
 Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
+	cub->manifold.clear();
 	Collision_Info colli;
 	colli.normal = plane->normal;
 	colli.distance = distance_plane2point(plane,cub->mass_center);
@@ -116,19 +137,17 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 		cub->pull(colli.normal,colli.overlap);
 		float min = FLT_MAX;
 		float projection;
-		unsigned int num = 0;
 		for(unsigned int i = 0; i < cub->vertex_buffer.size(); ++i){
 			projection = *(cub->vertex_buffer[i])*colli.normal;
 			if(projection < min){
-				num = 1;
+				cub->manifold.clear();
 				min = projection;
-				colli.point = *(cub->vertex_buffer[i]);
+				cub->manifold.push_back(*(cub->vertex_buffer[i]));
 			} else if(projection == min){
-				num++;
-				colli.point += *(cub->vertex_buffer[i]);
+				cub->manifold.push_back(*(cub->vertex_buffer[i]));
 			}
 		}
-		colli.point /= (float) num;
+		Collision::manifold.insert(Collision::manifold.end(),cub->manifold.begin(),cub->manifold.end());
 	}
 	return colli;
 }

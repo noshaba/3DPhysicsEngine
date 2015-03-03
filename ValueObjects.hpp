@@ -88,6 +88,7 @@
 			Vec3 ang_velocity_n   = Null3;  // direction of ang_velocity
 			Quaternion spin 	  = Quaternion(Null3,180);  // quaternion rate of change in orientation
 			
+			std::vector<Vec3> manifold;
 			std::vector<std::vector<float> > inertia_tensor     = {{0,0,0},{0,0,0},{0,0,0}};
 			std::vector<std::vector<float> > inv_inertia_tensor = {{0,0,0},{0,0,0},{0,0,0}};
 			float drag_coeff  	  = 0;
@@ -99,7 +100,6 @@
 			float volume 		  = 0;
 			float volume_x3 	  = 0;
 			float radius 		  = 0;
-			Vec3 r 				  = Null3;
 			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
 			void set_ang_velocity(Vec3 ang_velocity);
