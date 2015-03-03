@@ -6,14 +6,14 @@
 
 	class Physics{
 		private:
-			float dt;
+			float dt, __P;
 			Vec3 gravity, __force, __torque, __acceleration, __ang_acceleration, __drag, __friction, __n, __r,__r_1, __r_2;
 			Collision::Collision_Info __colli;
 			Cage* __cage;
 			std::vector<Sphere*> __spheres;
 			std::vector<Cuboid*> __cuboids;
-			void apply_momenti(Object* obj, Vec3 r, Vec3 n);
-			void apply_momenti(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2, Vec3 n);
+			float relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2, Vec3 n);
+			float relative_momentum(Object* obj, Vec3 r, Vec3 n);
 		public:
 			bool frozen;
 			Physics(void);

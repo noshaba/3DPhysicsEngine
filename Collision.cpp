@@ -91,7 +91,6 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	}
 	float r = colli.point.Length();
 	colli.overlap = r - colli.distance;
-	colli.point += cub->mass_center;
 	colli.collision = colli.distance <= r;
 	if(colli.collision)
 		cub->pull(colli.normal,colli.overlap);
