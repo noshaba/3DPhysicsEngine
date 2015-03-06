@@ -173,7 +173,7 @@ void Physics::update(void){
 					// __cuboids[i]->manifold[k].Print("contact");
 					std::cout << "P: " << __P << std::endl;
 					__cuboids[i]->ang_velocity.Print("ang");
-					this->frozen = true;
+					// this->frozen = true;
 				}
 			}
 		}
