@@ -79,8 +79,9 @@ Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	colli.collision = colli.distance <= sph->radius;
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap);
-		sph->manifold.push_back(sph->mass_center - colli.normal*sph->radius);
-		Collision::manifold.push_back(sph->mass_center - colli.normal*sph->radius);
+		colli.point = sph->mass_center - colli.normal*sph->radius;
+		sph->manifold.push_back(colli.point);
+		Collision::manifold.push_back(colli.point);
 	}
 	return colli;
 }
@@ -96,9 +97,10 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	if(colli.collision){
 		sph1->pull(colli.normal,colli.overlap*.5);
 		sph2->pull(-colli.normal,colli.overlap*.5);
-		sph1->manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
-		sph2->manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
-		Collision::manifold.push_back(sph1->mass_center - colli.normal*sph1->radius);
+		colli.point = sph1->mass_center - colli.normal*sph1->radius;
+		sph1->manifold.push_back(colli.point);
+		sph2->manifold.push_back(colli.point);
+		Collision::manifold.push_back(colli.point);
 	}
 	return colli;
 }
@@ -115,6 +117,7 @@ Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap*.5);
 		cub->pull(-colli.normal,colli.overlap*.5);
+		colli.point = closest;
 		sph->manifold.push_back(closest);
 		cub->manifold.push_back(closest);
 		Collision::manifold.push_back(closest);
@@ -143,10 +146,13 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 				cub->manifold.clear();
 				min = projection;
 				cub->manifold.push_back(*(cub->vertex_buffer[i]));
+				colli.point = *(cub->vertex_buffer[i]);
 			} else if(projection == min){
 				cub->manifold.push_back(*(cub->vertex_buffer[i]));
+				colli.point += *(cub->vertex_buffer[i]);
 			}
 		}
+		colli.point /= (float) cub->manifold.size();
 		Collision::manifold.insert(Collision::manifold.end(),cub->manifold.begin(),cub->manifold.end());
 	}
 	return colli;

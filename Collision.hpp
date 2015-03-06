@@ -10,6 +10,7 @@ class Collision{
 			float distance;
 			float overlap;
 			Vec3 normal;
+			Vec3 point;
 		};
 		static std::vector<Vec3> manifold;
 		static void draw_manifold(void);

@@ -204,7 +204,7 @@ void Object::set_ang_velocity(Vec3 ang_velocity){
 }
 void Object::update_velocities(Vec3 n, Vec3 r, float P){
 	this->set_lin_velocity(this->lin_velocity + P*n*this->inverse_mass);
-	this->set_ang_velocity(this->ang_velocity + (this->inv_inertia_tensor*(r%n))*P);
+	this->set_ang_velocity(this->ang_velocity + this->inv_inertia_tensor*(r%n)*P);
 }
 void Object::old_mass_center(void){
 	this->mass_center = this->mass_center_old;
@@ -225,7 +225,7 @@ void Object::move(float dt, Vec3 acceleration){
 void Object::integrate(float dt, Vec3 acceleration, Vec3 ang_acceleration){
 	this->move(dt,acceleration);
 	this->set_ang_velocity(this->ang_velocity+dt*ang_acceleration);
-	this->rotate(Quaternion(this->ang_velocity*dt),this->mass_center);
+	if(this->ang_velocity != Null3) this->rotate(Matrix<float>(this->ang_velocity_n,this->omega*dt),this->mass_center);
 }
 // {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
  // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
@@ -268,12 +268,13 @@ void Cage::draw(void){
 		this->planes[i]->draw();
 }
 void Cage::rotate(const Vec3 &n, float theta){
-	Quaternion q(n,theta);
+	theta = theta*M_PI/180.0;
+	Matrix<float> R = Matrix<float>(n,theta);
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]));
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]));
 	
 	for(unsigned int i = 0; i < this->planes.size(); ++i)
-		this->planes[i]->normal = q*this->planes[i]->normal;
+		this->planes[i]->normal = R*this->planes[i]->normal;
 	
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
 		this->objects[i]->rotate(n,theta,Null3);
@@ -306,34 +307,31 @@ void Sphere::select(bool selection){
 	this->is_selected = selection;
 }
 void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
-	Quaternion q(n,theta);
+	theta = theta*M_PI/180.0;
+	Matrix<float> R = Matrix<float>(n,theta);
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
 	}
 	for(unsigned int i = 0; i < this->normals.size(); ++i){
-		this->normals[i] = q*this->normals[i];
+		this->normals[i] = R*this->normals[i];
 	}
-	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
-	std::vector<std::vector<float> > R  = q.matrix();
-	std::vector<std::vector<float> > RT = ~R;
-	this->inertia_tensor = R*this->inertia_tensor*RT;
+	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
-void Sphere::rotate(const Quaternion &q, const Vec3 rotation_point){
+void Sphere::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
 	}
 	for(unsigned int i = 0; i < this->normals.size(); ++i){
-		this->normals[i] = q*this->normals[i];
+		this->normals[i] = R*this->normals[i];
 	}
-	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
-	std::vector<std::vector<float> > R  = q.matrix();
-	std::vector<std::vector<float> > RT = ~R;
-	this->inertia_tensor = R*this->inertia_tensor*RT;
+	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 void Sphere::init_inertia_tensor(void){
-	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
+	for(unsigned int i = 0; i < this->inertia_tensor.rows; ++i)
 		this->inertia_tensor[i][i] = .4*this->mass*this->radius*this->radius;
 	this->inv_inertia_tensor = !this->inertia_tensor;	
 }
@@ -413,9 +411,10 @@ void Sphere::draw(void){
 Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color){
 	this->init(pmin,pmax,mass,drag_coeff,color);
 }
-Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity){
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 impuls, Vec3 orientation, float angle){
 	this->init(pmin,pmax,mass,drag_coeff,color);
-	this->set_lin_velocity(init_lin_velocity);
+	this->set_lin_velocity(impuls);
+	this->rotate(orientation,angle,this->mass_center);
 }
 Cuboid::~Cuboid(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)
@@ -471,7 +470,7 @@ void Cuboid::init_mass_center(void){
 }
 void Cuboid::init_inertia_tensor(void){
 	Vec3 s(this->pmax-this->pmin);
-	for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i)
+	for(unsigned int i = 0; i < this->inertia_tensor.rows; ++i)
 		this->inertia_tensor[i][i] = (this->mass/12.0)*(s*s-s.p[i]*s.p[i]);
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
@@ -509,36 +508,33 @@ void Cuboid::update_volume(void){
 	this->volume_x3 = 3*this->volume;
 }
 void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
-	Quaternion q(n,theta);
+	theta = theta*M_PI/180.0;
+	Matrix<float> R = Matrix<float>(n,theta);
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
 	}
 	for(unsigned int i = 0; i < this->planes.size(); ++i){
-		this->planes[i]->normal = q*this->planes[i]->normal;
+		this->planes[i]->normal = R*this->planes[i]->normal;
 	}
 	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
-		this->axis_orientation[i] = q*this->axis_orientation[i];
+		this->axis_orientation[i] = R*this->axis_orientation[i];
 	}
-	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
-	std::vector<std::vector<float> > R  = q.matrix();
-	std::vector<std::vector<float> > RT = ~R;
-	this->inertia_tensor = R*this->inertia_tensor*RT;
+	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
-void Cuboid::rotate(const Quaternion &q, const Vec3 rotation_point){
+void Cuboid::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
 	}
 	for(unsigned int i = 0; i < this->planes.size(); ++i){
-		this->planes[i]->normal = q*this->planes[i]->normal;
+		this->planes[i]->normal = R*this->planes[i]->normal;
 	}
 	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
-		this->axis_orientation[i] = q*this->axis_orientation[i];
+		this->axis_orientation[i] = R*this->axis_orientation[i];
 	}
-	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
-	std::vector<std::vector<float> > R  = q.matrix();
-	std::vector<std::vector<float> > RT = ~R;
-	this->inertia_tensor = R*this->inertia_tensor*RT;
+	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 	// std::cout << "Cub I:" << std::endl;
 	// for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i){
