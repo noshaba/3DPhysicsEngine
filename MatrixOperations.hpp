@@ -37,8 +37,6 @@
 				this->cols = this->mat[0].size();
 			}
 			
-			~Matrix(void){}
-			
 			std::vector<std::vector<T> > mat;
 			unsigned int rows, cols;
 			
@@ -48,13 +46,15 @@
 				cols = mat[0].size();
 			}
 			
-			void print(void){
+			void print(void) const{
+				std::cout << std::endl;
 				for(unsigned int i = 0; i < rows; ++i){
 					for(unsigned int j = 0; j < cols; ++j){
 						std::cout << mat[i][j] << ' ';
 					}
 					std::cout << std::endl;
 				}
+				std::cout << std::endl;
 			}
 			
 			inline std::vector<T> &operator[](unsigned int i) {
