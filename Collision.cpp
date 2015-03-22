@@ -4,7 +4,7 @@
 
 std::vector<Vec3> Collision::manifold;
 void Collision::draw_manifold(void){
-	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,0,0));
+	Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(1,1,0));
 	glPointSize(10);
 	glBegin(GL_POINTS);
 	glNormal3f(0,0,1);

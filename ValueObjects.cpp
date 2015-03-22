@@ -307,25 +307,27 @@ void Sphere::select(bool selection){
 	this->is_selected = selection;
 }
 void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
+	Quaternion q(n,theta);
 	theta = theta*M_PI/180.0;
 	Matrix<float> R = Matrix<float>(n,theta);
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
 	}
 	for(unsigned int i = 0; i < this->normals.size(); ++i){
-		this->normals[i] = R*this->normals[i];
+		this->normals[i] = q*this->normals[i];
 	}
 	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 void Sphere::rotate(const Matrix<float> &R, const Vec3 rotation_point){
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
-	}
-	for(unsigned int i = 0; i < this->normals.size(); ++i){
-		this->normals[i] = R*this->normals[i];
-	}
+	// Quaternion q(this->ang_velocity);
+	// for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
+		// *(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+	// }
+	// for(unsigned int i = 0; i < this->normals.size(); ++i){
+		// this->normals[i] = q*this->normals[i];
+	// }
 	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
@@ -382,7 +384,7 @@ void Sphere::draw(void){
 			glNormal3fv(this->normals[counter].p);
 			glVertex3fv(this->vertex_buffer[counter]->p);
 			counter++;
-			glNormal3fv((-this->normals[counter]).p);
+			glNormal3fv(this->normals[counter].p);
 			glVertex3fv(this->vertex_buffer[counter]->p);
 			counter++;
 		}
