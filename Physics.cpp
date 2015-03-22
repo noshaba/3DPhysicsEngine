@@ -3,7 +3,7 @@
 
 Physics::Physics(void){
 	this->frozen = false;
-	this->dt = 1/100.0;
+	this->dt = 1/120.0;
 	this->gravity = Vec3(0,-9.81,0);
 }
 Physics::~Physics(void){}
@@ -21,8 +21,8 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 	Vec3 v_2 = obj2->lin_velocity;
 	Vec3 w_1 = obj1->ang_velocity;
 	Vec3 w_2 = obj2->ang_velocity;
-	float m_1 = obj1->inverse_mass;
-	float m_2 = obj2->inverse_mass;
+	float m_1 = obj1->mass;
+	float m_2 = obj2->mass;
 	Matrix<float> I_1 = obj1->inv_inertia_tensor;
 	Matrix<float> I_2 = obj2->inv_inertia_tensor;
 	
@@ -34,23 +34,23 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	Vec3 v = obj->lin_velocity;
 	Vec3 w = obj->ang_velocity;
-	float m = obj->inverse_mass;
+	float m = obj->mass;
 	Matrix<float> I = obj->inv_inertia_tensor;
 	
 	float rv    = n*(v+(w%r));
 	float imsum = (m+n*(((I*(r%n))%r)));
-	n.Print("n");
-	v.Print("v");
-	w.Print("w");
-	r.Print("r");
-	std::cout << "rv: " << rv << std::endl;
-	std::cout << "imsum: " << imsum << std::endl;
-	std::cout << "I " << std::endl;
-	obj->inertia_tensor.print();
-	std::cout << std::endl;
-	std::cout << "Inv tensor" << std::endl;
-	I.print();
-	std::cout << std::endl;
+	// n.Print("n");
+	// v.Print("v");
+	// w.Print("w");
+	// r.Print("r");
+	// std::cout << "rv: " << rv << std::endl;
+	// std::cout << "imsum: " << imsum << std::endl;
+	// std::cout << "I " << std::endl;
+	// obj->inertia_tensor.print();
+	// std::cout << std::endl;
+	// std::cout << "Inv tensor" << std::endl;
+	// I.print();
+	// std::cout << std::endl;
 	return -2*rv/imsum;
 }
 void Physics::update(void){
@@ -128,7 +128,7 @@ void Physics::update(void){
 					__P = this->relative_momentum(__spheres[i],__cuboids[j],__r_1,__r_2,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__r_1,__P);
 					__cuboids[j]->update_velocities(__colli.normal,__r_2,-__P);
-					this->frozen = true;
+					// this->frozen = true;
 				}
 			}
 		}
@@ -171,9 +171,9 @@ void Physics::update(void){
 					__P = this->relative_momentum(__cuboids[i],__r,__colli.normal);
 					__cuboids[i]->update_velocities(__colli.normal,__r,__P);
 					// __cuboids[i]->manifold[k].Print("contact");
-					std::cout << "P: " << __P << std::endl;
-					__cuboids[i]->ang_velocity.Print("ang");
-					this->frozen = true;
+					// std::cout << "P: " << __P << std::endl;
+					// __cuboids[i]->ang_velocity.Print("ang");
+					// this->frozen = true;
 				}
 			}
 		}

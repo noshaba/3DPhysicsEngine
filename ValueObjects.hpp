@@ -141,6 +141,7 @@
 			void scale(int scale_dir, float factor);
 			void select(bool selection);
 			void draw(void);
+			Vec3 orientation;
 		private:
 			unsigned int res = 24;
 			void init(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color);
