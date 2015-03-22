@@ -158,7 +158,7 @@
 			~Cuboid(void);
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
-			Vec3 hl   = Null3;
+			std::vector<float> hl = {0,0,0};
 			std::vector<Vec3> axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);

@@ -34,7 +34,7 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	Vec3 v = obj->lin_velocity;
 	Vec3 w = obj->ang_velocity;
-	float m = obj->mass;
+	float m = obj->inverse_mass;
 	Matrix<float> I = obj->inv_inertia_tensor;
 	
 	float rv    = n*(v+(w%r));
@@ -64,15 +64,10 @@ void Physics::update(void){
 			////////////////////////////////
 			// Movement & External Forces //
 			////////////////////////////////
-			// __drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
-			// __friction = -(__spheres[i]->drag_coeff*__spheres[i]->ang_velocity.Length2())*__spheres[i]->ang_velocity_n;
+			__drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
 			
-			__acceleration = this->gravity;
+			__acceleration = this->gravity+__drag;
 			
-			// __force  = __spheres[i]->mass*this->gravity;
-			// __torque = __spheres[i]->r%__force;
-		
-			// __ang_acceleration = __spheres[i]->inv_inertia_tensor*(__torque);
 			__spheres[i]->integrate(this->dt,__acceleration,Null3);
 			
 			//////////////////////////////////////////////////////////////////////
@@ -139,15 +134,9 @@ void Physics::update(void){
 			////////////////////////////////
 			// Movement & External Forces //
 			////////////////////////////////
-			// __drag = -(__cuboids[i]->drag_coeff*__cuboids[i]->inverse_mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->lin_velocity_n;
-			// __friction = -(__cuboids[i]->drag_coeff*__cuboids[i]->ang_velocity.Length2())*__cuboids[i]->ang_velocity_n;
+			__drag = -(__cuboids[i]->drag_coeff*__cuboids[i]->inverse_mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->lin_velocity_n;
 
-			__acceleration = this->gravity;
-			
-			// __force  = __cuboids[i]->mass*(this->gravity);
-			// __torque = __cuboids[i]->r%__force;
-			
-			// __ang_acceleration = __cuboids[i]->inv_inertia_tensor*(__torque);
+			__acceleration = this->gravity+__drag;
 			
 			__cuboids[i]->integrate(this->dt,__acceleration,Null3);
 			
@@ -169,6 +158,7 @@ void Physics::update(void){
 				if(__colli.collision){
 					__r = __colli.point - __cuboids[i]->mass_center;
 					__P = this->relative_momentum(__cuboids[i],__r,__colli.normal);
+					__P*=.1;
 					__cuboids[i]->update_velocities(__colli.normal,__r,__P);
 					// __cuboids[i]->manifold[k].Print("contact");
 					// std::cout << "P: " << __P << std::endl;

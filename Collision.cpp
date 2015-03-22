@@ -36,10 +36,10 @@ Vec3 Collision::closest_point_on_OBB(Vec3 p, Cuboid* cub){
 	Vec3 distance_vec = p - cub->mass_center;
 	Vec3 closest = cub->mass_center;
 	float distance;
-	for(unsigned int i = 0; i < VEC_DIM; ++i){
+	for(unsigned int i = 0; i < cub->hl.size(); ++i){
 		distance = distance_vec * cub->axis_orientation[i];
-		if(distance >  cub->hl.p[i]) distance =  cub->hl.p[i];
-		if(distance < -cub->hl.p[i]) distance = -cub->hl.p[i];
+		if(distance >  cub->hl[i]) distance =  cub->hl[i];
+		if(distance < -cub->hl[i]) distance = -cub->hl[i];
 		closest += distance * cub->axis_orientation[i];
 	}
 	return closest;
@@ -55,8 +55,8 @@ float Collision::radius_along_normal(Object* obj, Vec3 normal){
 		return sph->radius;
 	if(Cuboid* cub = dynamic_cast<Cuboid*>(obj)){
 		Vec3 r = Null3;
-		for(int i = 0; i < VEC_DIM; ++i){
-			r.p[i] = cub->hl.p[i]*(normal*cub->axis_orientation[i]);
+		for(int i = 0; i < cub->hl.size(); ++i){
+			r.p[i] = cub->hl[i]*(normal*cub->axis_orientation[i]);
 		}
 		return r.Length();
 	}
@@ -130,8 +130,8 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	colli.normal = plane->normal;
 	colli.distance = distance_plane2point(plane,cub->mass_center);
 	Vec3 rv = Null3;
-	for(int i = 0; i < VEC_DIM; ++i){
-		rv.p[i] = cub->hl.p[i]*(colli.normal*cub->axis_orientation[i]);
+	for(int i = 0; i < cub->hl.size(); ++i){
+		rv.p[i] = cub->hl[i]*(colli.normal*cub->axis_orientation[i]);
 	}
 	float r = rv.Length();
 	colli.overlap = r - colli.distance;

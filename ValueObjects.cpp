@@ -277,7 +277,7 @@ void Cage::rotate(const Vec3 &n, float theta){
 		this->planes[i]->normal = R*this->planes[i]->normal;
 	
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
-		this->objects[i]->rotate(n,theta,Null3);
+		this->objects[i]->rotate(n,theta*100,Null3);
 }
 Sphere::Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color){
 	this->init(radius,mass_center,mass,drag_coeff,color);
@@ -316,7 +316,7 @@ void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->normals.size(); ++i){
 		this->normals[i] = q*this->normals[i];
 	}
-	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
@@ -328,7 +328,7 @@ void Sphere::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	// for(unsigned int i = 0; i < this->normals.size(); ++i){
 		// this->normals[i] = q*this->normals[i];
 	// }
-	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	// this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
@@ -428,7 +428,7 @@ Cuboid::~Cuboid(void){
 void Cuboid::init(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color){
 	this->pmin = pmin;
 	this->pmax = pmax;
-	for(unsigned int i = 0; i < VEC_DIM; ++i) this->hl.p[i] = (this->pmax.p[i] - this->pmin.p[i]) * .5;
+	for(unsigned int i = 0; i < this->hl.size(); ++i) this->hl[i] = (this->pmax.p[i] - this->pmin.p[i]) * .5;
 	this->mass = mass;
 	if(this->mass) this->inverse_mass = 1.0/mass;
 	this->drag_coeff = drag_coeff;
@@ -483,7 +483,8 @@ void Cuboid::scale(int scale_dir, float factor){
 				for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
 					*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
 			}
-			this->hl += Vec3(factor,factor,factor);
+			for(unsigned int i = 0; i < this->hl.size(); ++i)
+				this->hl[i] += factor;
 			this->pmax += Vec3(factor,factor,factor);
 			this->pmin -= Vec3(factor,factor,factor);
 		} else {
@@ -492,7 +493,7 @@ void Cuboid::scale(int scale_dir, float factor){
 				
 			for(unsigned int i = 0; i < this->planes[scale_dir*2+1]->vertex_buffer.size(); ++i)
 				*(this->planes[scale_dir*2+1]->vertex_buffer[i]) += this->planes[scale_dir*2+1]->normal * factor;
-			this->hl.p[scale_dir] += factor;
+			this->hl[scale_dir] += factor;
 			this->pmax.p[scale_dir] +=factor;
 			this->pmin.p[scale_dir] -= factor;
 		}
@@ -506,7 +507,7 @@ void Cuboid::select(bool selection){
 		this->planes[i]->is_selected = selection;
 }
 void Cuboid::update_volume(void){
-	this->volume    = this->hl.p[0] * this->hl.p[1] * this->hl.p[2] * 6;
+	this->volume    = this->hl[0] * this->hl[1] * this->hl[2] * 6;
 	this->volume_x3 = 3*this->volume;
 }
 void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
