@@ -11,6 +11,8 @@ class Collision{
 			float overlap;
 			Vec3 normal;
 			Vec3 point;
+			Vec3 r_1;
+			Vec3 r_2;
 		};
 		static std::vector<Vec3> manifold;
 		static void draw_manifold(void);
@@ -20,7 +22,7 @@ class Collision{
 		static bool outside_scene(Object* obj, std::vector<Plane*> walls);
 		static float radius_along_normal(Object* obj, Vec3 normal);
 		static void pull_to_closest_wall(Object* obj, std::vector<Plane*> walls);
-		// static bool sphere2aabb(Sphere* sph, Cuboid* cub);
+		static Vec3 obb2axis_contact_point(Cuboid* cub, Vec3 n);
 		static Collision_Info sphere2obb(Sphere* sph, Cuboid* cub);
 		static Collision_Info sphere2plane(Sphere* sph, Plane* plane);
 		static Collision_Info sphere2sphere(Sphere* sph1, Sphere* sph2);

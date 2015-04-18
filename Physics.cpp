@@ -21,8 +21,8 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 	Vec3 v_2 = obj2->lin_velocity;
 	Vec3 w_1 = obj1->ang_velocity;
 	Vec3 w_2 = obj2->ang_velocity;
-	float m_1 = obj1->mass;
-	float m_2 = obj2->mass;
+	float m_1 = obj1->inverse_mass;
+	float m_2 = obj2->inverse_mass;
 	Matrix<float> I_1 = obj1->inv_inertia_tensor;
 	Matrix<float> I_2 = obj2->inv_inertia_tensor;
 	
@@ -86,9 +86,8 @@ void Physics::update(void){
 			for(unsigned int j = 0; j < __cage->planes.size(); ++j){
 				__colli = Collision::sphere2plane(__spheres[i],__cage->planes[j]);
 				if(__colli.collision){
-					__r = __colli.point - __spheres[i]->mass_center;
-					__P = this->relative_momentum(__spheres[i],__r,__colli.normal);
-					__spheres[i]->update_velocities(__colli.normal,__r,__P);
+					__P = this->relative_momentum(__spheres[i],__colli.r_1,__colli.normal);
+					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
 					// __spheres[i]->manifold[0].Print("contact");
 					// this->frozen = true;
 				}
@@ -102,11 +101,9 @@ void Physics::update(void){
 				if(i==j) continue;
 				__colli = Collision::sphere2sphere(__spheres[i],__spheres[j]);
 				if(__colli.collision){
-					__r_1 = __colli.point - __spheres[i]->mass_center;
-					__r_2 = __colli.point - __spheres[j]->mass_center;
-					__P = this->relative_momentum(__spheres[i],__spheres[j],__r_1,__r_2,__colli.normal);
-					__spheres[i]->update_velocities(__colli.normal,__r_1,__P);
-					__spheres[j]->update_velocities(__colli.normal,__r_2,-__P);
+					__P = this->relative_momentum(__spheres[i],__spheres[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__spheres[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 					// this->frozen = true;
 				}
 			}
@@ -118,11 +115,9 @@ void Physics::update(void){
 			for(unsigned int j = 0; j < __cuboids.size(); ++j){
 				__colli = Collision::sphere2obb(__spheres[i],__cuboids[j]);
 				if(__colli.collision){
-					__r_1 = __colli.point - __spheres[i]->mass_center;
-					__r_2 = __colli.point - __cuboids[j]->mass_center;
-					__P = this->relative_momentum(__spheres[i],__cuboids[j],__r_1,__r_2,__colli.normal);
-					__spheres[i]->update_velocities(__colli.normal,__r_1,__P);
-					__cuboids[j]->update_velocities(__colli.normal,__r_2,-__P);
+					__P = this->relative_momentum(__spheres[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__cuboids[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 					// this->frozen = true;
 				}
 			}
@@ -156,10 +151,9 @@ void Physics::update(void){
 			for(unsigned int j = 0; j < __cage->planes.size(); ++j){
 				__colli = Collision::obb2plane(__cuboids[i],__cage->planes[j]);
 				if(__colli.collision){
-					__r = __colli.point - __cuboids[i]->mass_center;
-					__P = this->relative_momentum(__cuboids[i],__r,__colli.normal);
+					__P = this->relative_momentum(__cuboids[i],__colli.r_1,__colli.normal);
 					__P*=.1;
-					__cuboids[i]->update_velocities(__colli.normal,__r,__P);
+					__cuboids[i]->update_velocities(__colli.normal,__colli.r_1,__P);
 					// __cuboids[i]->manifold[k].Print("contact");
 					// std::cout << "P: " << __P << std::endl;
 					// __cuboids[i]->ang_velocity.Print("ang");
@@ -175,7 +169,9 @@ void Physics::update(void){
 				if(i==j) continue;
 				__colli = Collision::obb2obb(__cuboids[i],__cuboids[j]);
 				if(__colli.collision){
-					// TODO
+					__P = this->relative_momentum(__cuboids[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__cuboids[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__cuboids[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 				}
 			}
 		}
