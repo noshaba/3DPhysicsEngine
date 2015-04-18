@@ -67,6 +67,7 @@
 			Vec3 normal;
 			Plane(std::vector<Vec3*> vertex_buffer, Vec3* color);
 			Plane(std::vector<Vec3*> vertex_buffer);
+			Plane(Vec3 normal, Vec3 p);
 			~Plane(void);
 			void draw(void);
 			void del(void);
@@ -160,6 +161,7 @@
 			Vec3 pmax = Null3;
 			std::vector<float> hl = {0,0,0};
 			std::vector<Vec3> axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+			std::vector<Vec3> edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);

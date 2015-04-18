@@ -150,6 +150,10 @@ Plane::Plane(std::vector<Vec3*> vertex_buffer){
 	this->vertex_buffer = vertex_buffer;
 	this->init_plane_normal();
 }
+Plane::Plane(Vec3 normal, Vec3 p){
+	this->normal = normal;
+	this->vertex_buffer.push_back(new Vec3(p));
+}
 Plane::~Plane(void){}
 void Plane::del(void){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); i++){
@@ -522,6 +526,7 @@ void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
 		this->axis_orientation[i] = R*this->axis_orientation[i];
 	}
+	this->edge_orientation = this->axis_orientation;
 	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
@@ -536,6 +541,7 @@ void Cuboid::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
 		this->axis_orientation[i] = R*this->axis_orientation[i];
 	}
+	this->edge_orientation = this->axis_orientation;
 	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;

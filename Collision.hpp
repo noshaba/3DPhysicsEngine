@@ -25,6 +25,8 @@ class Collision{
 		static Collision_Info sphere2plane(Sphere* sph, Plane* plane);
 		static Collision_Info sphere2sphere(Sphere* sph1, Sphere* sph2);
 		static Collision_Info obb2plane(Cuboid* cub, Plane* plane);
+		static Collision_Info obb2sepAxis(Cuboid* cub1, Cuboid* cub2, Vec3 n, Vec3 T);
+		static Collision_Info obb2obb(Cuboid* cub1, Cuboid* cub2);
 };
 
 #endif

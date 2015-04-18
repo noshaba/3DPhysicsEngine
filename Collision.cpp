@@ -157,13 +157,63 @@ Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
 	}
 	return colli;
 }
-// bool Collision::sphere2aabb(Sphere* sph, Cuboid* cub){
-	// float distance = 0;
-	// for(unsigned int i = 0; i < VEC_DIM; ++i){
-		// if(sph->mass_center.p[i] < cub->pmin.p[i])
-			// distance += (sph->mass_center.p[i]-cub->pmin.p[i])*(sph->mass_center.p[i]-cub->pmin.p[i]);
-		// else if(sph->mass_center.p[i] > cub->pmax.p[i])
-			// distance += (sph->mass_center.p[i]-cub->pmax.p[i])*(sph->mass_center.p[i]-cub->pmax.p[i]);
-	// }
-	// return distance <= sph->radius*sph->radius;
-// }
+Collision::Collision_Info Collision::obb2sepAxis(Cuboid* cub1, Cuboid* cub2, Vec3 n, Vec3 T){
+	Collision_Info colli;
+	colli.distance = T*n;
+	if(colli.distance > 0) n = -n;
+	colli.normal = n;
+	colli.distance = fabs(colli.distance);
+	float r = 0;
+	for(unsigned int i = 0; i < cub1->hl.size(); ++i)
+		r += fabs(cub1->hl[i]*cub1->axis_orientation[i]*n);
+	for(unsigned int i = 0; i < cub2->hl.size(); ++i)
+		r += fabs(cub2->hl[i]*cub2->axis_orientation[i]*n);
+	colli.overlap = r - colli.distance;
+	colli.collision = colli.distance <= r;
+	return colli;
+}
+Collision::Collision_Info Collision::obb2obb(Cuboid* cub1, Cuboid* cub2){
+	cub1->manifold.clear();
+	cub2->manifold.clear();
+	Collision_Info colli;
+	colli.overlap = FLT_MAX;
+	Vec3 T = cub2->mass_center - cub1->mass_center;
+	Collision_Info c;
+	for(unsigned int i = 0; i < cub1->axis_orientation.size(); ++i){
+		c = obb2sepAxis(cub1,cub2,cub1->axis_orientation[i],T);
+		if(!c.collision){
+			colli.collision = false;
+			return colli;
+		}
+		if(c.overlap < colli.overlap)
+			colli = c;
+	}
+	for(unsigned int i = 0; i < cub2->axis_orientation.size(); ++i){
+		c = obb2sepAxis(cub1,cub2,cub2->axis_orientation[i],T);
+		if(!c.collision){
+			colli.collision = false;
+			return colli;
+		}
+		if(c.overlap < colli.overlap)
+			colli = c;
+	}
+	Vec3 n;
+	for(unsigned int i = 0; i < cub1->edge_orientation.size(); ++i){
+		for(unsigned int j = 0; j < cub2->edge_orientation.size(); ++j){
+			n = cub1->edge_orientation[i]%cub2->edge_orientation[j];
+			if(n.Length2() != 1) continue;
+			c = obb2sepAxis(cub1,cub2,n,T);
+			if(!c.collision){
+				colli.collision = false;
+				return colli;
+			}
+			if(c.overlap < colli.overlap)
+				colli = c;
+		}
+	}
+	if(colli.collision){
+		cub1->pull(colli.normal,colli.overlap*.5);
+		cub2->pull(-colli.normal,colli.overlap*.5);
+	}
+	return colli;
+}

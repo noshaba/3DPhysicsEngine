@@ -166,6 +166,18 @@ void Physics::update(void){
 					// this->frozen = true;
 				}
 			}
+			
+			/////////////////////////////////////
+			// Collision against other cuboids //
+			/////////////////////////////////////
+			
+			for(unsigned int j = 0; j < __cuboids.size(); ++j){
+				if(i==j) continue;
+				__colli = Collision::obb2obb(__cuboids[i],__cuboids[j]);
+				if(__colli.collision){
+					// TODO
+				}
+			}
 		}
 	}
 }
