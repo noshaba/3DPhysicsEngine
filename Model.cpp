@@ -62,6 +62,11 @@ void Object_Model::rotate_selected_object(const Vec3 &n, float theta){
 		this->selected_object->rotate(n,theta,this->selected_object->mass_center);
 	}
 }
+void Object_Model::move_selected_object(const Vec3 &n, float factor){
+	if(this->selected_object){
+		this->selected_object->pull(n,factor);
+	}
+}
 void Object_Model::draw(void){
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
 		this->objects[i]->draw();

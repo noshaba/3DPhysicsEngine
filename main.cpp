@@ -172,6 +172,24 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				case GLFW_KEY_RIGHT:
 					game->rotate_selected_object(YVec3,5);
 					break;
+				case GLFW_KEY_W:
+					game->move_selected_object(view->camera->direction,-.1);
+					break;
+				case GLFW_KEY_S:
+					game->move_selected_object(view->camera->direction,.1);
+					break;
+				case GLFW_KEY_A:
+					game->move_selected_object(view->camera->horizontal,-.1);
+					break;
+				case GLFW_KEY_D:
+					game->move_selected_object(view->camera->horizontal,.1);
+					break;
+				case GLFW_KEY_X:
+					game->move_selected_object(YVec3,-.1);
+					break;
+				case GLFW_KEY_SPACE:
+					game->move_selected_object(YVec3,.1);
+					break;
 			}
 		} else {
 			switch(key){
@@ -212,6 +230,24 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 					break;
 				case GLFW_KEY_RIGHT:
 					game->rotate_selected_object(YVec3,5);
+					break;
+				case GLFW_KEY_W:
+					game->move_selected_object(view->camera->direction,-.1);
+					break;
+				case GLFW_KEY_S:
+					game->move_selected_object(view->camera->direction,.1);
+					break;
+				case GLFW_KEY_A:
+					game->move_selected_object(view->camera->horizontal,-.1);
+					break;
+				case GLFW_KEY_D:
+					game->move_selected_object(view->camera->horizontal,.1);
+					break;
+				case GLFW_KEY_X:
+					game->move_selected_object(YVec3,-.1);
+					break;
+				case GLFW_KEY_SPACE:
+					game->move_selected_object(YVec3,.1);
 					break;
 			}
 		} else {

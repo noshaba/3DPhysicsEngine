@@ -17,6 +17,7 @@
 			void deselect_all_objects(void);
 			void scale_selected_object(int scale_dir, float factor);
 			void rotate_selected_object(const Vec3 &n, float theta);
+			void move_selected_object(const Vec3 &n, float factor);
 			void draw(void);
 	};
 
