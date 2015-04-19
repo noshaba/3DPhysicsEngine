@@ -32,15 +32,15 @@ Plane* Collision::get_collided_wall(Object* obj, std::vector<Plane*> walls){
 	}
 	return collided_wall;
 }
-Vec3 Collision::closest_point_on_OBB(Vec3 p, Cuboid* cub){
-	Vec3 distance_vec = p - cub->mass_center;
-	Vec3 closest = cub->mass_center;
+Vec3 Collision::closest_point_on_poly(Vec3 p, Polyhedron* poly){
+	Vec3 distance_vec = p - poly->mass_center;
+	Vec3 closest = poly->mass_center;
 	float distance;
-	for(unsigned int i = 0; i < cub->hl.size(); ++i){
-		distance = distance_vec * cub->axis_orientation[i];
-		if(distance >  cub->hl[i]) distance =  cub->hl[i];
-		if(distance < -cub->hl[i]) distance = -cub->hl[i];
-		closest += distance * cub->axis_orientation[i];
+	for(unsigned int i = 0; i < poly->hl.size(); ++i){
+		distance = distance_vec * poly->axis_orientation[i];
+		if(distance >  poly->hl[i]) distance =  poly->hl[i];
+		if(distance < -poly->hl[i]) distance = -poly->hl[i];
+		closest += distance * poly->axis_orientation[i];
 	}
 	return closest;
 }
@@ -50,15 +50,15 @@ bool Collision::outside_scene(Object* obj, std::vector<Plane*> walls){
 			return true;
 	return false;
 }
-float Collision::radius_along_normal(Object* obj, Vec3 normal){
+float Collision::radius_along_normal(Object* obj, Vec3 n){
 	if(Sphere* sph = dynamic_cast<Sphere*>(obj))
 		return sph->radius;
-	if(Cuboid* cub = dynamic_cast<Cuboid*>(obj)){
-		Vec3 r = Null3;
-		for(int i = 0; i < cub->hl.size(); ++i){
-			r.p[i] = cub->hl[i]*(normal*cub->axis_orientation[i]);
+	if(Polyhedron* poly = dynamic_cast<Polyhedron*>(obj)){
+		float r = 0;
+		for(int i = 0; i < poly->hl.size(); ++i){
+			r += fabs(poly->hl[i]*poly->axis_orientation[i]*n);
 		}
-		return r.Length();
+		return r;
 	}
 }
 void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
@@ -69,26 +69,6 @@ void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
 	float r = radius_along_normal(obj,colli.normal);
 	colli.overlap = r - colli.distance;
 	obj->pull(colli.normal,colli.overlap);
-}
-Vec3 Collision::obb2axis_contact_point(Cuboid* cub, Vec3 n){
-	Vec3 contact_point;
-	float min = FLT_MAX;
-	float projection;
-	for(unsigned int i = 0; i < cub->vertex_buffer.size(); ++i){
-	projection = *(cub->vertex_buffer[i])*n;
-		if(projection < min){
-			cub->manifold.clear();
-			min = projection;
-			cub->manifold.push_back(*(cub->vertex_buffer[i]));
-			contact_point = *(cub->vertex_buffer[i]);
-		} else if(projection == min){
-			cub->manifold.push_back(*(cub->vertex_buffer[i]));
-			contact_point += *(cub->vertex_buffer[i]);
-		}
-	}
-	contact_point /= (float) cub->manifold.size();
-	Collision::manifold.insert(Collision::manifold.end(),cub->manifold.begin(),cub->manifold.end());
-	return contact_point;
 }
 Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	sph->manifold.clear();
@@ -127,11 +107,11 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	}
 	return colli;
 }
-Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
+Collision::Collision_Info Collision::sphere2poly(Sphere* sph, Polyhedron* poly){
 	sph->manifold.clear();
-	cub->manifold.clear();
+	poly->manifold.clear();
 	Collision_Info colli;
-	Vec3 closest = Collision::closest_point_on_OBB(sph->mass_center,cub);
+	Vec3 closest = Collision::closest_point_on_poly(sph->mass_center,poly);
 	colli.normal = sph->mass_center - closest;
 	colli.distance = colli.normal.Length();
 	if(colli.distance) colli.normal /= colli.distance;
@@ -139,59 +119,73 @@ Collision::Collision_Info Collision::sphere2obb(Sphere* sph, Cuboid* cub){
 	colli.collision = colli.distance <= sph->radius;
 	if(colli.collision){
 		sph->pull(colli.normal,colli.overlap*.5);
-		cub->pull(-colli.normal,colli.overlap*.5);
+		poly->pull(-colli.normal,colli.overlap*.5);
 		colli.point = closest;
 		sph->manifold.push_back(closest);
-		cub->manifold.push_back(closest);
+		poly->manifold.push_back(closest);
 		Collision::manifold.push_back(closest);
 		colli.r_1 = colli.point - sph->mass_center;
-		colli.r_2 = colli.point - cub->mass_center;
+		colli.r_2 = colli.point - poly->mass_center;
 	}
 	return colli;
 }
-Collision::Collision_Info Collision::obb2plane(Cuboid* cub, Plane* plane){
-	cub->manifold.clear();
+Vec3 Collision::poly2axis_contact_point(Polyhedron* poly, Vec3 n){
+	Vec3 contact_point;
+	float min = FLT_MAX;
+	float projection;
+	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
+	projection = *(poly->vertex_buffer[i])*n;
+		if(projection < min){
+			poly->manifold.clear();
+			min = projection;
+			poly->manifold.push_back(*(poly->vertex_buffer[i]));
+			contact_point = *(poly->vertex_buffer[i]);
+		} else if(projection == min){
+			poly->manifold.push_back(*(poly->vertex_buffer[i]));
+			contact_point += *(poly->vertex_buffer[i]);
+		}
+	}
+	contact_point /= (float) poly->manifold.size();
+	Collision::manifold.insert(Collision::manifold.end(),poly->manifold.begin(),poly->manifold.end());
+	return contact_point;
+}
+Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
+	poly->manifold.clear();
 	Collision_Info colli;
 	colli.normal = plane->normal;
-	colli.distance = distance_plane2point(plane,cub->mass_center);
-	Vec3 rv = Null3;
-	for(int i = 0; i < cub->hl.size(); ++i){
-		rv.p[i] = cub->hl[i]*(colli.normal*cub->axis_orientation[i]);
-	}
-	float r = rv.Length();
+	colli.distance = distance_plane2point(plane,poly->mass_center);
+	float r = radius_along_normal(poly, plane->normal);
 	colli.overlap = r - colli.distance;
 	colli.collision = colli.distance <= r;
 	if(colli.collision){
-		cub->pull(colli.normal,colli.overlap);
-		colli.point = obb2axis_contact_point(cub, colli.normal);
-		colli.r_1 = colli.point - cub->mass_center;
+		poly->pull(colli.normal,colli.overlap);
+		colli.point = poly2axis_contact_point(poly, colli.normal);
+		colli.r_1 = colli.point - poly->mass_center;
 	}
 	return colli;
 }
-Collision::Collision_Info Collision::obb2sepAxis(Cuboid* cub1, Cuboid* cub2, Vec3 n, Vec3 T){
+Collision::Collision_Info Collision::poly2sepAxis(Polyhedron* poly1, Polyhedron* poly2, Vec3 n, Vec3 T){
 	Collision_Info colli;
 	colli.distance = T*n;
 	if(colli.distance > 0) n = -n;
 	colli.normal = n;
 	colli.distance = fabs(colli.distance);
 	float r = 0;
-	for(unsigned int i = 0; i < cub1->hl.size(); ++i)
-		r += fabs(cub1->hl[i]*cub1->axis_orientation[i]*n);
-	for(unsigned int i = 0; i < cub2->hl.size(); ++i)
-		r += fabs(cub2->hl[i]*cub2->axis_orientation[i]*n);
+	r += radius_along_normal(poly1,n);
+	r += radius_along_normal(poly2,n);
 	colli.overlap = r - colli.distance;
 	colli.collision = colli.distance <= r;
 	return colli;
 }
-Collision::Collision_Info Collision::obb2obb(Cuboid* cub1, Cuboid* cub2){
-	cub1->manifold.clear();
-	cub2->manifold.clear();
+Collision::Collision_Info Collision::poly2poly(Polyhedron* poly1, Polyhedron* poly2){
+	poly1->manifold.clear();
+	poly2->manifold.clear();
 	Collision_Info colli;
 	colli.overlap = FLT_MAX;
-	Vec3 T = cub2->mass_center - cub1->mass_center;
+	Vec3 T = poly2->mass_center - poly1->mass_center;
 	Collision_Info c;
-	for(unsigned int i = 0; i < cub1->axis_orientation.size(); ++i){
-		c = obb2sepAxis(cub1,cub2,cub1->axis_orientation[i],T);
+	for(unsigned int i = 0; i < poly1->axis_orientation.size(); ++i){
+		c = poly2sepAxis(poly1,poly2,poly1->axis_orientation[i],T);
 		if(!c.collision){
 			colli.collision = false;
 			return colli;
@@ -199,8 +193,8 @@ Collision::Collision_Info Collision::obb2obb(Cuboid* cub1, Cuboid* cub2){
 		if(c.overlap < colli.overlap)
 			colli = c;
 	}
-	for(unsigned int i = 0; i < cub2->axis_orientation.size(); ++i){
-		c = obb2sepAxis(cub1,cub2,cub2->axis_orientation[i],T);
+	for(unsigned int i = 0; i < poly2->axis_orientation.size(); ++i){
+		c = poly2sepAxis(poly1,poly2,poly2->axis_orientation[i],T);
 		if(!c.collision){
 			colli.collision = false;
 			return colli;
@@ -209,11 +203,11 @@ Collision::Collision_Info Collision::obb2obb(Cuboid* cub1, Cuboid* cub2){
 			colli = c;
 	}
 	Vec3 n;
-	for(unsigned int i = 0; i < cub1->edge_orientation.size(); ++i){
-		for(unsigned int j = 0; j < cub2->edge_orientation.size(); ++j){
-			n = cub1->edge_orientation[i]%cub2->edge_orientation[j];
+	for(unsigned int i = 0; i < poly1->edge_orientation.size(); ++i){
+		for(unsigned int j = 0; j < poly2->edge_orientation.size(); ++j){
+			n = poly1->edge_orientation[i]%poly2->edge_orientation[j];
 			if(n.Length2() != 1) continue;
-			c = obb2sepAxis(cub1,cub2,n,T);
+			c = poly2sepAxis(poly1,poly2,n,T);
 			if(!c.collision){
 				colli.collision = false;
 				return colli;
@@ -223,10 +217,10 @@ Collision::Collision_Info Collision::obb2obb(Cuboid* cub1, Cuboid* cub2){
 		}
 	}
 	if(colli.collision){
-		cub1->pull(colli.normal,colli.overlap*.5);
-		cub2->pull(-colli.normal,colli.overlap*.5);
-		colli.r_1 = obb2axis_contact_point(cub1, colli.normal) - cub1->mass_center;
-		colli.r_2 = obb2axis_contact_point(cub2,-colli.normal) - cub2->mass_center;
+		poly1->pull(colli.normal,colli.overlap*.5);
+		poly2->pull(-colli.normal,colli.overlap*.5);
+		colli.r_1 = poly2axis_contact_point(poly1, colli.normal) - poly1->mass_center;
+		colli.r_2 = poly2axis_contact_point(poly2,-colli.normal) - poly2->mass_center;
 	}
 	return colli;
 }

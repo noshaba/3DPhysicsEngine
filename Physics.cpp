@@ -113,7 +113,7 @@ void Physics::update(void){
 			///////////////////////////////
 			
 			for(unsigned int j = 0; j < __cuboids.size(); ++j){
-				__colli = Collision::sphere2obb(__spheres[i],__cuboids[j]);
+				__colli = Collision::sphere2poly(__spheres[i],__cuboids[j]);
 				if(__colli.collision){
 					__P = this->relative_momentum(__spheres[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
@@ -149,7 +149,7 @@ void Physics::update(void){
 			/////////////////////////////
 			
 			for(unsigned int j = 0; j < __cage->planes.size(); ++j){
-				__colli = Collision::obb2plane(__cuboids[i],__cage->planes[j]);
+				__colli = Collision::poly2plane(__cuboids[i],__cage->planes[j]);
 				if(__colli.collision){
 					__P = this->relative_momentum(__cuboids[i],__colli.r_1,__colli.normal);
 					__P*=.1;
@@ -167,7 +167,7 @@ void Physics::update(void){
 			
 			for(unsigned int j = 0; j < __cuboids.size(); ++j){
 				if(i==j) continue;
-				__colli = Collision::obb2obb(__cuboids[i],__cuboids[j]);
+				__colli = Collision::poly2poly(__cuboids[i],__cuboids[j]);
 				if(__colli.collision){
 					__P = this->relative_momentum(__cuboids[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__P*=.1;
