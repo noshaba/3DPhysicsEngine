@@ -173,7 +173,6 @@
 			~Cuboid(void);
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
-			std::vector<Plane*> planes;
 			void scale(int scale_dir, float factor);
 		private:
 			void init_vertex_buffer(void);
