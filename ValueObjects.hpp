@@ -96,8 +96,6 @@
 			float inverse_mass 	  = 0;
 			float omega           = 0;
 			float velocity        = 0;
-			float volume 		  = 0;
-			float volume_x3 	  = 0;
 			float radius 		  = 0;
 			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
@@ -106,14 +104,13 @@
 			void move(float dt, Vec3 acceleration);
 			void integrate(float dt, Vec3 acceleration,Vec3 ang_acceleration);
 			void pull(Vec3 n, float overlap);
+			void select(bool selection);
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
 			virtual void rotate(const Matrix<float> &R, const Vec3 rotation_point) = 0;
-			virtual void select(bool selection) = 0;
 		protected:
 			virtual void init_inertia_tensor(void) = 0;
 			virtual void init_vertex_buffer(void) = 0;
-			virtual void update_volume(void) = 0;
 			
 	};
 	
@@ -126,7 +123,6 @@
 			void draw(void);
 			void rotate(const Vec3 &n, float theta);
 			void add_object(Object* object);
-			float volume_x3 = 12000;
 		private:
 			std::vector<std::vector<unsigned int> > index_buffer;
 			void init_planes(void);
@@ -140,42 +136,46 @@
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
-			void select(bool selection);
 			void draw(void);
-			Vec3 orientation;
 		private:
 			unsigned int res = 24;
 			void init(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color);
 			void init_inertia_tensor(void);
 			void init_vertex_buffer(void);
-			void update_volume(void);
 			std::vector<Vec3> normals;
 	};
 	
-	class Cuboid : public Object{
+	class Polyhedron : public Object{
 		public:
-			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color);
-			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 impuls, Vec3 orientation, float angle);
-			~Cuboid(void);
-			Vec3 pmin = Null3;
-			Vec3 pmax = Null3;
-			std::vector<float> hl = {0,0,0};
-			std::vector<Vec3> axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
-			std::vector<Vec3> edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+			std::vector<float> hl;
+			std::vector<Vec3> axis_orientation;
+			std::vector<Vec3> edge_orientation;
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);
-			void scale(int scale_dir, float factor);
-			void select(bool selection);
 			void draw(void);
-		private:
+			virtual void scale(int scale_dir, float factor) = 0;
+		protected:
 			std::vector<std::vector<unsigned int> > index_buffer;
-			void init(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color);
-			void init_vertex_buffer(void);
 			void init_planes(void);
 			void init_mass_center(void);
+			void init(float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			virtual void init_vertex_buffer(void) = 0;
+			virtual void init_inertia_tensor(void) = 0;
+	};
+	
+	class Cuboid : public Polyhedron{
+		public:
+			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			~Cuboid(void);
+			Vec3 pmin = Null3;
+			Vec3 pmax = Null3;
+			std::vector<Plane*> planes;
+			void scale(int scale_dir, float factor);
+		private:
+			void init_vertex_buffer(void);
 			void init_inertia_tensor(void);
-			void update_volume(void);
 	};
 
 #endif

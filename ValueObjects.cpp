@@ -231,6 +231,9 @@ void Object::integrate(float dt, Vec3 acceleration, Vec3 ang_acceleration){
 	this->set_ang_velocity(this->ang_velocity+dt*ang_acceleration);
 	if(this->ang_velocity != Null3) this->rotate(Matrix<float>(this->ang_velocity_n,this->omega*dt),this->mass_center);
 }
+void Object::select(bool selection){
+	this->is_selected = selection;
+}
 // {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
  // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
 Cage::Cage(std::vector<Vec3*> vertex_buffer){
@@ -305,24 +308,22 @@ void Sphere::init(float radius, Vec3 mass_center, float mass, float drag_coeff, 
 	this->init_inertia_tensor();
 	this->init_vertex_buffer();
 	this->m_i = this->mass/(float) this->vertex_buffer.size();
-	this->update_volume();
-}
-void Sphere::select(bool selection){
-	this->is_selected = selection;
 }
 void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
-	Quaternion q(n,theta);
-	theta = theta*M_PI/180.0;
-	Matrix<float> R = Matrix<float>(n,theta);
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+	if(theta != 0 && n.Length2() != 0){
+		Quaternion q(n,theta);
+		theta = theta*M_PI/180.0;
+		Matrix<float> R = Matrix<float>(n,theta);
+		for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
+			*(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		}
+		for(unsigned int i = 0; i < this->normals.size(); ++i){
+			this->normals[i] = q*this->normals[i];
+		}
+		this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
+		this->inertia_tensor = R*this->inertia_tensor*~R;
+		this->inv_inertia_tensor = !this->inertia_tensor;
 	}
-	for(unsigned int i = 0; i < this->normals.size(); ++i){
-		this->normals[i] = q*this->normals[i];
-	}
-	this->mass_center = q*(this->mass_center - rotation_point) + rotation_point;
-	this->inertia_tensor = R*this->inertia_tensor*~R;
-	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 void Sphere::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	// Quaternion q(this->ang_velocity);
@@ -373,12 +374,7 @@ void Sphere::scale(int scale_dir, float factor){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
 		*(this->vertex_buffer[i]) += this->normals[i] * factor;
 	this->radius += factor;
-	this->update_volume();
 }
-void Sphere::update_volume(void){
-	this->volume_x3 = 4 * M_PI * this->radius * this->radius * this->radius;
-	this->volume    = this->volume_x3/3.0;
-};
 void Sphere::draw(void){
 	unsigned int counter = 0;
 	this->material_color(GL_FRONT,*(this->color));
@@ -414,13 +410,100 @@ void Sphere::draw(void){
 	}
 }
 
-Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color){
-	this->init(pmin,pmax,mass,drag_coeff,color);
-}
-Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 impuls, Vec3 orientation, float angle){
-	this->init(pmin,pmax,mass,drag_coeff,color);
-	this->set_lin_velocity(impuls);
+void Polyhedron::init(float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+	this->mass = mass;
+	if(this->mass) this->inverse_mass = 1.0/mass;
+	this->drag_coeff = drag_coeff;
+	this->color = color;
+	this->init_vertex_buffer();
+	this->init_planes();
+	this->m_i = this->mass/(float) this->vertex_buffer.size();
+	this->init_mass_center();
+	this->init_inertia_tensor();
 	this->rotate(orientation,angle,this->mass_center);
+}
+void Polyhedron::init_planes(void){
+	for(unsigned int i = 0; i < this->index_buffer.size(); ++i){
+		this->planes.push_back(new Plane({
+											this->vertex_buffer[this->index_buffer[i][0]],
+											this->vertex_buffer[this->index_buffer[i][1]],
+											this->vertex_buffer[this->index_buffer[i][2]],
+											this->vertex_buffer[this->index_buffer[i][3]],
+										},this->color));
+	}
+}
+void Polyhedron::init_mass_center(void){
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
+		this->mass_center += this->m_i*(*(this->vertex_buffer[i]));
+	this->mass_center /= this->mass;
+}
+void Polyhedron::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
+	if(theta != 0 && n.Length2() != 0){
+		theta = theta*M_PI/180.0;
+		Matrix<float> R = Matrix<float>(n,theta);
+		for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
+			*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+		}
+		for(unsigned int i = 0; i < this->planes.size(); ++i){
+			this->planes[i]->normal = R*this->planes[i]->normal;
+		}
+		for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
+			this->axis_orientation[i] = R*this->axis_orientation[i];
+		}
+		for(unsigned int i = 0; i < this->edge_orientation.size(); ++i){
+			this->edge_orientation[i] = R*this->edge_orientation[i];
+		}
+		this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+		this->inertia_tensor = R*this->inertia_tensor*~R;
+		this->inv_inertia_tensor = !this->inertia_tensor;
+	}
+}
+void Polyhedron::rotate(const Matrix<float> &R, const Vec3 rotation_point){
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
+		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
+	}
+	for(unsigned int i = 0; i < this->planes.size(); ++i){
+		this->planes[i]->normal = R*this->planes[i]->normal;
+	}
+	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
+		this->axis_orientation[i] = R*this->axis_orientation[i];
+	}
+	for(unsigned int i = 0; i < this->edge_orientation.size(); ++i){
+		this->edge_orientation[i] = R*this->edge_orientation[i];
+	}
+	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
+	this->inertia_tensor = R*this->inertia_tensor*~R;
+	this->inv_inertia_tensor = !this->inertia_tensor;
+}
+void Polyhedron::draw(void){
+	for(unsigned int i = 0; i < this->planes.size(); ++i)
+		this->planes[i]->draw();
+}
+
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+	this->pmin = pmin;
+	this->pmax = pmax;
+	for(unsigned int i = 0; i < VEC_DIM; ++i) 
+		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
+	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	this->edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	// left, right, top, bottom, back, front
+	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
+	this->init(mass,drag_coeff,color,orientation,angle);
+	this->radius = (this->pmax - this->mass_center).Length();
+}
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+	this->pmin = pmin;
+	this->pmax = pmax;
+	for(unsigned int i = 0; i < VEC_DIM; ++i) 
+		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
+	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	this->edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	// left, right, top, bottom, back, front
+	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
+	this->init(mass,drag_coeff,color,orientation,angle);
+	this->radius = (this->pmax - this->mass_center).Length();
+	this->set_lin_velocity(impulse);
 }
 Cuboid::~Cuboid(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)
@@ -428,24 +511,6 @@ Cuboid::~Cuboid(void){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
 		delete this->vertex_buffer[i];
 	delete this->color;
-}
-void Cuboid::init(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color){
-	this->pmin = pmin;
-	this->pmax = pmax;
-	for(unsigned int i = 0; i < this->hl.size(); ++i) this->hl[i] = (this->pmax.p[i] - this->pmin.p[i]) * .5;
-	this->mass = mass;
-	if(this->mass) this->inverse_mass = 1.0/mass;
-	this->drag_coeff = drag_coeff;
-	this->color = color;
-	this->init_vertex_buffer();
-	// left, right, top, bottom, back, front
-	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
-	this->init_planes();
-	this->m_i = this->mass/(float) this->vertex_buffer.size();
-	this->init_mass_center();
-	this->init_inertia_tensor();
-	this->update_volume();
-	this->radius = (this->pmax - this->mass_center).Length();
 }
 void Cuboid::init_vertex_buffer(void){
 	this->vertex_buffer = {
@@ -459,21 +524,6 @@ void Cuboid::init_vertex_buffer(void){
 							new Vec3(this->pmax.p[0],this->pmax.p[1],this->pmin.p[2])
 						};
 }
-void Cuboid::init_planes(void){
-	for(unsigned int i = 0; i < this->index_buffer.size(); ++i){
-		this->planes.push_back(new Plane({
-											this->vertex_buffer[this->index_buffer[i][0]],
-											this->vertex_buffer[this->index_buffer[i][1]],
-											this->vertex_buffer[this->index_buffer[i][2]],
-											this->vertex_buffer[this->index_buffer[i][3]],
-										},this->color));
-	}
-}
-void Cuboid::init_mass_center(void){
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
-		this->mass_center += this->m_i*(*(this->vertex_buffer[i]));
-	this->mass_center /= this->mass;
-}
 void Cuboid::init_inertia_tensor(void){
 	Vec3 s(this->pmax-this->pmin);
 	for(unsigned int i = 0; i < this->inertia_tensor.rows; ++i)
@@ -481,79 +531,24 @@ void Cuboid::init_inertia_tensor(void){
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 void Cuboid::scale(int scale_dir, float factor){
-	if(this->radius < 5){
-		if(scale_dir == SCALE_A) {
-			for(unsigned int i = 0; i < this->planes.size(); ++i){
-				for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
-					*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
-			}
-			for(unsigned int i = 0; i < this->hl.size(); ++i)
-				this->hl[i] += factor;
-			this->pmax += Vec3(factor,factor,factor);
-			this->pmin -= Vec3(factor,factor,factor);
-		} else {
-			for(unsigned int i = 0; i < this->planes[scale_dir*2]->vertex_buffer.size(); ++i)
-				*(this->planes[scale_dir*2]->vertex_buffer[i]) += this->planes[scale_dir*2]->normal * factor;
-				
-			for(unsigned int i = 0; i < this->planes[scale_dir*2+1]->vertex_buffer.size(); ++i)
-				*(this->planes[scale_dir*2+1]->vertex_buffer[i]) += this->planes[scale_dir*2+1]->normal * factor;
-			this->hl[scale_dir] += factor;
-			this->pmax.p[scale_dir] +=factor;
-			this->pmin.p[scale_dir] -= factor;
+	if(scale_dir == SCALE_A) {
+		for(unsigned int i = 0; i < this->planes.size(); ++i){
+			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
+				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
 		}
-		this->radius = (this->pmax - this->mass_center).Length() *.5;
-		this->update_volume();
+		for(unsigned int i = 0; i < this->hl.size(); ++i)
+			this->hl[i] += factor;
+		this->pmax += Vec3(factor,factor,factor);
+		this->pmin -= Vec3(factor,factor,factor);
+	} else {
+		for(unsigned int i = 0; i < this->planes[scale_dir*2]->vertex_buffer.size(); ++i)
+			*(this->planes[scale_dir*2]->vertex_buffer[i]) += this->planes[scale_dir*2]->normal * factor;
+			
+		for(unsigned int i = 0; i < this->planes[scale_dir*2+1]->vertex_buffer.size(); ++i)
+			*(this->planes[scale_dir*2+1]->vertex_buffer[i]) += this->planes[scale_dir*2+1]->normal * factor;
+		this->hl[scale_dir] += factor;
+		this->pmax.p[scale_dir] +=factor;
+		this->pmin.p[scale_dir] -= factor;
 	}
-}
-void Cuboid::select(bool selection){
-	this->is_selected = selection;
-	for(unsigned int i = 0; i < this->planes.size(); ++i)
-		this->planes[i]->is_selected = selection;
-}
-void Cuboid::update_volume(void){
-	this->volume    = this->hl[0] * this->hl[1] * this->hl[2] * 6;
-	this->volume_x3 = 3*this->volume;
-}
-void Cuboid::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
-	theta = theta*M_PI/180.0;
-	Matrix<float> R = Matrix<float>(n,theta);
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
-	}
-	for(unsigned int i = 0; i < this->planes.size(); ++i){
-		this->planes[i]->normal = R*this->planes[i]->normal;
-	}
-	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
-		this->axis_orientation[i] = R*this->axis_orientation[i];
-	}
-	this->edge_orientation = this->axis_orientation;
-	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
-	this->inertia_tensor = R*this->inertia_tensor*~R;
-	this->inv_inertia_tensor = !this->inertia_tensor;
-}
-void Cuboid::rotate(const Matrix<float> &R, const Vec3 rotation_point){
-	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		*(this->vertex_buffer[i]) = R*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
-	}
-	for(unsigned int i = 0; i < this->planes.size(); ++i){
-		this->planes[i]->normal = R*this->planes[i]->normal;
-	}
-	for(unsigned int i = 0; i < this->axis_orientation.size(); ++i){
-		this->axis_orientation[i] = R*this->axis_orientation[i];
-	}
-	this->edge_orientation = this->axis_orientation;
-	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
-	this->inertia_tensor = R*this->inertia_tensor*~R;
-	this->inv_inertia_tensor = !this->inertia_tensor;
-	// std::cout << "Cub I:" << std::endl;
-	// for(unsigned int i = 0; i < this->inertia_tensor.size(); ++i){
-		// for(unsigned int j = 0; j < this->inertia_tensor[0].size(); ++j){
-			// std::cout << this->inertia_tensor[i][j] << ' ';
-		// }
-		// std::cout << std::endl;
-	// }
-}
-void Cuboid::draw(void){
-	for(unsigned int i = 0; i < this->planes.size(); ++i)
-		this->planes[i]->draw();
+	this->radius = (this->pmax - this->mass_center).Length() *.5;
 }

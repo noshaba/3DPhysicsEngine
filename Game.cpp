@@ -18,24 +18,14 @@ void Game::update(void){
 	this->physics.update();
 }
 void Game::add_sphere(Sphere* sphere){
-	if(this->cage->volume_x3 > this->object_model->total_volume_x3 + sphere->volume_x3){
-		this->object_model->add_object(sphere);
-		this->cage->add_object(sphere);
-		this->physics.add_sphere(sphere);
-	} else {
-		delete sphere;
-		this->volume_err();
-	}
+	this->object_model->add_object(sphere);
+	this->cage->add_object(sphere);
+	this->physics.add_sphere(sphere);
 }
 void Game::add_cuboid(Cuboid* cuboid){
-	if(this->cage->volume_x3 > this->object_model->total_volume_x3 + cuboid->volume_x3){
-		this->object_model->add_object(cuboid);
-		this->cage->add_object(cuboid);
-		this->physics.add_cuboid(cuboid);
-	} else {
-		delete cuboid;
-		this->volume_err();
-	}
+	this->object_model->add_object(cuboid);
+	this->cage->add_object(cuboid);
+	this->physics.add_cuboid(cuboid);
 }
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
@@ -43,10 +33,8 @@ void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, d
 }
 void Game::scale_selected_object(float factor){
 	this->object_model->scale_selected_object(this->scale_dir,factor);
-	if(this->cage->volume_x3 <= this->object_model->total_volume_x3){
-		this->object_model->scale_selected_object(this->scale_dir,-factor);
-		this->volume_err();
-	}
+	this->object_model->scale_selected_object(this->scale_dir,-factor);
+	this->volume_err();
 }
 void Game::rotate_selected_object(const Vec3 &n, float theta){
 	this->object_model->rotate_selected_object(n,theta);

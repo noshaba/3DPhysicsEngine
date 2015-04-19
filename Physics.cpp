@@ -170,6 +170,7 @@ void Physics::update(void){
 				__colli = Collision::obb2obb(__cuboids[i],__cuboids[j]);
 				if(__colli.collision){
 					__P = this->relative_momentum(__cuboids[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__P*=.1;
 					__cuboids[i]->update_velocities(__colli.normal,__colli.r_1,__P);
 					__cuboids[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 				}

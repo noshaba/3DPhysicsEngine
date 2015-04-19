@@ -9,7 +9,6 @@ Object_Model::~Object_Model(void){
 }
 void Object_Model::add_object(Object* object){
 	this->objects.push_back(object);
-	this->total_volume_x3 += object->volume_x3;
 }
 Vec3 Object_Model::selection_ray_direction(Viewport viewport, double xpos, double ypos){
 	Vec3 v;
@@ -29,7 +28,8 @@ void Object_Model::select_closest_object(Vec3 camera_position, Vec3 dir){
 	for(unsigned int i = 0; i < this->objects.size(); ++i){
 		// if object is in front of me
 		if((this->objects[i]->mass_center - camera_position)*dir >= 0){
-			if(((this->objects[i]->mass_center - camera_position)%dir).Length() <= (this->objects[i]->radius)) 
+			// if object intersects with direction of the camera
+			if((dir%(this->objects[i]->mass_center - camera_position)).Length() <= (this->objects[i]->radius)) 
 				cut_objects.push_back(this->objects[i]);
 		}
 	}
@@ -54,21 +54,13 @@ void Object_Model::select_object(Viewport viewport, Vec3 camera_position, double
 }
 void Object_Model::scale_selected_object(int scale_dir, float factor){
 	if(this->selected_object) {
-		if(this->selected_object->radius > .1 && this->selected_object->radius < 10){
-			this->selected_object->scale(scale_dir, factor);
-			this->update_total_volume();
-		}
+		this->selected_object->scale(scale_dir, factor);
 	}
 }
 void Object_Model::rotate_selected_object(const Vec3 &n, float theta){
 	if(this->selected_object) {
 		this->selected_object->rotate(n,theta,this->selected_object->mass_center);
 	}
-}
-void Object_Model::update_total_volume(void){
-	this->total_volume_x3 = 0;
-	for(unsigned int i = 0; i < this->objects.size(); ++i)
-		this->total_volume_x3 += this->objects[i]->volume_x3;
 }
 void Object_Model::draw(void){
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
