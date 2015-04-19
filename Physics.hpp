@@ -11,7 +11,7 @@
 			Collision::Collision_Info __colli;
 			Cage* __cage;
 			std::vector<Sphere*> __spheres;
-			std::vector<Cuboid*> __cuboids;
+			std::vector<Polyhedron*> __polyhedra;
 			float relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2, Vec3 n);
 			float relative_momentum(Object* obj, Vec3 r, Vec3 n);
 		public:
@@ -20,7 +20,7 @@
 			~Physics(void);
 			void add_cage(Cage* cage);
 			void add_sphere(Sphere* sphere);
-			void add_cuboid(Cuboid* cuboid);
+			void add_polyhedron(Polyhedron* polyhedron);
 			void update(void);
 	};
 

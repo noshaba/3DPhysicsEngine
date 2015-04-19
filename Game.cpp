@@ -11,9 +11,6 @@ Game::~Game(void){
 	delete this->object_model;
 	delete this->cage;
 }
-void Game::volume_err(void){
-	std::cout << "Object extends volume of cage!" << std::endl;
-}
 void Game::update(void){
 	this->physics.update();
 }
@@ -25,7 +22,7 @@ void Game::add_sphere(Sphere* sphere){
 void Game::add_cuboid(Cuboid* cuboid){
 	this->object_model->add_object(cuboid);
 	this->cage->add_object(cuboid);
-	this->physics.add_cuboid(cuboid);
+	this->physics.add_polyhedron(cuboid);
 }
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
@@ -33,8 +30,6 @@ void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, d
 }
 void Game::scale_selected_object(float factor){
 	this->object_model->scale_selected_object(this->scale_dir,factor);
-	this->object_model->scale_selected_object(this->scale_dir,-factor);
-	this->volume_err();
 }
 void Game::rotate_selected_object(const Vec3 &n, float theta){
 	this->object_model->rotate_selected_object(n,theta);

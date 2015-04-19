@@ -104,7 +104,7 @@
 			void move(float dt, Vec3 acceleration);
 			void integrate(float dt, Vec3 acceleration,Vec3 ang_acceleration);
 			void pull(Vec3 n, float overlap);
-			void select(bool selection);
+			virtual void select(bool selection) = 0;
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
 			virtual void rotate(const Matrix<float> &R, const Vec3 rotation_point) = 0;
@@ -136,6 +136,7 @@
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);
 			void scale(int scale_dir, float factor);
+			void select(bool selection);
 			void draw(void);
 		private:
 			unsigned int res = 24;
@@ -153,6 +154,7 @@
 			std::vector<Plane*> planes;
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);
+			void select(bool selection);
 			void draw(void);
 			virtual void scale(int scale_dir, float factor) = 0;
 		protected:

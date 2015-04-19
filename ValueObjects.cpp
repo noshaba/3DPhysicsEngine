@@ -231,9 +231,6 @@ void Object::integrate(float dt, Vec3 acceleration, Vec3 ang_acceleration){
 	this->set_ang_velocity(this->ang_velocity+dt*ang_acceleration);
 	if(this->ang_velocity != Null3) this->rotate(Matrix<float>(this->ang_velocity_n,this->omega*dt),this->mass_center);
 }
-void Object::select(bool selection){
-	this->is_selected = selection;
-}
 // {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
  // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
 Cage::Cage(std::vector<Vec3*> vertex_buffer){
@@ -375,6 +372,9 @@ void Sphere::scale(int scale_dir, float factor){
 		*(this->vertex_buffer[i]) += this->normals[i] * factor;
 	this->radius += factor;
 }
+void Sphere::select(bool selection){
+	this->is_selected = selection;
+}
 void Sphere::draw(void){
 	unsigned int counter = 0;
 	this->material_color(GL_FRONT,*(this->color));
@@ -474,6 +474,11 @@ void Polyhedron::rotate(const Matrix<float> &R, const Vec3 rotation_point){
 	this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
+}
+void Polyhedron::select(bool selection){
+	this->is_selected = selection;
+	for(unsigned int i = 0; i < this->planes.size(); ++i)
+		planes[i]->is_selected = selection;
 }
 void Polyhedron::draw(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)

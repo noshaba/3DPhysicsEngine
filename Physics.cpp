@@ -13,8 +13,8 @@ void Physics::add_cage(Cage* cage){
 void Physics::add_sphere(Sphere* sphere){
 	__spheres.push_back(sphere);
 }
-void Physics::add_cuboid(Cuboid* cuboid){
-	__cuboids.push_back(cuboid);
+void Physics::add_polyhedron(Polyhedron* polyhedron){
+	__polyhedra.push_back(polyhedron);
 }
 float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2, Vec3 n){
 	Vec3 v_1 = obj1->lin_velocity;
@@ -108,40 +108,40 @@ void Physics::update(void){
 				}
 			}
 			
-			///////////////////////////////
-			// Collision against cuboids //
-			///////////////////////////////
+			/////////////////////////////////
+			// Collision against polyhedra //
+			/////////////////////////////////
 			
-			for(unsigned int j = 0; j < __cuboids.size(); ++j){
-				__colli = Collision::sphere2poly(__spheres[i],__cuboids[j]);
+			for(unsigned int j = 0; j < __polyhedra.size(); ++j){
+				__colli = Collision::sphere2poly(__spheres[i],__polyhedra[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__spheres[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__P = this->relative_momentum(__spheres[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					__cuboids[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 					// this->frozen = true;
 				}
 			}
 		}
 		
-		////////////////////////////////////////////////////// Cuboids //////////////////////////////////////////////////////
+		////////////////////////////////////////////////////// Polyhedra //////////////////////////////////////////////////////
 		
-		for(unsigned int i = 0; i < __cuboids.size(); ++i){
+		for(unsigned int i = 0; i < __polyhedra.size(); ++i){
 			////////////////////////////////
 			// Movement & External Forces //
 			////////////////////////////////
-			__drag = -(__cuboids[i]->drag_coeff*__cuboids[i]->inverse_mass*__cuboids[i]->lin_velocity.Length2())*__cuboids[i]->lin_velocity_n;
+			__drag = -(__polyhedra[i]->drag_coeff*__polyhedra[i]->inverse_mass*__polyhedra[i]->lin_velocity.Length2())*__polyhedra[i]->lin_velocity_n;
 
 			__acceleration = this->gravity+__drag;
 			
-			__cuboids[i]->integrate(this->dt,__acceleration,Null3);
+			__polyhedra[i]->integrate(this->dt,__acceleration,Null3);
 			
-			//////////////////////////////////////////////////////////////////////
-			// If a cuboid is too fast and moves out of the box pull it back in //
-			//////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////
+			// If a polyhedron is too fast and moves out of the box pull it back in //
+			//////////////////////////////////////////////////////////////////////////
 
-			if(Collision::outside_scene(__cuboids[i],__cage->planes)){
-				__cuboids[i]->old_mass_center();
-				Collision::pull_to_closest_wall(__cuboids[i],__cage->planes);
+			if(Collision::outside_scene(__polyhedra[i],__cage->planes)){
+				__polyhedra[i]->old_mass_center();
+				Collision::pull_to_closest_wall(__polyhedra[i],__cage->planes);
 			}
 			
 			/////////////////////////////
@@ -149,30 +149,30 @@ void Physics::update(void){
 			/////////////////////////////
 			
 			for(unsigned int j = 0; j < __cage->planes.size(); ++j){
-				__colli = Collision::poly2plane(__cuboids[i],__cage->planes[j]);
+				__colli = Collision::poly2plane(__polyhedra[i],__cage->planes[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__cuboids[i],__colli.r_1,__colli.normal);
+					__P = this->relative_momentum(__polyhedra[i],__colli.r_1,__colli.normal);
 					__P*=.1;
-					__cuboids[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					// __cuboids[i]->manifold[k].Print("contact");
+					__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					// __polyhedra[i]->manifold[k].Print("contact");
 					// std::cout << "P: " << __P << std::endl;
-					// __cuboids[i]->ang_velocity.Print("ang");
+					// __polyhedra[i]->ang_velocity.Print("ang");
 					// this->frozen = true;
 				}
 			}
 			
-			/////////////////////////////////////
-			// Collision against other cuboids //
-			/////////////////////////////////////
+			///////////////////////////////////////
+			// Collision against other polyhedra //
+			///////////////////////////////////////
 			
-			for(unsigned int j = 0; j < __cuboids.size(); ++j){
+			for(unsigned int j = 0; j < __polyhedra.size(); ++j){
 				if(i==j) continue;
-				__colli = Collision::poly2poly(__cuboids[i],__cuboids[j]);
+				__colli = Collision::poly2poly(__polyhedra[i],__polyhedra[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__cuboids[i],__cuboids[j],__colli.r_1,__colli.r_2,__colli.normal);
+					__P = this->relative_momentum(__polyhedra[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__P*=.1;
-					__cuboids[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					__cuboids[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 				}
 			}
 		}

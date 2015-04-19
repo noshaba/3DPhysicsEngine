@@ -7,7 +7,6 @@
 	class Game{
 		private:
 			Object_Model* object_model;
-			void volume_err(void);
 		public:
 			Physics physics;
 			Game(void);
