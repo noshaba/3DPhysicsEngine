@@ -178,5 +178,21 @@
 			void init_vertex_buffer(void);
 			void init_inertia_tensor(void);
 	};
+	
+	// height: sqrt(b^2 - (a/2)^2)
+	
+	class Triangle_Prism : public Polyhedron{
+		public:
+			Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			~Triangle_Prism(void);
+			float length = 0;
+			float side = 0;
+			float height = 0;
+			void scale(int scale_dir, float factor);
+		private:
+			void init_vertex_buffer(void);
+			void init_inertia_tensor(void);
+	};
 
 #endif

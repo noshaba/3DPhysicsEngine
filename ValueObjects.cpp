@@ -555,5 +555,90 @@ void Cuboid::scale(int scale_dir, float factor){
 		this->pmax.p[scale_dir] +=factor;
 		this->pmin.p[scale_dir] -= factor;
 	}
-	this->radius = (this->pmax - this->mass_center).Length() *.5;
+	this->radius = (this->pmax - this->mass_center).Length();
+}
+
+Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+	this->length = length;
+	this->side = side;
+	this->height = sqrt(3)*0.5f*side;
+	float h = height/3.0f;
+	this->hl = {length*0.5f, h, h, h};
+	// bottom, front, back, left, right
+	this->index_buffer = {{0,1,3,2},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
+	this->init(mass,drag_coeff,color,orientation,angle);
+	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
+	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
+	for(unsigned int i = 0; i < this->edge_orientation.size(); ++i)
+		this->edge_orientation[i].Normalize();
+	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
+}
+Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+	this->length = length;
+	this->side = side;
+	this->height = sqrt(3)*0.5f*side;
+	float h = height/3.0f;
+	this->hl = {length*0.5f, h, h, h};
+	// bottom, front, back, left, right
+	this->index_buffer = {{0,1,3,2},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
+	this->init(mass,drag_coeff,color,orientation,angle);
+	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
+	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
+	for(unsigned int i = 0; i < this->edge_orientation.size(); ++i)
+		this->edge_orientation[i].Normalize();
+	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
+	this->set_lin_velocity(impulse);
+}
+void Triangle_Prism::init_vertex_buffer(void){
+	this->vertex_buffer = {
+							new Vec3(-hl[0], 0, 0.5f*side), new Vec3(hl[0], 0, 0.5f*side),
+							new Vec3(-hl[0], 0,-0.5f*side), new Vec3(hl[0], 0,-0.5f*side),
+							new Vec3(-hl[0], height, 0), new Vec3(hl[0], height, 0)
+	};
+}
+void Triangle_Prism::init_inertia_tensor(void){
+	for(unsigned int i = 0; i < this->inertia_tensor.rows; ++i){
+		for(unsigned int j = 0; j < this->inertia_tensor.cols; ++j){
+			if(i == j){
+				for(unsigned int k = 0; k < this->vertex_buffer.size(); ++k)
+					this->inertia_tensor[i][j] += this->m_i * (*(this->vertex_buffer[k]) * *(this->vertex_buffer[k]) - this->vertex_buffer[k]->p[i]);
+			} else {
+				for(unsigned int k = 0; k < this->vertex_buffer.size(); ++k)
+					this->inertia_tensor[i][j] -= this->m_i * this->vertex_buffer[k]->p[i] * this->vertex_buffer[k]->p[j];
+			}
+		}
+	}
+}
+void Triangle_Prism::scale(int scale_dir, float factor){
+	if(scale_dir == SCALE_A) {
+		for(unsigned int i = 0; i < this->planes.size(); ++i){
+			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
+				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
+		}
+		for(unsigned int i = 0; i < this->hl.size(); ++i)
+			this->hl[i] += factor;
+			
+		this->length += factor * 2;
+		this->height = this->hl[1] * 3;
+		this->side = this->height / sqrt(3) * 2;
+	} else if(scale_dir == SCALE_X) {
+		for(unsigned int i = 0; i < this->planes[3]->vertex_buffer.size(); ++i)
+			*(this->planes[3]->vertex_buffer[i]) += this->planes[3]->normal * factor;
+			
+		for(unsigned int i = 0; i < this->planes[4]->vertex_buffer.size(); ++i)
+			*(this->planes[4]->vertex_buffer[i]) += this->planes[4]->normal * factor;
+			
+		this->hl[0] += factor;
+		this->length += factor * 2;
+	} else {
+		for(unsigned int i = 0; i < 3; ++i){
+			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
+				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
+		}
+		for(unsigned int i = 1; this->hl.size(); ++i)
+			this->hl[i] += factor;
+		this->height = this->hl[1] * 3;
+		this->side = this->height / sqrt(3) * 2;
+	}
+	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
 }
