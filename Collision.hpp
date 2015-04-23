@@ -21,6 +21,7 @@ class Collision{
 		static Vec3 closest_point_on_poly(Vec3 p, Polyhedron* poly);
 		static bool outside_scene(Object* obj, std::vector<Plane*> walls);
 		static float radius_along_normal(Object* obj, Vec3 n);
+		static void projection_along_normal(Polyhedron* poly, Vec3 n, float (&projection)[2]);
 		static void pull_to_closest_wall(Object* obj, std::vector<Plane*> walls);
 		static Vec3 poly2axis_contact_point(Polyhedron* poly, Vec3 n);
 		static Collision_Info sphere2poly(Sphere* sph, Polyhedron* poly);

@@ -68,10 +68,10 @@
 			Plane(std::vector<Vec3*> vertex_buffer, Vec3* color);
 			Plane(std::vector<Vec3*> vertex_buffer);
 			Plane(Vec3 normal, Vec3 p);
+			Plane(Vec3* color);
 			~Plane(void);
 			void draw(void);
 			void del(void);
-		private:
 			void init_plane_normal(void);
 	}; 
 	

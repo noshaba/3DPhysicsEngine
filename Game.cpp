@@ -24,6 +24,11 @@ void Game::add_cuboid(Cuboid* cuboid){
 	this->cage->add_object(cuboid);
 	this->physics.add_polyhedron(cuboid);
 }
+void Game::add_triangle_prism(Triangle_Prism* prism){
+	this->object_model->add_object(prism);
+	this->cage->add_object(prism);
+	this->physics.add_polyhedron(prism);
+}
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
 	this->physics.frozen = this->object_model->selected_object;

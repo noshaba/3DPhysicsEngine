@@ -13,7 +13,7 @@ void Collision::draw_manifold(void){
 	glEnd();
 }
 float Collision::distance_plane2point(Plane* plane,Vec3 point){
-	return fabs((point - *(plane->vertex_buffer[0]))*plane->normal); 
+	return (point - *(plane->vertex_buffer[0]))*plane->normal; 
 }
 Plane* Collision::get_collided_wall(Object* obj, std::vector<Plane*> walls){
 	Plane* collided_wall;
@@ -55,17 +55,27 @@ float Collision::radius_along_normal(Object* obj, Vec3 n){
 		return sph->radius;
 	if(Polyhedron* poly = dynamic_cast<Polyhedron*>(obj)){
 		float r = 0;
+		// std::cout << std::endl;
 		for(int i = 0; i < poly->hl.size(); ++i){
 			r += fabs(poly->hl[i]*poly->axis_orientation[i]*n);
 		}
 		return r;
 	}
 }
+void Collision::projection_along_normal(Polyhedron* poly, Vec3 n, float (&projection)[2]){
+	float value;
+	projection[0] = projection[1] = n * *(poly->vertex_buffer[0]);
+	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
+		value = n * *(poly->vertex_buffer[i]);
+		projection[0] = std::min(projection[0], value);
+		projection[1] = std::max(projection[1], value);
+	}
+}
 void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
 	Plane* plane = Collision::get_collided_wall(obj,walls);
 	Collision_Info colli;
 	colli.normal = plane->normal;
-	colli.distance = distance_plane2point(plane,obj->mass_center);
+	colli.distance = fabs(distance_plane2point(plane,obj->mass_center));
 	float r = radius_along_normal(obj,colli.normal);
 	colli.overlap = r - colli.distance;
 	obj->pull(colli.normal,colli.overlap);
@@ -73,7 +83,7 @@ void Collision::pull_to_closest_wall(Object* obj, std::vector<Plane*> walls){
 Collision::Collision_Info Collision::sphere2plane(Sphere* sph, Plane* plane){
 	sph->manifold.clear();
 	Collision_Info colli;
-	colli.distance = distance_plane2point(plane,sph->mass_center);
+	colli.distance = fabs(distance_plane2point(plane,sph->mass_center));
 	colli.overlap = sph->radius - colli.distance;
 	colli.normal = plane->normal;
 	colli.collision = colli.distance <= sph->radius;
@@ -134,7 +144,7 @@ Vec3 Collision::poly2axis_contact_point(Polyhedron* poly, Vec3 n){
 	float min = FLT_MAX;
 	float projection;
 	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
-	projection = *(poly->vertex_buffer[i])*n;
+		projection = *(poly->vertex_buffer[i])*n;
 		if(projection < min){
 			poly->manifold.clear();
 			min = projection;
@@ -153,11 +163,20 @@ Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
 	poly->manifold.clear();
 	Collision_Info colli;
 	colli.normal = plane->normal;
-	colli.distance = distance_plane2point(plane,poly->mass_center);
-	float r = radius_along_normal(poly, plane->normal);
-	colli.overlap = r - colli.distance;
-	colli.collision = colli.distance <= r;
+	//colli.distance = fabs(distance_plane2point(plane,poly->mass_center));
+	colli.distance = FLT_MAX;
+	float value;
+	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
+		value = distance_plane2point(plane,*(poly->vertex_buffer[i]));
+		if(value < colli.distance)
+			colli.distance = value;
+	}
+	//float r = radius_along_normal(poly, plane->normal);
+	//colli.collision = colli.distance <= r;
+	colli.collision = colli.distance <= 0;
 	if(colli.collision){
+		colli.distance = fabs(colli.distance);
+		colli.overlap = colli.distance;
 		poly->pull(colli.normal,colli.overlap);
 		colli.point = poly2axis_contact_point(poly, colli.normal);
 		colli.r_1 = colli.point - poly->mass_center;
@@ -167,14 +186,20 @@ Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
 Collision::Collision_Info Collision::poly2sepAxis(Polyhedron* poly1, Polyhedron* poly2, Vec3 n, Vec3 T){
 	Collision_Info colli;
 	colli.distance = T*n;
-	if(colli.distance > 0) n = -n;
+	if(T*n > 0) n = -n;
 	colli.normal = n;
 	colli.distance = fabs(colli.distance);
-	float r = 0;
-	r += radius_along_normal(poly1,n);
-	r += radius_along_normal(poly2,n);
-	colli.overlap = r - colli.distance;
-	colli.collision = colli.distance <= r;
+	float proj1[2], proj2[2];
+	projection_along_normal(poly1, n, proj1);
+	projection_along_normal(poly2, n, proj2);
+	colli.collision = (proj1[1] >= proj2[0] && proj2[1] >= proj1[0]);
+	if(colli.collision){
+		if(proj1[1] - proj2[0] <= proj2[1] - proj1[0]){
+			colli.overlap = proj1[1] - proj2[0];
+		} else {
+			colli.overlap = proj2[1] - proj1[0];
+		}
+	}
 	return colli;
 }
 Collision::Collision_Info Collision::poly2poly(Polyhedron* poly1, Polyhedron* poly2){

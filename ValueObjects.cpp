@@ -154,6 +154,9 @@ Plane::Plane(Vec3 normal, Vec3 p){
 	this->normal = normal;
 	this->vertex_buffer.push_back(new Vec3(p));
 }
+Plane::Plane(Vec3* color){
+	this->color = color;
+}
 Plane::~Plane(void){}
 void Plane::del(void){
 	for(unsigned int i = 0; i < this->vertex_buffer.size(); i++){
@@ -424,12 +427,10 @@ void Polyhedron::init(float mass, float drag_coeff, Vec3* color, Vec3 orientatio
 }
 void Polyhedron::init_planes(void){
 	for(unsigned int i = 0; i < this->index_buffer.size(); ++i){
-		this->planes.push_back(new Plane({
-											this->vertex_buffer[this->index_buffer[i][0]],
-											this->vertex_buffer[this->index_buffer[i][1]],
-											this->vertex_buffer[this->index_buffer[i][2]],
-											this->vertex_buffer[this->index_buffer[i][3]],
-										},this->color));
+		this->planes.push_back(new Plane(this->color));
+		for(unsigned int j = 0; j < this->index_buffer[i].size(); ++j)
+			this->planes[i]->vertex_buffer.push_back(this->vertex_buffer[this->index_buffer[i][j]]);
+		this->planes[i]->init_plane_normal();
 	}
 }
 void Polyhedron::init_mass_center(void){
@@ -488,10 +489,11 @@ void Polyhedron::draw(void){
 Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->pmin = pmin;
 	this->pmax = pmax;
-	for(unsigned int i = 0; i < VEC_DIM; ++i) 
-		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
 	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 	this->edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	for(unsigned int i = 0; i < VEC_DIM; ++i){
+		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
+	}
 	// left, right, top, bottom, back, front
 	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
 	this->init(mass,drag_coeff,color,orientation,angle);
@@ -500,10 +502,11 @@ Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, 
 Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
 	this->pmin = pmin;
 	this->pmax = pmax;
-	for(unsigned int i = 0; i < VEC_DIM; ++i) 
-		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
 	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
 	this->edge_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
+	for(unsigned int i = 0; i < VEC_DIM; ++i){
+		this->hl.push_back((this->pmax.p[i] - this->pmin.p[i]) * .5);
+	}
 	// left, right, top, bottom, back, front
 	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
 	this->init(mass,drag_coeff,color,orientation,angle);
@@ -565,7 +568,7 @@ Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_
 	float h = height/3.0f;
 	this->hl = {length*0.5f, h, h, h};
 	// bottom, front, back, left, right
-	this->index_buffer = {{0,1,3,2},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
+	this->index_buffer = {{2,3,1,0},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
 	this->init(mass,drag_coeff,color,orientation,angle);
 	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
 	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
@@ -580,7 +583,7 @@ Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_
 	float h = height/3.0f;
 	this->hl = {length*0.5f, h, h, h};
 	// bottom, front, back, left, right
-	this->index_buffer = {{0,1,3,2},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
+	this->index_buffer = {{2,3,1,0},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
 	this->init(mass,drag_coeff,color,orientation,angle);
 	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
 	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
@@ -635,8 +638,9 @@ void Triangle_Prism::scale(int scale_dir, float factor){
 			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
 				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor;
 		}
-		for(unsigned int i = 1; this->hl.size(); ++i)
+		for(unsigned int i = 1; i < this->hl.size(); ++i)
 			this->hl[i] += factor;
+			
 		this->height = this->hl[1] * 3;
 		this->side = this->height / sqrt(3) * 2;
 	}
