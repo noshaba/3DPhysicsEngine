@@ -343,8 +343,8 @@ void Sphere::init_inertia_tensor(void){
 	this->inv_inertia_tensor = !this->inertia_tensor;	
 }
 void Sphere::init_vertex_buffer(void){
-	double  a1, a1d = M_PI / this->res,
-			a2, a2d = M_PI / this->res,
+	double  a1, a1d = M_PI / (double) this->res,
+			a2, a2d = M_PI / (double) this->res,
 			s1, s2,
 			c1, c2;
 	Vec3 	n;
@@ -645,4 +645,88 @@ void Triangle_Prism::scale(int scale_dir, float factor){
 		this->side = this->height / sqrt(3) * 2;
 	}
 	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
+}
+
+Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+	this->length = length;
+	this->circle_radius = circle_radius;
+	this->axis_orientation = { Vec3(0,1,0) };
+	this->radius = length * .5f;
+	this->hl = { this->radius };
+	this->init_index_buffer();
+	this->init(mass,drag_coeff,color,orientation,angle);
+}
+Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+	this->length = length;
+	this->circle_radius = circle_radius;
+	this->axis_orientation = { Vec3(0,1,0) };
+	this->radius = length * .5f;
+	this->hl = { this->radius };
+	this->init_index_buffer();
+	this->init(mass,drag_coeff,color,orientation,angle);
+	this->set_lin_velocity(impulse);
+}
+void Cylinder::init_vertex_buffer(void){
+	double a = 2 * M_PI / (double) this->res;
+	for(int i = -1; i < 2; i+=2){
+		for(unsigned int j = 0; j < this->res; ++j){
+			this->vertex_buffer.push_back(new Vec3(this->circle_radius * cos(j * a), i * this->length * .5f, this->circle_radius * sin(j * a)));
+		}
+	}
+}
+void Cylinder::init_index_buffer(void){
+	std::vector<unsigned int> plane_vertices;
+	// upper face
+	for(unsigned int i = 0; i < this->res; ++i)
+		plane_vertices.push_back(i);
+	this->index_buffer.push_back(plane_vertices);
+	plane_vertices.clear();
+	// lower face
+	for(unsigned int i = this->res * 2 - 1; i >= this->res; --i)
+		plane_vertices.push_back(i);
+	this->index_buffer.push_back(plane_vertices);
+	plane_vertices.clear();
+	// side faces
+	for(unsigned int i = 0; i < this->res; ++i){
+		this->index_buffer.push_back({i, this->res + i, this->res + (i + 1) % this->res, (i + 1) % this->res});
+	}
+}
+void Cylinder::scale(int scale_dir, float factor){
+	Vec3 vertex_norm;
+	if(scale_dir == SCALE_A){
+		for(unsigned int i = 0; i < this->res; ++i){
+			vertex_norm = *(this->planes[0]->vertex_buffer[i]) / this->planes[0]->vertex_buffer[i]->Length();
+			*(this->planes[0]->vertex_buffer[i]) += this->planes[0]->normal * factor;
+			*(this->planes[1]->vertex_buffer[i]) += this->planes[1]->normal * factor;
+		}
+		for(unsigned int i = 2; i < this->planes.size(); ++i){
+			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
+				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor * .5f;
+		}
+		this->length += factor * 2;
+		this->radius += factor;
+		this->hl = { this->radius };
+		this->circle_radius += factor;
+	} else if(scale_dir == SCALE_Y){
+		for(unsigned int i = 0; i < this->res; ++i){
+			*(this->planes[0]->vertex_buffer[i]) += this->planes[0]->normal * factor;
+			*(this->planes[1]->vertex_buffer[i]) += this->planes[1]->normal * factor;
+		}
+		this->length += factor * 2;
+		this->radius += factor;
+		this->hl = { this->radius };
+	} else {
+		for(unsigned int i = 2; i < this->planes.size(); ++i){
+			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
+				*(this->planes[i]->vertex_buffer[j]) += this->planes[i]->normal * factor * .5f;
+		}
+		this->circle_radius += factor;
+	}
+}
+void Cylinder::init_inertia_tensor(void){
+	float k = 1.0 / 12.0;
+	for(unsigned int i = 0; i < this->inertia_tensor.rows - 1; ++i)
+		this->inertia_tensor[i][i] = k*this->mass*(3*this->circle_radius*this->circle_radius + this->length * this->length);
+	this->inertia_tensor[2][2] = .5f * this->mass * this->circle_radius * this->circle_radius;
+	this->inv_inertia_tensor = !this->inertia_tensor;
 }

@@ -46,7 +46,7 @@ Vec3 Collision::closest_point_on_poly(Vec3 p, Polyhedron* poly){
 }
 bool Collision::outside_scene(Object* obj, std::vector<Plane*> walls){
 	for(unsigned int i = 0; i < walls.size(); ++i)
-		if((obj->mass_center - *(walls[i]->vertex_buffer[0]))*walls[i]->normal < 0)
+		if(distance_plane2point(walls[i], obj->mass_center) < 0)
 			return true;
 	return false;
 }
@@ -65,7 +65,7 @@ float Collision::radius_along_normal(Object* obj, Vec3 n){
 void Collision::projection_along_normal(Polyhedron* poly, Vec3 n, float (&projection)[2]){
 	float value;
 	projection[0] = projection[1] = n * *(poly->vertex_buffer[0]);
-	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
+	for(unsigned int i = 1; i < poly->vertex_buffer.size(); ++i){
 		value = n * *(poly->vertex_buffer[i]);
 		projection[0] = std::min(projection[0], value);
 		projection[1] = std::max(projection[1], value);
@@ -159,11 +159,89 @@ Vec3 Collision::poly2axis_contact_point(Polyhedron* poly, Vec3 n){
 	Collision::manifold.insert(Collision::manifold.end(),poly->manifold.begin(),poly->manifold.end());
 	return contact_point;
 }
+Vec3 Collision::poly2plane_contact_point(Polyhedron* poly, Vec3 n){
+	Vec3 contact_point;
+	float min = FLT_MAX;
+	float projection;
+	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
+		projection = *(poly->vertex_buffer[i])*n;
+		if(projection < min){
+			poly->manifold.clear();
+			min = projection;
+			poly->manifold.push_back(*(poly->vertex_buffer[i]));
+			contact_point = *(poly->vertex_buffer[i]);
+		} else if(projection == min){
+			poly->manifold.push_back(*(poly->vertex_buffer[i]));
+			contact_point += *(poly->vertex_buffer[i]);
+		}
+	}
+	contact_point /= (float) poly->manifold.size();
+	Collision::manifold.insert(Collision::manifold.end(),poly->manifold.begin(),poly->manifold.end());
+	return contact_point;
+}
+Vec3 Collision::poly2poly_contact_point(Polyhedron* poly1, Polyhedron* poly2, Vec3 n){
+	std::vector<Vec3> buffer1, buffer2;
+	Vec3 contact_point = Null3;
+	float min = FLT_MAX;
+	float projection;
+	bool inside = true;
+	poly1->manifold.clear();
+	poly2->manifold.clear();
+	for(unsigned int i = 0; i < poly1->vertex_buffer.size(); ++i){
+		projection = *(poly1->vertex_buffer[i])*n;
+		if(projection < min){
+			buffer1.clear();
+			min = projection;
+			buffer1.push_back(*(poly1->vertex_buffer[i]));
+		} else if(projection == min){
+			buffer1.push_back(*(poly1->vertex_buffer[i]));
+		}
+	}
+	for(unsigned int i = 0; i < poly2->vertex_buffer.size(); ++i){
+		projection = *(poly2->vertex_buffer[i])*-n;
+		if(projection < min){
+			buffer2.clear();
+			min = projection;
+			buffer2.push_back(*(poly2->vertex_buffer[i]));
+		} else if(projection == min){
+			buffer2.push_back(*(poly2->vertex_buffer[i]));
+		}
+	}
+	for(unsigned int i = 0; i < buffer1.size(); ++i){
+		for(unsigned int j = 0; j < poly2->planes.size(); ++j){
+			if(distance_plane2point(poly2->planes[j], buffer1[i]) > .1f){
+				inside = false;
+				break;
+			}
+		}
+		if(inside){
+			contact_point += buffer1[i];
+			poly1->manifold.push_back(buffer1[i]);
+		}
+		inside = true;
+	}
+	for(unsigned int i = 0; i < buffer2.size(); ++i){
+		for(unsigned int j = 0; j < poly1->planes.size(); ++j){
+			if(distance_plane2point(poly1->planes[j], buffer2[i]) > .1f){
+				inside = false;
+				break;
+			}
+		}
+		if(inside){
+			contact_point += buffer2[i];
+			poly2->manifold.push_back(buffer2[i]);
+		}
+		inside = true;
+	}
+	if(poly1->manifold.size() || poly2->manifold.size()) contact_point /= (float) (poly1->manifold.size() + poly2->manifold.size());
+	Collision::manifold.insert(Collision::manifold.end(),poly1->manifold.begin(),poly1->manifold.end());
+	Collision::manifold.insert(Collision::manifold.end(),poly2->manifold.begin(),poly2->manifold.end());
+	return contact_point;
+}
 Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
 	poly->manifold.clear();
 	Collision_Info colli;
 	colli.normal = plane->normal;
-	//colli.distance = fabs(distance_plane2point(plane,poly->mass_center));
 	colli.distance = FLT_MAX;
 	float value;
 	for(unsigned int i = 0; i < poly->vertex_buffer.size(); ++i){
@@ -171,14 +249,12 @@ Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
 		if(value < colli.distance)
 			colli.distance = value;
 	}
-	//float r = radius_along_normal(poly, plane->normal);
-	//colli.collision = colli.distance <= r;
 	colli.collision = colli.distance <= 0;
 	if(colli.collision){
 		colli.distance = fabs(colli.distance);
 		colli.overlap = colli.distance;
 		poly->pull(colli.normal,colli.overlap);
-		colli.point = poly2axis_contact_point(poly, colli.normal);
+		colli.point = poly2plane_contact_point(poly, colli.normal);
 		colli.r_1 = colli.point - poly->mass_center;
 	}
 	return colli;
@@ -186,7 +262,7 @@ Collision::Collision_Info Collision::poly2plane(Polyhedron* poly, Plane* plane){
 Collision::Collision_Info Collision::poly2sepAxis(Polyhedron* poly1, Polyhedron* poly2, Vec3 n, Vec3 T){
 	Collision_Info colli;
 	colli.distance = T*n;
-	if(T*n > 0) n = -n;
+	if(colli.distance > 0) n = -n;
 	colli.normal = n;
 	colli.distance = fabs(colli.distance);
 	float proj1[2], proj2[2];
@@ -244,8 +320,9 @@ Collision::Collision_Info Collision::poly2poly(Polyhedron* poly1, Polyhedron* po
 	if(colli.collision){
 		poly1->pull(colli.normal,colli.overlap*.5);
 		poly2->pull(-colli.normal,colli.overlap*.5);
-		colli.r_1 = poly2axis_contact_point(poly1, colli.normal) - poly1->mass_center;
-		colli.r_2 = poly2axis_contact_point(poly2,-colli.normal) - poly2->mass_center;
+		colli.point = poly2poly_contact_point(poly1, poly2, colli.normal);
+		colli.r_1 = colli.point - poly1->mass_center;
+		colli.r_2 = colli.point - poly2->mass_center;
 	}
 	return colli;
 }

@@ -17,6 +17,7 @@
 			void add_sphere(Sphere* sphere);
 			void add_cuboid(Cuboid* cuboid);
 			void add_triangle_prism(Triangle_Prism* prism);
+			void add_cylinder(Cylinder* cylinder);
 			void select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos);
 			void scale_selected_object(float factor);
 			void rotate_selected_object(const Vec3 &n, float theta);

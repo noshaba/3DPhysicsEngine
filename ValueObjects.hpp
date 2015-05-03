@@ -37,8 +37,6 @@
 			const char* img_path;
 			unsigned char* img_data;
 			GLuint texture_id;
-			float xpos;
-			float ypos;
 			unsigned int height;
 			unsigned int width;
 			void load_texture(void);
@@ -46,18 +44,19 @@
 		public:
 			HUD_Element(float xpos, float ypos, const char* img_path, bool is_displayed);
 			~HUD_Element(void);
+			float xpos;
+			float ypos;
 			void draw(void);
 			bool is_displayed;
 	};
 	
 	class Button : public HUD_Element {
-		private:
-			unsigned int tile_width;
-			unsigned int tile_height;
 		public:
 			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, const char* img_path, bool is_displayed);
 			~Button(void);
 			std::string name;
+			unsigned int tile_width;
+			unsigned int tile_height;
 			bool is_activated;
 			void draw(void);
 	};
@@ -193,6 +192,21 @@
 		private:
 			void init_vertex_buffer(void);
 			void init_inertia_tensor(void);
+	};
+	
+	class Cylinder : public Polyhedron{
+		public:
+			Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			~Cylinder(void);
+			float length = 0;
+			float circle_radius = 0;
+			void scale(int scale_dir, float factor);
+		private:
+			void init_vertex_buffer(void);
+			void init_inertia_tensor(void);
+			void init_index_buffer(void);
+			unsigned int res = 24;
 	};
 
 #endif

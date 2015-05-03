@@ -80,10 +80,6 @@ Button_Model::~Button_Model(void){
 	for(unsigned int i = 0; i < this->buttons.size(); ++i)
 		delete this->buttons[i];
 }
-void Button_Model::draw(void){
-	for(unsigned int i = 0; i < this->buttons.size(); ++i)
-		(this->buttons[i])->draw();
-}
 void Button_Model::load_buttons(void){
 	std::ifstream file(this->database.c_str());
 	std::string name, xpos, ypos, tile_width, tile_height, img_path, is_displayed;
@@ -103,4 +99,16 @@ void Button_Model::load_buttons(void){
 		}
 		file.close();
 	}
+}
+Button* Button_Model::get_button(double xpos, double ypos){
+	for(unsigned int i = 0; i < this->buttons.size(); i++){
+		// return button when clicked on
+		if((xpos >= buttons[i]->xpos) && (xpos <= buttons[i]->xpos + buttons[i]->tile_width) &&
+		   (ypos >= buttons[i]->ypos) && (ypos <= buttons[i]->ypos + buttons[i]->tile_height)) return buttons[i];
+	}
+	return NULL;
+}
+void Button_Model::draw(void){
+	for(unsigned int i = 0; i < this->buttons.size(); ++i)
+		(this->buttons[i])->draw();
 }

@@ -29,6 +29,7 @@
 		public:
 			Button_Model(std::string database);
 			~Button_Model(void);
+			Button* get_button(double xpos, double ypos);
 			void draw(void);
 	};
 #endif

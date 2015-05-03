@@ -24,6 +24,8 @@ class Collision{
 		static void projection_along_normal(Polyhedron* poly, Vec3 n, float (&projection)[2]);
 		static void pull_to_closest_wall(Object* obj, std::vector<Plane*> walls);
 		static Vec3 poly2axis_contact_point(Polyhedron* poly, Vec3 n);
+		static Vec3 poly2plane_contact_point(Polyhedron* poly, Vec3 n);
+		static Vec3 poly2poly_contact_point(Polyhedron* poly1, Polyhedron* poly2, Vec3 n);
 		static Collision_Info sphere2poly(Sphere* sph, Polyhedron* poly);
 		static Collision_Info sphere2plane(Sphere* sph, Plane* plane);
 		static Collision_Info sphere2sphere(Sphere* sph1, Sphere* sph2);
