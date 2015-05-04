@@ -202,16 +202,17 @@ void Button::draw(void){
 		glBindTexture(GL_TEXTURE_2D, this->texture_id);
 		glEnable(GL_TEXTURE_2D); //Enable texture
 		glBegin(GL_QUADS); //Begin quadrilateral coordinates
+		float t = (float) this->tile_width / (float) this->width;
 		if(!this->is_activated){
-			glTexCoord2f(0.0f,1.0f); glVertex2f(this->xpos,this->ypos); // top left corner
-			glTexCoord2f((float) this->tile_width/this->width,1.0f); glVertex2f(this->xpos + this->tile_width,this->ypos); // top right corner
-			glTexCoord2f((float) this->tile_width/this->width,0.0f); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
-			glTexCoord2f(0.0f,0.0f); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
+			glTexCoord2f(0,1); glVertex2f(this->xpos, this->ypos); // top left corner
+			glTexCoord2f(t,1); glVertex2f(this->xpos + this->tile_width, this->ypos); // top right corner
+			glTexCoord2f(t,0); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
+			glTexCoord2f(0,0); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
 		} else {
-			glTexCoord2f((float) this->tile_width/this->width,1.0f); glVertex2f(this->xpos,this->ypos); // top left corner
-			glTexCoord2f(1.0f,1.0f); glVertex2f(this->xpos + this->tile_width,this->ypos); // top right corner
-			glTexCoord2f(1.0f,0.0f); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
-			glTexCoord2f((float) this->tile_width/this->width,1.0f); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
+			glTexCoord2f(t,1); glVertex2f(this->xpos, this->ypos); // top left corner
+			glTexCoord2f(1,1); glVertex2f(this->xpos + this->tile_width, this->ypos); // top right corner
+			glTexCoord2f(1,0); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
+			glTexCoord2f(t,0); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
 		}
 		glEnd(); //End quadrilateral coordinates
 		glDisable(GL_TEXTURE_2D);

@@ -21,6 +21,8 @@ constexpr unsigned int str2int(const char* str, int h = 0) {
 }
 
 void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
+	//button = button_model->get_button(xpos, ypos);
+	//if(button) button->is_activated = true;
 	if(glfwGetKey(window,GLFW_KEY_LEFT_ALT) || glfwGetKey(window,GLFW_KEY_RIGHT_ALT)){
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE)){
 			if(xpos_last < xpos){
@@ -76,6 +78,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 	glfwGetCursorPos(window,&xpos,&ypos);
 	if(action == GLFW_PRESS){
 		button = button_model->get_button(xpos, ypos);
+		if(button) button->is_activated = true;
 	} else if(action == GLFW_RELEASE){
 		switch(mods){
 			case GLFW_MOD_CONTROL:
@@ -127,6 +130,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->rotate_selected_object(YVec3, 5);
 							break;
 					}
+					button->is_activated = false;
 				}
 				button = NULL;
 				break;
