@@ -34,7 +34,7 @@
 	
 	class HUD_Element{
 		protected:
-			const char* img_path;
+			std::string img_path;
 			unsigned char* img_data;
 			GLuint texture_id;
 			unsigned int height;
@@ -42,7 +42,7 @@
 			void load_texture(void);
 			void bind_texture(void);
 		public:
-			HUD_Element(float xpos, float ypos, const char* img_path, bool is_displayed);
+			HUD_Element(float xpos, float ypos, std::string img_path, bool is_displayed);
 			~HUD_Element(void);
 			float xpos;
 			float ypos;
@@ -50,14 +50,22 @@
 			bool is_displayed;
 	};
 	
-	class Button : public HUD_Element {
+	class Button {
 		public:
-			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, const char* img_path, bool is_displayed);
+			std::string img_path;
+			unsigned char* img_data;
+			GLuint texture_id;
+			float xpos;
+			float ypos;
+			unsigned int height;
+			unsigned int width;
+			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed);
 			~Button(void);
 			std::string name;
 			unsigned int tile_width;
 			unsigned int tile_height;
 			bool is_activated;
+			bool is_displayed;
 			void draw(void);
 	};
 	

@@ -22,7 +22,7 @@
 	};
 
 	class Button_Model{
-		private:
+		public:
 			std::string database;
 			std::vector<Button*> buttons;
 			void load_buttons(void);

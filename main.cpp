@@ -1,3 +1,4 @@
+#define GL_INVALID_FRAMEBUFFER_OPERATION 0x0506
 #include "View.hpp"
 #include "Game.hpp"
 
@@ -6,10 +7,10 @@
 unsigned int window_width = 1366;
 unsigned int window_height = 700;
 
-View* view = new View(window_width,window_height,Vec3(0,15,40),-25);
-Game* game = new Game();
+View* view;
+Game* game;
 
-Button_Model* button_model = new Button_Model("ButtonDatabase.db");
+Button_Model* button_model;
 Button* button;
 
 double xpos_last;
@@ -84,7 +85,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 				if(button){
 					switch(str2int(button->name.c_str())){
 						case str2int("Cuboid"):
-							game->add_cuboid(new Cuboid(Vec3(-3,-2,-1),Vec3(3,2,1),1,1,new Vec3(0,1,0),Vec3(1,0,0),90,Null3));
+							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),1,1,new Vec3(0,1,0),Null3,0));
 							break;
 						case str2int("Sphere"):
 							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
@@ -94,6 +95,36 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							break;
 						case str2int("Cylinder"):
 							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+							break;
+						case str2int("X_Dir"):
+							game->scale_dir = SCALE_X;
+							break;
+						case str2int("Y_Dir"):
+							game->scale_dir = SCALE_Y;
+							break;
+						case str2int("Z_Dir"):
+							game->scale_dir = SCALE_Z;
+							break;
+						case str2int("A_Dir"):
+							game->scale_dir = SCALE_A;
+							break;
+						case str2int("Scale_Pos"):
+							game->scale_selected_object(.1);
+							break;
+						case str2int("Scale_Neg"):
+							game->scale_selected_object(-.1);
+							break;
+						case str2int("Rot_U"):
+							game->rotate_selected_object(view->camera->horizontal,-5);
+							break;
+						case str2int("Rot_D"):
+							game->rotate_selected_object(view->camera->horizontal, 5);
+							break;
+						case str2int("Rot_L"):
+							game->rotate_selected_object(YVec3,-5);
+							break;
+						case str2int("Rot_R"):
+							game->rotate_selected_object(YVec3, 5);
 							break;
 					}
 				}
@@ -280,29 +311,34 @@ void render2Dhud(){
 int main() {
 	GLFWwindow* window = NULL;
 	printf("Here we go!\n");
-
 	if(!glfwInit()){
 		return -1;
 	}
 	
 	window = glfwCreateWindow(window_width, window_height,"Simple 3D Animation", NULL, NULL);
-	glfwSetKeyCallback(window,glfwSetKey);
-	glfwSetMouseButtonCallback(window,glfwSetMouseButton);
-	glfwSetCursorPosCallback(window,glfwSetCursorPos);
-	glfwSetScrollCallback(window,glfwSetScroll);
 	if(!window) {
 		glfwTerminate();
 		return -1;
 	}
+	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window,glfwSetKey);
+	glfwSetMouseButtonCallback(window,glfwSetMouseButton);
+	glfwSetCursorPosCallback(window,glfwSetCursorPos);
+	glfwSetScrollCallback(window,glfwSetScroll);
+	
+	
+	view = new View(window_width,window_height,Vec3(0,15,40),-25);
+	game = new Game();
+	button_model = new Button_Model("ButtonDatabase.db");
+	
+	
 	while(!glfwWindowShouldClose(window)) {
-		glfwMakeContextCurrent(window);
 		game->update();
 		render3Dscene();
 		render2Dhud();
 		// make it appear (before this, it's hidden in the rear buffer)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		//std::cin.ignore();
 	}
 
 	glfwTerminate();
