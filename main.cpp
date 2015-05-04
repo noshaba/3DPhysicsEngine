@@ -21,8 +21,6 @@ constexpr unsigned int str2int(const char* str, int h = 0) {
 }
 
 void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
-	//button = button_model->get_button(xpos, ypos);
-	//if(button) button->is_activated = true;
 	if(glfwGetKey(window,GLFW_KEY_LEFT_ALT) || glfwGetKey(window,GLFW_KEY_RIGHT_ALT)){
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE)){
 			if(xpos_last < xpos){
@@ -86,6 +84,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 				break;
 			default:
 				if(button){
+					button->is_activated = false;
 					switch(str2int(button->name.c_str())){
 						case str2int("Cuboid"):
 							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),1,1,new Vec3(0,1,0),Null3,0));
@@ -100,15 +99,31 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
 							break;
 						case str2int("X_Dir"):
+							button->is_activated = true;
+							button_model->get_button("Y_Dir")->is_activated = false;
+							button_model->get_button("Z_Dir")->is_activated = false;
+							button_model->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_X;
 							break;
 						case str2int("Y_Dir"):
+							button->is_activated = true;
+							button_model->get_button("X_Dir")->is_activated = false;
+							button_model->get_button("Z_Dir")->is_activated = false;
+							button_model->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_Y;
 							break;
 						case str2int("Z_Dir"):
+							button->is_activated = true;
+							button_model->get_button("Y_Dir")->is_activated = false;
+							button_model->get_button("X_Dir")->is_activated = false;
+							button_model->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_Z;
 							break;
 						case str2int("A_Dir"):
+							button->is_activated = true;
+							button_model->get_button("Y_Dir")->is_activated = false;
+							button_model->get_button("Z_Dir")->is_activated = false;
+							button_model->get_button("X_Dir")->is_activated = false;
 							game->scale_dir = SCALE_A;
 							break;
 						case str2int("Scale_Pos"):
@@ -130,7 +145,6 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->rotate_selected_object(YVec3, 5);
 							break;
 					}
-					button->is_activated = false;
 				}
 				button = NULL;
 				break;

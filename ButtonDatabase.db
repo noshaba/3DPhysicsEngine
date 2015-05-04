@@ -5,6 +5,7 @@ Sphere
 68
 images/Sphere.bmp
 1
+0
 Cuboid
 585
 572
@@ -12,6 +13,7 @@ Cuboid
 68
 images/Cuboid.bmp
 1
+0
 Cylinder
 713
 572
@@ -19,6 +21,7 @@ Cylinder
 68
 images/Cylinder.bmp
 1
+0
 Triangle_Prism
 811
 602
@@ -26,12 +29,14 @@ Triangle_Prism
 68
 images/Triangle_Prism.bmp
 1
+0
 A_Dir
 976
 280
 50
 50
 images/A_Dir.bmp
+1
 1
 X_Dir
 1056
@@ -40,6 +45,7 @@ X_Dir
 50
 images/X_Dir.bmp
 1
+0
 Y_Dir
 1136
 280
@@ -47,6 +53,7 @@ Y_Dir
 50
 images/Y_Dir.bmp
 1
+0
 Z_Dir
 1216
 280
@@ -54,6 +61,7 @@ Z_Dir
 50
 images/Z_Dir.bmp
 1
+0
 Scale_Pos
 1056
 220
@@ -61,6 +69,7 @@ Scale_Pos
 50
 images/Scale_Pos.bmp
 1
+0
 Scale_Neg
 1136
 220
@@ -68,6 +77,7 @@ Scale_Neg
 50
 images/Scale_Neg.bmp
 1
+0
 Rot_U
 1096
 50
@@ -75,6 +85,7 @@ Rot_U
 50
 images/Rot_U.bmp
 1
+0
 Rot_L
 1046
 100
@@ -82,6 +93,7 @@ Rot_L
 50
 images/Rot_L.bmp
 1
+0
 Rot_R
 1146
 100
@@ -89,6 +101,7 @@ Rot_R
 50
 images/Rot_R.bmp
 1
+0
 Rot_D
 1096
 150
@@ -96,3 +109,4 @@ Rot_D
 50
 images/Rot_D.bmp
 1
+0

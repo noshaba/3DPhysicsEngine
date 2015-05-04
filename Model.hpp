@@ -30,6 +30,7 @@
 			Button_Model(std::string database);
 			~Button_Model(void);
 			Button* get_button(double xpos, double ypos);
+			Button* get_button(std::string name);
 			void draw(void);
 	};
 #endif

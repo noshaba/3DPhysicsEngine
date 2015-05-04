@@ -59,7 +59,7 @@
 			float ypos;
 			unsigned int height;
 			unsigned int width;
-			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed);
+			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated);
 			~Button(void);
 			std::string name;
 			unsigned int tile_width;

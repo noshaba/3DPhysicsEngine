@@ -82,7 +82,7 @@ Button_Model::~Button_Model(void){
 }
 void Button_Model::load_buttons(void){
 	std::ifstream file(this->database.c_str());
-	std::string name, xpos, ypos, tile_width, tile_height, img_path, is_displayed;
+	std::string name, xpos, ypos, tile_width, tile_height, img_path, is_displayed, is_activated;
 	if(file.is_open() && file.good()){
 		while(!file.eof()){
 			// load buttons from file and save them as button objects
@@ -93,8 +93,9 @@ void Button_Model::load_buttons(void){
 			getline(file,tile_height);
 			getline(file,img_path);
 			getline(file,is_displayed);
+			getline(file,is_activated);
 			
-			Button* button = new Button(name,atof(xpos.c_str()),atof(ypos.c_str()),atoi(tile_width.c_str()),atoi(tile_height.c_str()),img_path.c_str(),(bool) atoi(is_displayed.c_str()));
+			Button* button = new Button(name,atof(xpos.c_str()),atof(ypos.c_str()),atoi(tile_width.c_str()),atoi(tile_height.c_str()),img_path.c_str(),(bool) atoi(is_displayed.c_str()), (bool) atoi(is_activated.c_str()));
 			this->buttons.push_back(button);
 		}
 		file.close();
@@ -105,6 +106,13 @@ Button* Button_Model::get_button(double xpos, double ypos){
 		// return button when clicked on
 		if((xpos >= buttons[i]->xpos) && (xpos <= buttons[i]->xpos + buttons[i]->tile_width) &&
 		   (ypos >= buttons[i]->ypos) && (ypos <= buttons[i]->ypos + buttons[i]->tile_height)) return buttons[i];
+	}
+	return NULL;
+}
+Button* Button_Model::get_button(std::string name){
+	for(unsigned int i = 0; i < this->buttons.size(); i++){
+		// return button when clicked on
+		if(buttons[i]->name == name) return buttons[i];
 	}
 	return NULL;
 }

@@ -121,11 +121,11 @@ void HUD_Element::draw(void){
 	}
 }
 
-Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed) {
+Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) {
 	this->name = name;
 	this->tile_width = tile_width;
 	this->tile_height = tile_height;
-	this->is_activated = false;
+	this->is_activated = is_activated;
 	this->xpos = xpos;
 	this->ypos = ypos;
 	this->img_path = img_path;
