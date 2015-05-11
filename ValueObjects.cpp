@@ -24,8 +24,7 @@ HUD_Element::HUD_Element(float xpos, float ypos, std::string img_path, bool is_d
 	this->ypos = ypos;
 	this->img_path = img_path;
 	this->is_displayed = is_displayed;
-	// this->load_texture();
-	// glGenTextures(1, &(this->texture_id));
+	this->load_texture();
 }
 HUD_Element::~HUD_Element(void){
 	glDeleteTextures(1, &(this->texture_id));
@@ -92,18 +91,6 @@ void HUD_Element::load_texture(void){
 	glDisable(GL_TEXTURE_2D);
 	delete[] this->img_data;
 }
-void HUD_Element::bind_texture(void){
-		// "Bind" the newly created texture : all future texture functions will
-		// modify this texture
-		glBindTexture(GL_TEXTURE_2D, this->texture_id);
-
-		// Give the image to OpenGL
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->img_data);
-}
 void HUD_Element::draw(void){
 	if(this->is_displayed){
 		//this->bind_texture();	// bind texture
@@ -121,77 +108,11 @@ void HUD_Element::draw(void){
 	}
 }
 
-Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) {
+Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) : HUD_Element(xpos,ypos,img_path,is_displayed){
 	this->name = name;
 	this->tile_width = tile_width;
 	this->tile_height = tile_height;
 	this->is_activated = is_activated;
-	this->xpos = xpos;
-	this->ypos = ypos;
-	this->img_path = img_path;
-	this->is_displayed = is_displayed;
-	
-	// Data read from the header of the BMP file
-	unsigned char header[54];  // Each BMP file begins by a 54-bytes header
-	unsigned int dataPos;  // Position in the file where the actual data begins
-	unsigned int imageSize;
-
-	// Open the file
-	FILE* file = fopen(this->img_path.c_str(), "rb");
-	if(!file) {
-		printf("Image could not be opened\n");
-	}
-	if(fread(header, 1, 54, file) != 54) {  // If not 54 bytes read : problem
-		printf("Not a correct BMP file\n");
-	}
-	if(header[0] != 'B' || header[1] != 'M') {
-		printf("Not a correct BMP file\n");
-	}
-
-	// Read ints from the byte array
-	dataPos = *(int*)&(header[0x0A]);
-	imageSize = *(int*)&(header[0x22]);
-	this->width = *(int*)&(header[0x12]);
-	this->height = *(int*)&(header[0x16]);
-
-	// Some BMP files are misformatted, guess missing information
-	if(imageSize == 0) {
-		// 3 : one byte for each Red, Green and Blue component
-		imageSize = this->width * this->height * 3;
-	}
-	if(dataPos == 0) {
-		// The BMP header is done that way
-		dataPos = 54;
-	}
-
-	// Create a buffer
-	this->img_data = new unsigned char[imageSize];
-
-	// Read the actual data from the file into the buffer
-	fread(this->img_data, 1, imageSize, file);
-
-	// Everything is in memory now, the file can be closed
-	fclose(file);
-
-	// Create one OpenGL texture
-	glGenTextures(1, &(this->texture_id));
-	
-	glEnable(GL_TEXTURE_2D);
-	// "Bind" the newly created texture : all future texture functions will
-	// modify this texture
-	glBindTexture(GL_TEXTURE_2D, this->texture_id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->img_data);
-
-	glDisable(GL_TEXTURE_2D);
-	
-	delete[] this->img_data;
 }
 
 Button::~Button(void){}

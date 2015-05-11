@@ -40,7 +40,6 @@
 			unsigned int height;
 			unsigned int width;
 			void load_texture(void);
-			void bind_texture(void);
 		public:
 			HUD_Element(float xpos, float ypos, std::string img_path, bool is_displayed);
 			~HUD_Element(void);
@@ -50,22 +49,14 @@
 			bool is_displayed;
 	};
 	
-	class Button {
+	class Button : public HUD_Element {
 		public:
-			std::string img_path;
-			unsigned char* img_data;
-			GLuint texture_id;
-			float xpos;
-			float ypos;
-			unsigned int height;
-			unsigned int width;
 			Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated);
 			~Button(void);
 			std::string name;
 			unsigned int tile_width;
 			unsigned int tile_height;
 			bool is_activated;
-			bool is_displayed;
 			void draw(void);
 	};
 	

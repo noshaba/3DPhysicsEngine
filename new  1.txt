@@ -1,0 +1,43 @@
+-add objects button
+-scaling +-
+-rotating +-
+-drag coefficient slider
+-mass slider
+-gravity slider
+-color button
+
+-kugel vs kugel
+-kugel vs quader
+-kugel vs prisma
+-kugel vs zylinder
+-kugel vs schiefe ebene
+-skalierung
+-rotating
+
+extra:
+-quader vs quader
+-quader vs schiefe ebene
+-quader vs zylinder
+-quader vs schiefe ebene
+-quader vs prisma
+
+-zylinder vs zylinder
+-zylinder vs schiefe ebene
+-zylinder vs prisma
+
+-prisma vs prisma
+-prisma vs schiefe ebene
+
+-quaternionen rotation
+-gui
+-rotating mit quaternionen
+-3 dimensionen
+-gravitation
+-verschiedene massen und trägheits tensoren
+-strömungswiderstand
+-realer stoß (restitutioinskoeffizient)
+-haftreibung
+-der gesamte käfig lässt sich drehen
+-die kamera lässt sich drehen
+-glFrustum - "kamera-gleichung"
+-mit maus lassen sich sachen auswählen ("kamera-gleichung")
