@@ -37,14 +37,14 @@
 			std::string img_path;
 			unsigned char* img_data;
 			GLuint texture_id;
-			unsigned int height;
-			unsigned int width;
 			void load_texture(void);
 		public:
 			HUD_Element(float xpos, float ypos, std::string img_path, bool is_displayed);
 			~HUD_Element(void);
 			float xpos;
 			float ypos;
+			unsigned int height;
+			unsigned int width;
 			void draw(void);
 			bool is_displayed;
 	};
@@ -58,6 +58,24 @@
 			unsigned int tile_height;
 			bool is_activated;
 			void draw(void);
+	};
+	
+	class Slider : public HUD_Element {
+		private:
+			float min_value;
+			float max_value;
+			HUD_Element slider_bar;
+			float min_xpos;
+			float max_xpos;
+			float min_ypos;
+			float max_ypos;
+			enum Direction {VERTICAL, HORIZONTAL} direction;
+		public:
+			Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, std::string dir, float b_xpos, float b_ypos, std::string b_img_path);
+			~Slider(void);
+			void set_position(float xpos, float ypos);
+			void set_value(float v);
+			std::string name;
 	};
 	
 	class Plane : public Render_Object{
@@ -176,8 +194,6 @@
 			void init_vertex_buffer(void);
 			void init_inertia_tensor(void);
 	};
-	
-	// height: sqrt(b^2 - (a/2)^2)
 	
 	class Triangle_Prism : public Polyhedron{
 		public:

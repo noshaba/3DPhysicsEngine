@@ -108,15 +108,15 @@ void HUD_Element::draw(void){
 	}
 }
 
-Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) : HUD_Element(xpos,ypos,img_path,is_displayed){
+Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) : 
+	HUD_Element(xpos,ypos,img_path,is_displayed)
+{
 	this->name = name;
 	this->tile_width = tile_width;
 	this->tile_height = tile_height;
 	this->is_activated = is_activated;
 }
-
 Button::~Button(void){}
-
 void Button::draw(void){
 	if(this->is_displayed){
 		glPushMatrix();
@@ -138,6 +138,35 @@ void Button::draw(void){
 		glEnd(); //End quadrilateral coordinates
 		glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
+	}
+}
+
+Slider::Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, std::string dir, float b_xpos, float b_ypos, std::string b_img_path) :
+	HUD_Element(xpos,ypos,img_path,is_displayed), slider_bar(b_xpos,b_ypos,b_img_path,is_displayed)
+{
+	this->name = name;
+	this->min_value = min;
+	this->max_value = max;
+	this->min_xpos = xpos;
+	this->min_ypos = ypos;
+	this->max_xpos = slider_bar.xpos + slider_bar.width - this->width;
+	this->max_ypos = slider_bar.ypos + slider_bar.height - this->height;
+	(dir == "vertical") ? (direction = Slider::VERTICAL) : (direction = Slider::HORIZONTAL);
+}
+Slider::~Slider(void){}
+void Slider::set_value(float v){
+	(direction == Slider::VERTICAL) ? (ypos = ((v - min_value)/(max_value - min_value)) * max_ypos + (1 - (v - min_value)/(max_value - min_value)) * min_ypos) : 
+									  (xpos = ((v - min_value)/(max_value - min_value)) * max_xpos + (1 - (v - min_value)/(max_value - min_value)) * min_xpos);
+}
+void Slider::set_position(float x, float y){
+	if(direction == Slider::VERTICAL){
+		// if the slider is vertical, only change the position in Y-direction
+		ypos = y >= max_ypos ? max_ypos : y - height * .5f;
+		ypos = y <= min_ypos ? min_ypos : y - height * .5f;
+	} else {
+		// if the slider is horizontal, only change the position in X-direction
+		xpos = x >= max_xpos ? max_xpos : x - width * .5f;
+		xpos = x <= min_xpos ? min_xpos : x - width * .5f;
 	}
 }
 
