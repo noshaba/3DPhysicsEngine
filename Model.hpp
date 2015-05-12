@@ -22,7 +22,7 @@
 	};
 
 	class Button_Model{
-		public:
+		private:
 			std::string database;
 			std::vector<Button*> buttons;
 			void load_buttons(void);
@@ -33,4 +33,18 @@
 			Button* get_button(std::string name);
 			void draw(void);
 	};
+	
+	class Slider_Model{
+		private:
+			std::string database;
+			std::vector<Slider*> sliders;
+			void load_sliders(void);
+		public:
+			Slider_Model(std::string database);
+			~Slider_Model(void);
+			Slider* get_slider(double xpos, double ypos);
+			Slider* get_slider(std::string name);
+			void draw(void);
+	};
+	
 #endif

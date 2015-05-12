@@ -120,3 +120,55 @@ void Button_Model::draw(void){
 	for(unsigned int i = 0; i < this->buttons.size(); ++i)
 		(this->buttons[i])->draw();
 }
+
+Slider_Model::Slider_Model(std::string database){
+	this->database = database;
+	this->load_sliders();
+}
+Slider_Model::~Slider_Model(void){
+	for(unsigned int i = 0; i < this->sliders.size(); ++i)
+		delete this->sliders[i];
+}
+void Slider_Model::load_sliders(void){
+	std::ifstream file(this->database.c_str());
+	std::string name, xpos, ypos, img_path, is_displayed, min, max, direction, b_xpos, b_ypos, b_img_path;
+	if(file.is_open() && file.good()){
+		while(!file.eof()){
+			// load buttons from file and save them as button objects
+			getline(file,name);
+			getline(file,xpos);
+			getline(file,ypos);
+			getline(file,img_path);
+			getline(file,is_displayed);
+			getline(file,min);
+			getline(file,max);
+			getline(file,direction);
+			getline(file,b_xpos);
+			getline(file,b_ypos);
+			getline(file,b_img_path);
+			
+			Slider* slider = new Slider(name,atof(xpos.c_str()),atof(ypos.c_str()),img_path.c_str(),(bool) atoi(is_displayed.c_str()),atof(min.c_str()),atof(max.c_str()),direction,atof(b_xpos.c_str()),atof(b_ypos.c_str()),b_img_path);
+			this->sliders.push_back(slider);
+		}
+		file.close();
+	}
+}
+Slider* Slider_Model::get_slider(double xpos, double ypos){
+	for(unsigned int i = 0; i < this->sliders.size(); i++){
+		// return button when clicked on
+		if((xpos >= sliders[i]->xpos) && (xpos <= sliders[i]->xpos + sliders[i]->width) &&
+		   (ypos >= sliders[i]->ypos) && (ypos <= sliders[i]->ypos + sliders[i]->height)) return sliders[i];
+	}
+	return NULL;
+}
+Slider* Slider_Model::get_slider(std::string name){
+	for(unsigned int i = 0; i < this->sliders.size(); i++){
+		// return button when clicked on
+		if(sliders[i]->name == name) return sliders[i];
+	}
+	return NULL;
+}
+void Slider_Model::draw(void){
+	for(unsigned int i = 0; i < this->sliders.size(); ++i)
+		(this->sliders[i])->draw();
+}
