@@ -164,13 +164,15 @@ Slider::~Slider(void){}
 void Slider::set_position(float x, float y){
 	if(direction == Slider::VERTICAL){
 		// if the slider is vertical, only change the position in Y-direction
-		ypos = y >= max_ypos ? max_ypos : y - height * .5f;
-		ypos = y <= min_ypos ? min_ypos : y - height * .5f;
+		ypos = y - height * .5f;
+		if(y >= max_ypos) ypos = max_ypos;
+		if(y <= min_ypos) ypos = min_ypos;
 		value = ((ypos - min_ypos) * inv_abs_ypos * abs_value) + min_value;
 	} else {
 		// if the slider is horizontal, only change the position in X-direction
-		xpos = x >= max_xpos ? max_xpos : x - width * .5f;
-		xpos = x <= min_xpos ? min_xpos : x - width * .5f;
+		xpos = x - width * .5f;
+		if(xpos >= max_xpos) xpos = max_xpos;
+		if(xpos <= min_xpos) xpos = min_xpos;
 		value = ((xpos - min_xpos) * inv_abs_xpos * abs_value) + min_value;
 	}
 }

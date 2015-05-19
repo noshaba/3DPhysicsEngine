@@ -12,7 +12,8 @@ Game* game;
 
 Button_Model* button_model;
 Slider_Model* slider_model;
-Button* button;
+Button* button = NULL;
+Slider* slider = NULL;
 
 double xpos_last;
 double ypos_last;
@@ -54,7 +55,9 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 		}
 	} else {
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT)){
-			if(!button){
+			if(slider)
+				slider->set_position(xpos,ypos);
+			if(!button && !slider){
 				if(xpos_last < xpos){
 					game->cage->rotate(YVec3,5);
 				} else if(xpos_last > xpos){
@@ -77,6 +80,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 	glfwGetCursorPos(window,&xpos,&ypos);
 	if(action == GLFW_PRESS){
 		button = button_model->get_button(xpos, ypos);
+		slider = slider_model->get_slider(xpos, ypos);
 		if(button) button->is_activated = true;
 	} else if(action == GLFW_RELEASE){
 		switch(mods){
@@ -84,6 +88,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 				game->select_object(view->viewport,view->camera->position,xpos,ypos);
 				break;
 			default:
+				slider = NULL;
 				if(button){
 					button->is_activated = false;
 					switch(str2int(button->name.c_str())){
