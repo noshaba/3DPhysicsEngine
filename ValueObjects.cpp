@@ -93,7 +93,6 @@ void HUD_Element::load_texture(void){
 }
 void HUD_Element::draw(void){
 	if(this->is_displayed){
-		//this->bind_texture();	// bind texture
 		glEnable(GL_TEXTURE_2D); //Enable texture
 		glBindTexture(GL_TEXTURE_2D, this->texture_id);
 		glPushMatrix();
@@ -141,33 +140,55 @@ void Button::draw(void){
 	}
 }
 
-Slider::Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, std::string dir, float b_xpos, float b_ypos, std::string b_img_path) :
+Slider::Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, float value,std::string dir, float b_xpos, float b_ypos, std::string b_img_path) :
 	HUD_Element(xpos,ypos,img_path,is_displayed), slider_bar(b_xpos,b_ypos,b_img_path,is_displayed)
 {
 	this->name = name;
 	this->min_value = min;
 	this->max_value = max;
+	this->abs_value = max - min;
+	this->inv_abs_value = 1.0f/abs_value;
 	this->min_xpos = xpos;
 	this->min_ypos = ypos;
 	this->max_xpos = slider_bar.xpos + slider_bar.width - this->width;
 	this->max_ypos = slider_bar.ypos + slider_bar.height - this->height;
+	this->inv_abs_xpos = 1.0f/(max_xpos - min_xpos);
+	this->inv_abs_ypos = 1.0f/(max_ypos - min_ypos);
 	(dir == "vertical") ? (direction = Slider::VERTICAL) : (direction = Slider::HORIZONTAL);
+	this->value = value;
+	float rel_val = (value - min_value)*inv_abs_value;
+	(direction == Slider::VERTICAL) ? (this->ypos = rel_val * this->max_ypos + (1 - rel_val) * this->min_ypos) : 
+									  (this->xpos = rel_val * this->max_xpos + (1 - rel_val) * this->min_xpos);
 }
 Slider::~Slider(void){}
-void Slider::set_value(float v){
-	(direction == Slider::VERTICAL) ? (ypos = ((v - min_value)/(max_value - min_value)) * max_ypos + (1 - (v - min_value)/(max_value - min_value)) * min_ypos) : 
-									  (xpos = ((v - min_value)/(max_value - min_value)) * max_xpos + (1 - (v - min_value)/(max_value - min_value)) * min_xpos);
-}
 void Slider::set_position(float x, float y){
 	if(direction == Slider::VERTICAL){
 		// if the slider is vertical, only change the position in Y-direction
 		ypos = y >= max_ypos ? max_ypos : y - height * .5f;
 		ypos = y <= min_ypos ? min_ypos : y - height * .5f;
+		value = ((ypos - min_ypos) * inv_abs_ypos * abs_value) + min_value;
 	} else {
 		// if the slider is horizontal, only change the position in X-direction
 		xpos = x >= max_xpos ? max_xpos : x - width * .5f;
 		xpos = x <= min_xpos ? min_xpos : x - width * .5f;
+		value = ((xpos - min_xpos) * inv_abs_xpos * abs_value) + min_value;
 	}
+}
+void Slider::draw(void){
+	if(this->is_displayed){
+		glEnable(GL_TEXTURE_2D); //Enable texture
+		glBindTexture(GL_TEXTURE_2D, this->texture_id);
+		glPushMatrix();
+		glBegin(GL_QUADS); //Begin quadrilateral coordinates
+		glTexCoord2f(0.0f,1.0f); glVertex2f(this->xpos,this->ypos); // top left corner
+		glTexCoord2f(1.0f,1.0f); glVertex2f(this->xpos + this->width,this->ypos); // top right corner
+		glTexCoord2f(1.0f,0.0f); glVertex2f(this->xpos + this->width, this->ypos + this->height); // bottom right corner
+		glTexCoord2f(0.0f,0.0f); glVertex2f(this->xpos, this->ypos + this->height); // bottom left corner
+		glEnd(); //End quadrilateral coordinates
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+	this->slider_bar.draw();
 }
 
 Plane::Plane(std::vector<Vec3*> vertex_buffer, Vec3* color){

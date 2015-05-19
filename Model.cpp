@@ -131,7 +131,7 @@ Slider_Model::~Slider_Model(void){
 }
 void Slider_Model::load_sliders(void){
 	std::ifstream file(this->database.c_str());
-	std::string name, xpos, ypos, img_path, is_displayed, min, max, direction, b_xpos, b_ypos, b_img_path;
+	std::string name, xpos, ypos, img_path, is_displayed, min, max, value, direction, b_xpos, b_ypos, b_img_path;
 	if(file.is_open() && file.good()){
 		while(!file.eof()){
 			// load buttons from file and save them as button objects
@@ -142,12 +142,13 @@ void Slider_Model::load_sliders(void){
 			getline(file,is_displayed);
 			getline(file,min);
 			getline(file,max);
+			getline(file,value);
 			getline(file,direction);
 			getline(file,b_xpos);
 			getline(file,b_ypos);
 			getline(file,b_img_path);
 			
-			Slider* slider = new Slider(name,atof(xpos.c_str()),atof(ypos.c_str()),img_path.c_str(),(bool) atoi(is_displayed.c_str()),atof(min.c_str()),atof(max.c_str()),direction,atof(b_xpos.c_str()),atof(b_ypos.c_str()),b_img_path);
+			Slider* slider = new Slider(name,atof(xpos.c_str()),atof(ypos.c_str()),img_path.c_str(),(bool) atoi(is_displayed.c_str()),atof(min.c_str()),atof(max.c_str()),atof(value.c_str()),direction,atof(b_xpos.c_str()),atof(b_ypos.c_str()),b_img_path);
 			this->sliders.push_back(slider);
 		}
 		file.close();

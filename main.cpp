@@ -11,6 +11,7 @@ View* view;
 Game* game;
 
 Button_Model* button_model;
+Slider_Model* slider_model;
 Button* button;
 
 double xpos_last;
@@ -324,6 +325,7 @@ void render3Dscene() {
 void render2Dhud(){
 	view->set_2Dviewport();
 	button_model->draw();
+	slider_model->draw();
 }
 
 int main() {
@@ -348,6 +350,7 @@ int main() {
 	view = new View(window_width,window_height,Vec3(0,15,40),-25);
 	game = new Game();
 	button_model = new Button_Model("ButtonDatabase.db");
+	slider_model = new Slider_Model("SliderDatabase.db");
 	
 	
 	while(!glfwWindowShouldClose(window)) {
@@ -366,5 +369,6 @@ int main() {
 	delete view;
 	delete game;
 	delete button_model;
+	delete slider_model;
 	return 0;
 }

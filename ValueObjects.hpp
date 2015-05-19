@@ -64,18 +64,23 @@
 		private:
 			float min_value;
 			float max_value;
+			float abs_value;
+			float inv_abs_value;
 			HUD_Element slider_bar;
 			float min_xpos;
 			float max_xpos;
+			float inv_abs_xpos;
 			float min_ypos;
 			float max_ypos;
+			float inv_abs_ypos;
 			enum Direction {VERTICAL, HORIZONTAL} direction;
 		public:
-			Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, std::string dir, float b_xpos, float b_ypos, std::string b_img_path);
+			Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, float value, std::string dir, float b_xpos, float b_ypos, std::string b_img_path);
 			~Slider(void);
 			void set_position(float xpos, float ypos);
-			void set_value(float v);
 			std::string name;
+			float value;
+			void draw(void);
 	};
 	
 	class Plane : public Render_Object{
