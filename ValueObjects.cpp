@@ -155,12 +155,15 @@ Slider::Slider(std::string name, float xpos, float ypos, std::string img_path, b
 	this->inv_abs_xpos = 1.0f/(max_xpos - min_xpos);
 	this->inv_abs_ypos = 1.0f/(max_ypos - min_ypos);
 	(dir == "vertical") ? (direction = Slider::VERTICAL) : (direction = Slider::HORIZONTAL);
-	this->value = value;
+	this->set_value(value);
+}
+Slider::~Slider(void){}
+void Slider::set_value(float v){
+	this->value = v;
 	float rel_val = (value - min_value)*inv_abs_value;
 	(direction == Slider::VERTICAL) ? (this->ypos = rel_val * this->max_ypos + (1 - rel_val) * this->min_ypos) : 
 									  (this->xpos = rel_val * this->max_xpos + (1 - rel_val) * this->min_xpos);
 }
-Slider::~Slider(void){}
 void Slider::set_position(float x, float y){
 	if(direction == Slider::VERTICAL){
 		// if the slider is vertical, only change the position in Y-direction

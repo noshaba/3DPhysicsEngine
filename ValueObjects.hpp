@@ -78,6 +78,7 @@
 			Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, float value, std::string dir, float b_xpos, float b_ypos, std::string b_img_path);
 			~Slider(void);
 			void set_position(float xpos, float ypos);
+			void set_value(float v);
 			std::string name;
 			float value;
 			void draw(void);
