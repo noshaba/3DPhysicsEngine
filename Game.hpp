@@ -7,6 +7,7 @@
 	class Game{
 		private:
 			Object_Model* object_model;
+			Slider_Model* slider_model;
 		public:
 			Physics physics;
 			Game(void);
@@ -23,6 +24,8 @@
 			void rotate_selected_object(const Vec3 &n, float theta);
 			void move_selected_object(const Vec3 &n, float factor);
 			void draw(void);
+			void draw_HUD(void);
+			Slider* get_slider(float xpos, float ypos);
 	};
 
 #endif

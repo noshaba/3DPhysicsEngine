@@ -11,7 +11,6 @@ View* view;
 Game* game;
 
 Button_Model* button_model;
-Slider_Model* slider_model;
 Button* button = NULL;
 Slider* slider = NULL;
 
@@ -80,7 +79,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 	glfwGetCursorPos(window,&xpos,&ypos);
 	if(action == GLFW_PRESS){
 		button = button_model->get_button(xpos, ypos);
-		slider = slider_model->get_slider(xpos, ypos);
+		slider = game->get_slider(xpos, ypos);
 		if(button) button->is_activated = true;
 	} else if(action == GLFW_RELEASE){
 		switch(mods){
@@ -93,7 +92,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 					button->is_activated = false;
 					switch(str2int(button->name.c_str())){
 						case str2int("Cuboid"):
-							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),1,1,new Vec3(0,1,0),Null3,0));
+							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,new Vec3(0,1,0),Null3,0));
 							break;
 						case str2int("Sphere"):
 							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
@@ -245,8 +244,8 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		if(mods == GLFW_MOD_CONTROL){
 			switch (key){
 				case GLFW_KEY_EQUAL:
-						game->scale_selected_object(.1);
-						break;
+					game->scale_selected_object(.1);
+					break;
 				case GLFW_KEY_MINUS:
 					game->scale_selected_object(-.1);
 					break;
@@ -330,7 +329,7 @@ void render3Dscene() {
 void render2Dhud(){
 	view->set_2Dviewport();
 	button_model->draw();
-	slider_model->draw();
+	game->draw_HUD();
 }
 
 int main() {
@@ -355,7 +354,6 @@ int main() {
 	view = new View(window_width,window_height,Vec3(0,15,40),-25);
 	game = new Game();
 	button_model = new Button_Model("ButtonDatabase.db");
-	slider_model = new Slider_Model("SliderDatabase.db");
 	
 	
 	while(!glfwWindowShouldClose(window)) {
@@ -374,6 +372,5 @@ int main() {
 	delete view;
 	delete game;
 	delete button_model;
-	delete slider_model;
 	return 0;
 }

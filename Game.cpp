@@ -6,9 +6,11 @@ Game::Game(void){
 	this->cage = new Cage({new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
 						   new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)});
 	this->physics.add_cage(this->cage);
+	this->slider_model = new Slider_Model("SliderDatabase.db");
 }
 Game::~Game(void){
 	delete this->object_model;
+	delete this->slider_model;
 	delete this->cage;
 }
 void Game::update(void){
@@ -37,6 +39,10 @@ void Game::add_cylinder(Cylinder* cylinder){
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
 	this->physics.frozen = this->object_model->selected_object;
+	if(this->object_model->selected_object){
+		this->slider_model->get_slider("Mass")->set_value(this->object_model->selected_object->mass);
+		this->slider_model->get_slider("Drag")->set_value(this->object_model->selected_object->drag_coeff);
+	}
 }
 void Game::scale_selected_object(float factor){
 	this->object_model->scale_selected_object(this->scale_dir,factor);
@@ -51,4 +57,10 @@ void Game::draw(void){
 	this->cage->draw();
 	this->object_model->draw();
 	Collision::draw_manifold();
+}
+void Game::draw_HUD(void){
+	this->slider_model->draw();
+}
+Slider* Game::get_slider(float xpos, float ypos){
+	return this->slider_model->get_slider(xpos,ypos);
 }
