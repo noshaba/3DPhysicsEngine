@@ -25,6 +25,7 @@
 			void move_selected_object(const Vec3 &n, float factor);
 			void set_mass_selected_object(float mass);
 			void set_drag_selected_object(float drag);
+			void color_selected_object(Vec3 color);
 			void draw(void);
 			void draw_HUD(void);
 			Slider* get_slider(float xpos, float ypos);

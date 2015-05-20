@@ -54,6 +54,15 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 		}
 	} else {
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT)){
+			if(button && button->name == "Color")
+				button->is_activated = false;
+			button = button_model->get_button(xpos,ypos);
+			if(button && button->name == "Color"){
+				button->is_activated = true;
+				unsigned char pixel[3];
+				glReadPixels(xpos, window_height - ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+				game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
+			}
 			if(slider){
 				slider->set_position(xpos,ypos);
 				switch(str2int(slider->name.c_str())){
@@ -65,7 +74,7 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 						break;
 				}
 			}
-			if(!button && !slider){
+			if(!button && !slider && glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE)){
 				if(xpos_last < xpos){
 					game->cage->rotate(YVec3,5);
 				} else if(xpos_last > xpos){
@@ -141,6 +150,24 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							button_model->get_button("X_Dir")->is_activated = false;
 							game->scale_dir = SCALE_A;
 							break;
+						case str2int("Move_Front"):
+							game->move_selected_object(view->camera->direction,.1);
+							break;
+						case str2int("Move_Back"):
+							game->move_selected_object(view->camera->direction,-.1);
+							break;
+						case str2int("Move_Right"):
+							game->move_selected_object(view->camera->horizontal,.1);
+							break;
+						case str2int("Move_Left"):
+							game->move_selected_object(view->camera->horizontal,-.1);
+							break;
+						case str2int("Move_Up"):
+							game->move_selected_object(YVec3,.1);
+							break;
+						case str2int("Move_Down"):
+							game->move_selected_object(YVec3,-.1);
+							break;
 						case str2int("Scale_Pos"):
 							game->scale_selected_object(.1);
 							break;
@@ -158,6 +185,11 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							break;
 						case str2int("Rot_R"):
 							game->rotate_selected_object(YVec3, 5);
+							break;
+						case str2int("Color"):
+							unsigned char pixel[3];
+							glReadPixels(xpos, window_height - ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+							game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
 							break;
 					}
 				}

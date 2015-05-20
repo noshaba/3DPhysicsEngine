@@ -84,9 +84,7 @@ View::~View(void){
 	delete this->camera;
 }
 void View::set_2Dviewport(void){
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, this->window_width, this->window_height, 0, -1, 1);

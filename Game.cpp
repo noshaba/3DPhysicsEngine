@@ -61,6 +61,10 @@ void Game::set_drag_selected_object(float drag){
 	if(this->object_model->selected_object)
 		this->object_model->selected_object->drag_coeff = drag;
 }
+void Game::color_selected_object(Vec3 color){
+	if(this->object_model->selected_object)
+		*(this->object_model->selected_object->color) = color;
+}
 void Game::draw(void){
 	this->cage->draw();
 	this->object_model->draw();

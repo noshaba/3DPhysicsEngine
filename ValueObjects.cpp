@@ -55,8 +55,8 @@ void HUD_Element::load_texture(void){
 
 	// Some BMP files are misformatted, guess missing information
 	if(imageSize == 0) {
-		// 3 : one byte for each Red, Green and Blue component
-		imageSize = this->width * this->height * 3;
+		// 4 : one byte for each Red, Green, Blue and Alpha component
+		imageSize = this->width * this->height * 4;
 	}
 	if(dataPos == 0) {
 		// The BMP header is done that way
@@ -129,10 +129,10 @@ void Button::draw(void){
 			glTexCoord2f(t,0); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
 			glTexCoord2f(0,0); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
 		} else {
-			glTexCoord2f(t,1); glVertex2f(this->xpos, this->ypos); // top left corner
+			glTexCoord2f(fmod(t,1),1); glVertex2f(this->xpos, this->ypos); // top left corner
 			glTexCoord2f(1,1); glVertex2f(this->xpos + this->tile_width, this->ypos); // top right corner
 			glTexCoord2f(1,0); glVertex2f(this->xpos + this->tile_width, this->ypos + this->tile_height); // bottom right corner
-			glTexCoord2f(t,0); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
+			glTexCoord2f(fmod(t,1),0); glVertex2f(this->xpos, this->ypos + this->tile_height); // bottom left corner
 		}
 		glEnd(); //End quadrilateral coordinates
 		glDisable(GL_TEXTURE_2D);
@@ -180,6 +180,7 @@ void Slider::set_position(float x, float y){
 	}
 }
 void Slider::draw(void){
+	this->slider_bar.draw();
 	if(this->is_displayed){
 		glEnable(GL_TEXTURE_2D); //Enable texture
 		glBindTexture(GL_TEXTURE_2D, this->texture_id);
@@ -193,7 +194,6 @@ void Slider::draw(void){
 		glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
 	}
-	this->slider_bar.draw();
 }
 
 Plane::Plane(std::vector<Vec3*> vertex_buffer, Vec3* color){

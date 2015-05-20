@@ -28,7 +28,6 @@
 			bool is_selected = false;
 			virtual void draw(void) = 0;
 			static void material_color(int side, Vec3 color);
-		protected:
 			Vec3* color;
 	};
 	
