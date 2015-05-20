@@ -265,6 +265,14 @@ void Object::set_ang_velocity(Vec3 ang_velocity){
 	if(this->omega)
 		this->ang_velocity_n = this->ang_velocity/this->omega;
 }
+void Object::set_mass(float m){
+	this->mass = m;
+	this->inverse_mass = 1.0/m;
+}
+void Object::set_intertia_tensor(Matrix<float> tensor){
+	this->inertia_tensor = tensor;
+	this->inv_inertia_tensor = !tensor;
+}
 void Object::update_velocities(Vec3 n, Vec3 r, float P){
 	this->set_lin_velocity(this->lin_velocity + P*n*this->inverse_mass);
 	this->set_ang_velocity(this->ang_velocity + this->inv_inertia_tensor*(r%n)*P);

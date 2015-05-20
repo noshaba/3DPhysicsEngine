@@ -23,6 +23,8 @@
 			void scale_selected_object(float factor);
 			void rotate_selected_object(const Vec3 &n, float theta);
 			void move_selected_object(const Vec3 &n, float factor);
+			void set_mass_selected_object(float mass);
+			void set_drag_selected_object(float drag);
 			void draw(void);
 			void draw_HUD(void);
 			Slider* get_slider(float xpos, float ypos);

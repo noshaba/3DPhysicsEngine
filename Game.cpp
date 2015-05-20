@@ -53,6 +53,14 @@ void Game::rotate_selected_object(const Vec3 &n, float theta){
 void Game::move_selected_object(const Vec3 &n, float factor){
 	this->object_model->move_selected_object(n,factor);
 }
+void Game::set_mass_selected_object(float mass){
+	if(this->object_model->selected_object)
+		this->object_model->selected_object->set_mass(mass);
+}
+void Game::set_drag_selected_object(float drag){
+	if(this->object_model->selected_object)
+		this->object_model->selected_object->drag_coeff = drag;
+}
 void Game::draw(void){
 	this->cage->draw();
 	this->object_model->draw();

@@ -54,8 +54,17 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 		}
 	} else {
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT)){
-			if(slider)
+			if(slider){
 				slider->set_position(xpos,ypos);
+				switch(str2int(slider->name.c_str())){
+					case str2int("Mass"):
+						game->set_mass_selected_object(slider->value);
+						break;
+					case str2int("Drag"):
+						game->set_drag_selected_object(slider->value);
+						break;
+				}
+			}
 			if(!button && !slider){
 				if(xpos_last < xpos){
 					game->cage->rotate(YVec3,5);
@@ -95,6 +104,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,new Vec3(0,1,0),Null3,0));
 							break;
 						case str2int("Sphere"):
+							// Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))
 							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
 							break;
 						case str2int("Triangle_Prism"):

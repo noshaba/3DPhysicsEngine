@@ -126,6 +126,8 @@
 			void move(float dt, Vec3 acceleration);
 			void integrate(float dt, Vec3 acceleration,Vec3 ang_acceleration);
 			void pull(Vec3 n, float overlap);
+			void set_mass(float m);
+			void set_intertia_tensor(Matrix<float> tensor);
 			virtual void select(bool selection) = 0;
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
