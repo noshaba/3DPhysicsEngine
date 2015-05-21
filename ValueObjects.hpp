@@ -46,6 +46,7 @@
 			unsigned int width;
 			void draw(void);
 			bool is_displayed;
+			float grey_shade = 1;
 	};
 	
 	class Button : public HUD_Element {

@@ -92,6 +92,7 @@ void HUD_Element::load_texture(void){
 	delete[] this->img_data;
 }
 void HUD_Element::draw(void){
+	glColor3f(this->grey_shade,this->grey_shade,this->grey_shade);
 	if(this->is_displayed){
 		glEnable(GL_TEXTURE_2D); //Enable texture
 		glBindTexture(GL_TEXTURE_2D, this->texture_id);
@@ -105,6 +106,7 @@ void HUD_Element::draw(void){
 		glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
 	}
+	glColor3f(1,1,1);
 }
 
 Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width, unsigned int tile_height, std::string img_path, bool is_displayed, bool is_activated) : 
@@ -117,6 +119,7 @@ Button::Button(std::string name, float xpos, float ypos, unsigned int tile_width
 }
 Button::~Button(void){}
 void Button::draw(void){
+	glColor3f(this->grey_shade, this->grey_shade, this->grey_shade);
 	if(this->is_displayed){
 		glPushMatrix();
 		glBindTexture(GL_TEXTURE_2D, this->texture_id);
@@ -138,6 +141,7 @@ void Button::draw(void){
 		glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
 	}
+	glColor3f(1,1,1);
 }
 
 Slider::Slider(std::string name, float xpos, float ypos, std::string img_path, bool is_displayed, float min, float max, float value,std::string dir, float b_xpos, float b_ypos, std::string b_img_path) :
@@ -180,6 +184,7 @@ void Slider::set_position(float x, float y){
 	}
 }
 void Slider::draw(void){
+	glColor3f(this->grey_shade, this->grey_shade, this->grey_shade);
 	this->slider_bar.draw();
 	if(this->is_displayed){
 		glEnable(GL_TEXTURE_2D); //Enable texture
@@ -194,6 +199,7 @@ void Slider::draw(void){
 		glDisable(GL_TEXTURE_2D);
 		glPopMatrix();
 	}
+	glColor3f(1,1,1);
 }
 
 Plane::Plane(std::vector<Vec3*> vertex_buffer, Vec3* color){

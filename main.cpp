@@ -72,6 +72,9 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 					case str2int("Drag"):
 						game->set_drag_selected_object(slider->value);
 						break;
+					case str2int("Shade"):
+						button_model->get_button("Color")->grey_shade = slider->value;
+						break;
 				}
 			}
 			if(!button && !slider && glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE)){
