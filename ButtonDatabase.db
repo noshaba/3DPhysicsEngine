@@ -36,7 +36,7 @@ A_Dir
 50
 50
 images/A_Dir.bmp
-1
+0
 1
 X_Dir
 1056
@@ -44,7 +44,7 @@ X_Dir
 50
 50
 images/X_Dir.bmp
-1
+0
 0
 Y_Dir
 1136
@@ -52,7 +52,7 @@ Y_Dir
 50
 50
 images/Y_Dir.bmp
-1
+0
 0
 Z_Dir
 1216
@@ -60,7 +60,7 @@ Z_Dir
 50
 50
 images/Z_Dir.bmp
-1
+0
 0
 Scale_Pos
 1056
@@ -68,7 +68,7 @@ Scale_Pos
 50
 50
 images/Scale_Pos.bmp
-1
+0
 0
 Scale_Neg
 1136
@@ -76,7 +76,7 @@ Scale_Neg
 50
 50
 images/Scale_Neg.bmp
-1
+0
 0
 Move_Up
 1096
@@ -84,7 +84,7 @@ Move_Up
 50
 50
 images/Move_Up.bmp
-1
+0
 0
 Move_Down
 1096
@@ -92,7 +92,7 @@ Move_Down
 50
 50
 images/Move_Down.bmp
-1
+0
 0
 Move_Left
 1051
@@ -100,7 +100,7 @@ Move_Left
 50
 50
 images/Move_Left.bmp
-1
+0
 0
 Move_Front
 1051
@@ -108,7 +108,7 @@ Move_Front
 50
 50
 images/Move_Front.bmp
-1
+0
 0
 Move_Back
 1141
@@ -116,7 +116,7 @@ Move_Back
 50
 50
 images/Move_Back.bmp
-1
+0
 0
 Move_Right
 1141
@@ -124,7 +124,7 @@ Move_Right
 50
 50
 images/Move_Right.bmp
-1
+0
 0
 Rot_U
 996
@@ -132,7 +132,7 @@ Rot_U
 50
 50
 images/Rot_U.bmp
-1
+0
 0
 Rot_L
 1096
@@ -140,7 +140,7 @@ Rot_L
 50
 50
 images/Rot_L.bmp
-1
+0
 0
 Rot_R
 1096
@@ -148,7 +148,7 @@ Rot_R
 50
 50
 images/Rot_R.bmp
-1
+0
 0
 Rot_D
 1196
@@ -156,7 +156,7 @@ Rot_D
 50
 50
 images/Rot_D.bmp
-1
+0
 0
 Color
 1065
@@ -164,5 +164,5 @@ Color
 118
 118
 images/Color.bmp
-1
+0
 0

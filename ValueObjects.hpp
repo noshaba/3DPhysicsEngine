@@ -79,6 +79,7 @@
 			~Slider(void);
 			void set_position(float xpos, float ypos);
 			void set_value(float v);
+			void set_display(bool displayed);
 			std::string name;
 			float value;
 			void draw(void);

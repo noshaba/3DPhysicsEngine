@@ -8,6 +8,8 @@
 		private:
 			Object_Model* object_model;
 			Slider_Model* slider_model;
+			Button_Model* button_model;
+			void toggle_options(bool displayed);
 		public:
 			Physics physics;
 			Game(void);
@@ -29,6 +31,8 @@
 			void draw(void);
 			void draw_HUD(void);
 			Slider* get_slider(float xpos, float ypos);
+			Button* get_button(float xpos, float ypos);
+			Button* get_button(std::string name);
 	};
 
 #endif

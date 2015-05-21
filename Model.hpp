@@ -31,6 +31,7 @@
 			~Button_Model(void);
 			Button* get_button(double xpos, double ypos);
 			Button* get_button(std::string name);
+			void toggle_options(bool displayed);
 			void draw(void);
 	};
 	
@@ -44,6 +45,7 @@
 			~Slider_Model(void);
 			Slider* get_slider(double xpos, double ypos);
 			Slider* get_slider(std::string name);
+			void toggle_options(bool displayed);
 			void draw(void);
 	};
 	
