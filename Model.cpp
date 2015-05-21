@@ -104,7 +104,7 @@ void Button_Model::load_buttons(void){
 Button* Button_Model::get_button(double xpos, double ypos){
 	for(unsigned int i = 0; i < this->buttons.size(); i++){
 		// return button when clicked on
-		if(buttons[i]->is_displayed && (xpos >= buttons[i]->xpos) && (xpos <= buttons[i]->xpos + buttons[i]->tile_width) &&
+		if((xpos >= buttons[i]->xpos) && (xpos <= buttons[i]->xpos + buttons[i]->tile_width) &&
 		   (ypos >= buttons[i]->ypos) && (ypos <= buttons[i]->ypos + buttons[i]->tile_height)) return buttons[i];
 	}
 	return NULL;
@@ -116,13 +116,9 @@ Button* Button_Model::get_button(std::string name){
 	}
 	return NULL;
 }
-void Button_Model::toggle_options(bool displayed){
-	for(unsigned int i = 4; i < this->buttons.size(); ++i)
-		this->buttons[i]->is_displayed = displayed;
-}
 void Button_Model::draw(void){
 	for(unsigned int i = 0; i < this->buttons.size(); ++i)
-		this->buttons[i]->draw();
+		(this->buttons[i])->draw();
 }
 
 Slider_Model::Slider_Model(std::string database){
@@ -159,23 +155,19 @@ void Slider_Model::load_sliders(void){
 	}
 }
 Slider* Slider_Model::get_slider(double xpos, double ypos){
-	for(unsigned int i = 0; i < this->sliders.size(); ++i){
+	for(unsigned int i = 0; i < this->sliders.size(); i++){
 		// return slider when clicked on
-		if(sliders[i]->is_displayed && (xpos >= sliders[i]->xpos) && (xpos <= sliders[i]->xpos + sliders[i]->width) &&
+		if((xpos >= sliders[i]->xpos) && (xpos <= sliders[i]->xpos + sliders[i]->width) &&
 		   (ypos >= sliders[i]->ypos) && (ypos <= sliders[i]->ypos + sliders[i]->height)) return sliders[i];
 	}
 	return NULL;
 }
 Slider* Slider_Model::get_slider(std::string name){
-	for(unsigned int i = 0; i < this->sliders.size(); ++i){
+	for(unsigned int i = 0; i < this->sliders.size(); i++){
 		// return slider with name
 		if(sliders[i]->name == name) return sliders[i];
 	}
 	return NULL;
-}
-void Slider_Model::toggle_options(bool displayed){
-	for(unsigned int i = 0; i < this->sliders.size(); ++i)
-		this->sliders[i]->set_display(displayed);
 }
 void Slider_Model::draw(void){
 	for(unsigned int i = 0; i < this->sliders.size(); ++i)

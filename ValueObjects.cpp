@@ -183,10 +183,6 @@ void Slider::set_position(float x, float y){
 		value = ((xpos - min_xpos) * inv_abs_xpos * abs_value) + min_value;
 	}
 }
-void Slider::set_display(bool displayed){
-	this->is_displayed = displayed;
-	this->slider_bar.is_displayed = displayed;
-}
 void Slider::draw(void){
 	glColor3f(this->grey_shade, this->grey_shade, this->grey_shade);
 	this->slider_bar.draw();

@@ -7,7 +7,6 @@ Game::Game(void){
 						   new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)});
 	this->physics.add_cage(this->cage);
 	this->slider_model = new Slider_Model("SliderDatabase.db");
-	this->button_model = new Button_Model("ButtonDatabase.db");
 }
 Game::~Game(void){
 	delete this->object_model;
@@ -40,9 +39,7 @@ void Game::add_cylinder(Cylinder* cylinder){
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
 	this->physics.frozen = this->object_model->selected_object;
-	bool object = this->object_model->selected_object;
-	this->toggle_options(object);
-	if(object){
+	if(this->object_model->selected_object){
 		this->slider_model->get_slider("Mass")->set_value(this->object_model->selected_object->mass);
 		this->slider_model->get_slider("Drag")->set_value(this->object_model->selected_object->drag_coeff);
 	}
@@ -75,18 +72,7 @@ void Game::draw(void){
 }
 void Game::draw_HUD(void){
 	this->slider_model->draw();
-	this->button_model->draw();
 }
 Slider* Game::get_slider(float xpos, float ypos){
 	return this->slider_model->get_slider(xpos,ypos);
-}
-Button* Game::get_button(float xpos, float ypos){
-	return this->button_model->get_button(xpos,ypos);
-}
-Button* Game::get_button(std::string name){
-	return this->button_model->get_button(name);
-}
-void Game::toggle_options(bool displayed){
-	this->slider_model->toggle_options(displayed);
-	this->button_model->toggle_options(displayed);
 }
