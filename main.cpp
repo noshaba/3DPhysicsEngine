@@ -63,16 +63,16 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 				button->is_activated = true;
 				unsigned char pixel[3];
 				glReadPixels(xpos, window_height - ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-				game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
+				if(!round_start) game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
 			}
 			if(slider){
 				slider->set_position(xpos,ypos);
 				switch(str2int(slider->name.c_str())){
 					case str2int("Mass"):
-						game->set_mass_selected_object(slider->value);
+						if(!round_start) game->set_mass_selected_object(slider->value);
 						break;
 					case str2int("Drag"):
-						game->set_drag_selected_object(slider->value);
+						if(!round_start) game->set_drag_selected_object(slider->value);
 						break;
 					case str2int("Shade"):
 						button_model->get_button("Color")->grey_shade = slider->value;
@@ -115,21 +115,21 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 					button->is_activated = false;
 					switch(str2int(button->name.c_str())){
 						case str2int("Cuboid"):
-							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,new Vec3(0,1,0),Null3,0));
+							if(!round_start) game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,new Vec3(0,1,0),Null3,0));
 							break;
 						case str2int("Sphere"):
 							// Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))
-							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
+							if(!round_start) game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
 							break;
 						case str2int("Triangle_Prism"):
-							game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
+							if(!round_start) game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
 							break;
 						case str2int("Cylinder"):
-							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+							if(!round_start) game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
 							break;
 						case str2int("Start_Game"):
 							button->is_activated = true;
-							//round_start = true;
+							round_start = true;
 							game->physics.frozen = true;
 							button_model->get_button("Ready")->is_displayed = true;
 							break;
@@ -165,45 +165,45 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->scale_dir = SCALE_A;
 							break;
 						case str2int("Move_Front"):
-							game->move_selected_object(view->camera->direction,.1);
+							if(!round_start) game->move_selected_object(view->camera->direction,.1);
 							break;
 						case str2int("Move_Back"):
-							game->move_selected_object(view->camera->direction,-.1);
+							if(!round_start) game->move_selected_object(view->camera->direction,-.1);
 							break;
 						case str2int("Move_Right"):
-							game->move_selected_object(view->camera->horizontal,.1);
+							if(!round_start) game->move_selected_object(view->camera->horizontal,.1);
 							break;
 						case str2int("Move_Left"):
-							game->move_selected_object(view->camera->horizontal,-.1);
+							if(!round_start) game->move_selected_object(view->camera->horizontal,-.1);
 							break;
 						case str2int("Move_Up"):
-							game->move_selected_object(YVec3,.1);
+							if(!round_start) game->move_selected_object(YVec3,.1);
 							break;
 						case str2int("Move_Down"):
-							game->move_selected_object(YVec3,-.1);
+							if(!round_start) game->move_selected_object(YVec3,-.1);
 							break;
 						case str2int("Scale_Pos"):
-							game->scale_selected_object(.1);
+							if(!round_start) game->scale_selected_object(.1);
 							break;
 						case str2int("Scale_Neg"):
-							game->scale_selected_object(-.1);
+							if(!round_start) game->scale_selected_object(-.1);
 							break;
 						case str2int("Rot_U"):
-							game->rotate_selected_object(view->camera->horizontal,-5);
+							if(!round_start) game->rotate_selected_object(view->camera->horizontal,-5);
 							break;
 						case str2int("Rot_D"):
-							game->rotate_selected_object(view->camera->horizontal, 5);
+							if(!round_start) game->rotate_selected_object(view->camera->horizontal, 5);
 							break;
 						case str2int("Rot_L"):
-							game->rotate_selected_object(YVec3,-5);
+							if(!round_start) game->rotate_selected_object(YVec3,-5);
 							break;
 						case str2int("Rot_R"):
-							game->rotate_selected_object(YVec3, 5);
+							if(!round_start) game->rotate_selected_object(YVec3, 5);
 							break;
 						case str2int("Color"):
 							unsigned char pixel[3];
 							glReadPixels(xpos, window_height - ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-							game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
+							if(!round_start) game->color_selected_object(Vec3(pixel[0]/255.0f, pixel[1]/255.0f, pixel[2]/255.0f));
 							break;
 					}
 				}
@@ -226,55 +226,55 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		if(mods == GLFW_MOD_SHIFT){
 			switch(key){
 				case GLFW_KEY_S:
-					game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
+					if(!round_start) game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
 					break;
 				case GLFW_KEY_Q:
-					game->add_cuboid(new Cuboid(Vec3(-3,-2,-1),Vec3(3,2,1),1,1,new Vec3(0,1,0),Vec3(1,0,0),90,Null3));
+					if(!round_start) game->add_cuboid(new Cuboid(Vec3(-3,-2,-1),Vec3(3,2,1),1,1,new Vec3(0,1,0),Vec3(1,0,0),90,Null3));
 					break;
 				case GLFW_KEY_T:
-					game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
+					if(!round_start) game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
 					break;
 				case GLFW_KEY_C:
-					game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+					if(!round_start) game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
 					break;
 			}
 		} else if(mods == GLFW_MOD_CONTROL) {
 			switch(key){
 				case GLFW_KEY_EQUAL:
-					game->scale_selected_object(.1);
+					if(!round_start) game->scale_selected_object(.1);
 					break;
 				case GLFW_KEY_MINUS:
-					game->scale_selected_object(-.1);
+					if(!round_start) game->scale_selected_object(-.1);
 					break;
 				case GLFW_KEY_UP:
-					game->rotate_selected_object(view->camera->horizontal,-5);
+					if(!round_start) game->rotate_selected_object(view->camera->horizontal,-5);
 					break;
 				case GLFW_KEY_DOWN:
-					game->rotate_selected_object(view->camera->horizontal,5);
+					if(!round_start) game->rotate_selected_object(view->camera->horizontal,5);
 					break;
 				case GLFW_KEY_LEFT:
-					game->rotate_selected_object(YVec3,-5);
+					if(!round_start) game->rotate_selected_object(YVec3,-5);
 					break;
 				case GLFW_KEY_RIGHT:
-					game->rotate_selected_object(YVec3,5);
+					if(!round_start) game->rotate_selected_object(YVec3,5);
 					break;
 				case GLFW_KEY_W:
-					game->move_selected_object(view->camera->direction,-.1);
+					if(!round_start) game->move_selected_object(view->camera->direction,-.1);
 					break;
 				case GLFW_KEY_S:
-					game->move_selected_object(view->camera->direction,.1);
+					if(!round_start) game->move_selected_object(view->camera->direction,.1);
 					break;
 				case GLFW_KEY_A:
-					game->move_selected_object(view->camera->horizontal,-.1);
+					if(!round_start) game->move_selected_object(view->camera->horizontal,-.1);
 					break;
 				case GLFW_KEY_D:
-					game->move_selected_object(view->camera->horizontal,.1);
+					if(!round_start) game->move_selected_object(view->camera->horizontal,.1);
 					break;
 				case GLFW_KEY_X:
-					game->move_selected_object(YVec3,-.1);
+					if(!round_start) game->move_selected_object(YVec3,-.1);
 					break;
 				case GLFW_KEY_SPACE:
-					game->move_selected_object(YVec3,.1);
+					if(!round_start) game->move_selected_object(YVec3,.1);
 					break;
 			}
 		} else {
@@ -300,40 +300,40 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		if(mods == GLFW_MOD_CONTROL){
 			switch (key){
 				case GLFW_KEY_EQUAL:
-					game->scale_selected_object(.1);
+					if(!round_start) game->scale_selected_object(.1);
 					break;
 				case GLFW_KEY_MINUS:
-					game->scale_selected_object(-.1);
+					if(!round_start) game->scale_selected_object(-.1);
 					break;
 				case GLFW_KEY_UP:
-					game->rotate_selected_object(view->camera->horizontal,-5);
+					if(!round_start) game->rotate_selected_object(view->camera->horizontal,-5);
 					break;
 				case GLFW_KEY_DOWN:
-					game->rotate_selected_object(view->camera->horizontal,5);
+					if(!round_start) game->rotate_selected_object(view->camera->horizontal,5);
 					break;
 				case GLFW_KEY_LEFT:
-					game->rotate_selected_object(YVec3,-5);
+					if(!round_start) game->rotate_selected_object(YVec3,-5);
 					break;
 				case GLFW_KEY_RIGHT:
-					game->rotate_selected_object(YVec3,5);
+					if(!round_start) game->rotate_selected_object(YVec3,5);
 					break;
 				case GLFW_KEY_W:
-					game->move_selected_object(view->camera->direction,-.1);
+					if(!round_start) game->move_selected_object(view->camera->direction,-.1);
 					break;
 				case GLFW_KEY_S:
-					game->move_selected_object(view->camera->direction,.1);
+					if(!round_start) game->move_selected_object(view->camera->direction,.1);
 					break;
 				case GLFW_KEY_A:
-					game->move_selected_object(view->camera->horizontal,-.1);
+					if(!round_start) game->move_selected_object(view->camera->horizontal,-.1);
 					break;
 				case GLFW_KEY_D:
-					game->move_selected_object(view->camera->horizontal,.1);
+					if(!round_start) game->move_selected_object(view->camera->horizontal,.1);
 					break;
 				case GLFW_KEY_X:
-					game->move_selected_object(YVec3,-.1);
+					if(!round_start) game->move_selected_object(YVec3,-.1);
 					break;
 				case GLFW_KEY_SPACE:
-					game->move_selected_object(YVec3,.1);
+					if(!round_start) game->move_selected_object(YVec3,.1);
 					break;
 			}
 		} else {
