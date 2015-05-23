@@ -9,10 +9,8 @@ unsigned int window_height = 700;
 
 bool round_start = false;
 
-View* view;
 Game* game;
 
-Button_Model* button_model;
 Button* button = NULL;
 Slider* slider = NULL;
 Object* selected_object = NULL;
@@ -59,7 +57,7 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 		if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_MIDDLE) || glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_RIGHT)){
 			if(button && button->name == "Color")
 				button->is_activated = false;
-			button = button_model->get_button(xpos,ypos);
+			button = game->get_button(xpos,ypos);
 			if(button && button->name == "Color"){
 				button->is_activated = true;
 				unsigned char pixel[3];
@@ -76,7 +74,7 @@ void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos){
 						game->set_drag_selected_object(slider->value);
 						break;
 					case str2int("Shade"):
-						button_model->get_button("Color")->grey_shade = slider->value;
+						game->get_button("Color")->grey_shade = slider->value;
 						break;
 				}
 			}
@@ -102,7 +100,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 	double xpos, ypos;
 	glfwGetCursorPos(window,&xpos,&ypos);
 	if(action == GLFW_PRESS){
-		button = button_model->get_button(xpos, ypos);
+		button = game->get_button(xpos, ypos);
 		slider = game->get_slider(xpos, ypos);
 		if(button) button->is_activated = true;
 	} else if(action == GLFW_RELEASE){
@@ -138,38 +136,38 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							button->is_activated = true;
 							round_start = true;
 							game->physics.frozen = true;
-							button_model->get_button("Ready")->is_displayed = true;
+							game->get_button("Ready")->is_displayed = true;
 							break;
 						case str2int("Ready"):
 							game->add_target(new Target(game->view->camera->horizontal));
-							button_model->get_button("Ready")->is_displayed = false;
+							game->get_button("Ready")->is_displayed = false;
 							break;
 						case str2int("X_Dir"):
 							button->is_activated = true;
-							button_model->get_button("Y_Dir")->is_activated = false;
-							button_model->get_button("Z_Dir")->is_activated = false;
-							button_model->get_button("A_Dir")->is_activated = false;
+							game->get_button("Y_Dir")->is_activated = false;
+							game->get_button("Z_Dir")->is_activated = false;
+							game->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_X;
 							break;
 						case str2int("Y_Dir"):
 							button->is_activated = true;
-							button_model->get_button("X_Dir")->is_activated = false;
-							button_model->get_button("Z_Dir")->is_activated = false;
-							button_model->get_button("A_Dir")->is_activated = false;
+							game->get_button("X_Dir")->is_activated = false;
+							game->get_button("Z_Dir")->is_activated = false;
+							game->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_Y;
 							break;
 						case str2int("Z_Dir"):
 							button->is_activated = true;
-							button_model->get_button("Y_Dir")->is_activated = false;
-							button_model->get_button("X_Dir")->is_activated = false;
-							button_model->get_button("A_Dir")->is_activated = false;
+							game->get_button("Y_Dir")->is_activated = false;
+							game->get_button("X_Dir")->is_activated = false;
+							game->get_button("A_Dir")->is_activated = false;
 							game->scale_dir = SCALE_Z;
 							break;
 						case str2int("A_Dir"):
 							button->is_activated = true;
-							button_model->get_button("Y_Dir")->is_activated = false;
-							button_model->get_button("Z_Dir")->is_activated = false;
-							button_model->get_button("X_Dir")->is_activated = false;
+							game->get_button("Y_Dir")->is_activated = false;
+							game->get_button("Z_Dir")->is_activated = false;
+							game->get_button("X_Dir")->is_activated = false;
 							game->scale_dir = SCALE_A;
 							break;
 						case str2int("Move_Front"):
@@ -381,15 +379,6 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
-void render3Dscene() {
-	game->draw();
-}
-void render2Dhud(){
-	game->view->set_2Dviewport();
-	button_model->draw();
-	game->draw_HUD();
-}
-
 int main() {
 	GLFWwindow* window = NULL;
 	printf("Here we go!\n");
@@ -409,13 +398,11 @@ int main() {
 	glfwSetScrollCallback(window,glfwSetScroll);
 	
 	game = new Game(window_width, window_height);
-	button_model = new Button_Model("ButtonDatabase.db");
 	
 	
 	while(!glfwWindowShouldClose(window)) {
 		game->update();
-		render3Dscene();
-		render2Dhud();
+		game->draw();
 		// make it appear (before this, it's hidden in the rear buffer)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -426,6 +413,5 @@ int main() {
 	printf("Goodbye!\n");
 	
 	delete game;
-	delete button_model;
 	return 0;
 }

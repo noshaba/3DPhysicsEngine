@@ -8,6 +8,7 @@ Game::Game(unsigned int window_width, unsigned int window_height){
 						   new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)});
 	this->physics.add_cage(this->cage);
 	this->slider_model = new Slider_Model("SliderDatabase.db");
+	this->button_model = new Button_Model("ButtonDatabase.db");
 }
 Game::~Game(void){
 	delete this->object_model;
@@ -99,10 +100,16 @@ void Game::draw(void){
 			}
 		}
 	}
-}
-void Game::draw_HUD(void){
+	this->view->set_2Dviewport();
+	this->button_model->draw();
 	this->slider_model->draw();
 }
 Slider* Game::get_slider(float xpos, float ypos){
 	return this->slider_model->get_slider(xpos,ypos);
+}
+Button* Game::get_button(float xpos, float ypos){
+	return this->button_model->get_button(xpos, ypos);
+}
+Button* Game::get_button(std::string name){
+	return this->button_model->get_button(name);
 }

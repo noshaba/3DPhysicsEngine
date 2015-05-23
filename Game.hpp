@@ -9,6 +9,7 @@
 		private:
 			Object_Model* object_model;
 			Slider_Model* slider_model;
+			Button_Model* button_model;
 		public:
 			Physics physics;
 			Game(unsigned int window_width, unsigned int window_height);
@@ -32,8 +33,9 @@
 			void set_drag_selected_object(float drag);
 			void color_selected_object(Vec3 color);
 			void draw(void);
-			void draw_HUD(void);
 			Slider* get_slider(float xpos, float ypos);
+			Button* get_button(float xpos, float ypos);
+			Button* get_button(std::string name);
 	};
 
 #endif
