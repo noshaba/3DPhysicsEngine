@@ -42,6 +42,15 @@ Vec3 Collision::closest_point_on_poly(Vec3 p, Polyhedron* poly){
 		if(distance < -poly->hl[i]) distance = -poly->hl[i];
 		closest += distance * poly->axis_orientation[i];
 	}
+	if(Cylinder* cyl = dynamic_cast<Cylinder*>(poly)){
+		Vec3 axis = distance_vec % cyl->axis_orientation[0];
+		axis.Normalize();
+		axis = axis % cyl->axis_orientation[0];
+		distance = distance_vec * axis;
+		if(distance >  cyl->circle_radius) distance =  cyl->circle_radius;
+		if(distance < -cyl->circle_radius) distance = -cyl->circle_radius;
+		closest += distance * axis;
+	}
 	return closest;
 }
 bool Collision::outside_scene(Object* obj, std::vector<Plane*> walls){
