@@ -662,6 +662,13 @@ Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_
 	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
 	this->set_lin_velocity(impulse);
 }
+Triangle_Prism::~Triangle_Prism(void){
+	for(unsigned int i = 0; i < this->planes.size(); ++i)
+		delete this->planes[i];
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
+		delete this->vertex_buffer[i];
+	delete this->color;
+}
 void Triangle_Prism::init_vertex_buffer(void){
 	this->vertex_buffer = {
 							new Vec3(-hl[0], 0, 0.5f*side), new Vec3(hl[0], 0, 0.5f*side),
@@ -736,6 +743,13 @@ Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coe
 	this->init(mass,drag_coeff,color,orientation,angle);
 	this->set_lin_velocity(impulse);
 }
+Cylinder::~Cylinder(void){
+	for(unsigned int i = 0; i < this->planes.size(); ++i)
+		delete this->planes[i];
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
+		delete this->vertex_buffer[i];
+	delete this->color;
+}
 void Cylinder::init_vertex_buffer(void){
 	double a = 2 * M_PI / (double) this->res;
 	for(int i = -1; i < 2; i+=2){
@@ -799,4 +813,22 @@ void Cylinder::init_inertia_tensor(void){
 		this->inertia_tensor[i][i] = k*this->mass*(3*this->circle_radius*this->circle_radius + this->length * this->length);
 	this->inertia_tensor[2][2] = .5f * this->mass * this->circle_radius * this->circle_radius;
 	this->inv_inertia_tensor = !this->inertia_tensor;
+}
+
+Target::Target(Vec3 camera_horizontal) : Cylinder(1,rand() % 3 + 1,1,0,new Vec3(1,1,1),Null3,0){
+	this->mass = 0;
+	this->inverse_mass = 0;
+	for(unsigned int i = 0; i < this->inertia_tensor.rows - 1; ++i)
+		this->inertia_tensor[i][i] = 0;
+	this->inv_inertia_tensor = inertia_tensor;
+	this->rotate(camera_horizontal, rand()%360,this->mass_center);
+	this->rotate(YVec3,rand()%360,this->mass_center);
+	this->pull(Vec3(0,0,1),-10);
+}
+Target::~Target(void){
+	for(unsigned int i = 0; i < this->planes.size(); ++i)
+		delete this->planes[i];
+	for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i)
+		delete this->vertex_buffer[i];
+	delete this->color;
 }

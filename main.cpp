@@ -7,6 +7,8 @@
 unsigned int window_width = 1366;
 unsigned int window_height = 700;
 
+bool round_start = false;
+
 View* view;
 Game* game;
 
@@ -124,6 +126,15 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							break;
 						case str2int("Cylinder"):
 							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+							break;
+						case str2int("Start_Game"):
+							button->is_activated = true;
+							//round_start = true;
+							game->physics.frozen = true;
+							button_model->get_button("Ready")->is_displayed = true;
+							break;
+						case str2int("Ready"):
+							game->add_target(new Target(view->camera->horizontal));
 							break;
 						case str2int("X_Dir"):
 							button->is_activated = true;
@@ -268,8 +279,8 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			}
 		} else {
 			switch(key){
-				case GLFW_KEY_P:
-					game->physics.frozen = !game->physics.frozen;
+				case GLFW_KEY_P: 
+					game->physics.frozen = !game->physics.frozen || round_start;
 					break;
 				case GLFW_KEY_1:
 					game->scale_dir = SCALE_X;

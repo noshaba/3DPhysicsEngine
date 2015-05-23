@@ -39,18 +39,6 @@ float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	
 	float rv    = n*(v+(w%r));
 	float imsum = (m+n*(((I*(r%n))%r)));
-	// n.Print("n");
-	// v.Print("v");
-	// w.Print("w");
-	// r.Print("r");
-	// std::cout << "rv: " << rv << std::endl;
-	// std::cout << "imsum: " << imsum << std::endl;
-	// std::cout << "I " << std::endl;
-	// obj->inertia_tensor.print();
-	// std::cout << std::endl;
-	// std::cout << "Inv tensor" << std::endl;
-	// I.print();
-	// std::cout << std::endl;
 	return -2*rv/imsum;
 }
 void Physics::update(void){
@@ -61,14 +49,6 @@ void Physics::update(void){
 		////////////////////////////////////////////////////// Spheres //////////////////////////////////////////////////////
 	
 		for(unsigned int i = 0; i < __spheres.size(); ++i){
-			////////////////////////////////
-			// Movement & External Forces //
-			////////////////////////////////
-			__drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
-			
-			__acceleration = this->gravity+__drag;
-			
-			__spheres[i]->integrate(this->dt,__acceleration,Null3);
 			
 			//////////////////////////////////////////////////////////////////////
 			// If a sphere is too fast and moves out of the box pull it back in //
@@ -88,10 +68,11 @@ void Physics::update(void){
 				if(__colli.collision){
 					__P = this->relative_momentum(__spheres[i],__colli.r_1,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					// __spheres[i]->manifold[0].Print("contact");
-					// this->frozen = true;
 				}
 			}
+			
+			if(__spheres[i]->inverse_mass == 0)
+				continue;
 			
 			/////////////////////////////////////
 			// Collision against other spheres //
@@ -101,9 +82,14 @@ void Physics::update(void){
 				if(i==j) continue;
 				__colli = Collision::sphere2sphere(__spheres[i],__spheres[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__spheres[i],__spheres[j],__colli.r_1,__colli.r_2,__colli.normal);
-					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					__spheres[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					if(__spheres[j]->inverse_mass == 0){
+						__P = this->relative_momentum(__spheres[i],__colli.r_1,__colli.normal);
+						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					} else {
+						__P = this->relative_momentum(__spheres[i],__spheres[j],__colli.r_1,__colli.r_2,__colli.normal);
+						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+						__spheres[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					}
 					// this->frozen = true;
 				}
 			}
@@ -115,25 +101,31 @@ void Physics::update(void){
 			for(unsigned int j = 0; j < __polyhedra.size(); ++j){
 				__colli = Collision::sphere2poly(__spheres[i],__polyhedra[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__spheres[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
-					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					if(__polyhedra[j]->inverse_mass == 0){
+						__P = this->relative_momentum(__spheres[i],__colli.r_1,__colli.normal);
+						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					} else {
+						__P = this->relative_momentum(__spheres[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
+						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+						__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					}
 					// this->frozen = true;
 				}
 			}
+			
+			////////////////////////////////
+			// Movement & External Forces //
+			////////////////////////////////
+			__drag = -(__spheres[i]->drag_coeff*__spheres[i]->inverse_mass*__spheres[i]->lin_velocity.Length2())*__spheres[i]->lin_velocity_n;
+			
+			__acceleration = this->gravity+__drag;
+			
+			__spheres[i]->integrate(this->dt,__acceleration,Null3);
 		}
 		
 		////////////////////////////////////////////////////// Polyhedra //////////////////////////////////////////////////////
 		
 		for(unsigned int i = 0; i < __polyhedra.size(); ++i){
-			////////////////////////////////
-			// Movement & External Forces //
-			////////////////////////////////
-			__drag = -(__polyhedra[i]->drag_coeff*__polyhedra[i]->inverse_mass*__polyhedra[i]->lin_velocity.Length2())*__polyhedra[i]->lin_velocity_n;
-
-			__acceleration = this->gravity+__drag;
-			
-			__polyhedra[i]->integrate(this->dt,__acceleration,Null3);
 			
 			//////////////////////////////////////////////////////////////////////////
 			// If a polyhedron is too fast and moves out of the box pull it back in //
@@ -154,12 +146,11 @@ void Physics::update(void){
 					__P = this->relative_momentum(__polyhedra[i],__colli.r_1,__colli.normal);
 					__P*=.1;
 					__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					// __polyhedra[i]->manifold[k].Print("contact");
-					// std::cout << "P: " << __P << std::endl;
-					// __polyhedra[i]->ang_velocity.Print("ang");
-					// this->frozen = true;
 				}
 			}
+			
+			if(__polyhedra[i]->inverse_mass == 0)
+				continue;
 			
 			///////////////////////////////////////
 			// Collision against other polyhedra //
@@ -169,13 +160,29 @@ void Physics::update(void){
 				if(i==j) continue;
 				__colli = Collision::poly2poly(__polyhedra[i],__polyhedra[j]);
 				if(__colli.collision){
-					__P = this->relative_momentum(__polyhedra[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
-					__P*=.1;
-					__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
-					__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					if(__polyhedra[j]->inverse_mass == 0){
+						__P = this->relative_momentum(__polyhedra[i],__colli.r_1,__colli.normal);
+						__P*=.1;
+						__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					} else {
+						__P = this->relative_momentum(__polyhedra[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
+						__P*=.1;
+						__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+						__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
+					}
 					//this->frozen = true;
 				}
 			}
+			
+			////////////////////////////////
+			// Movement & External Forces //
+			////////////////////////////////
+			
+			__drag = -(__polyhedra[i]->drag_coeff*__polyhedra[i]->inverse_mass*__polyhedra[i]->lin_velocity.Length2())*__polyhedra[i]->lin_velocity_n;
+
+			__acceleration = this->gravity+__drag;
+			
+			__polyhedra[i]->integrate(this->dt,__acceleration,Null3);
 		}
 	}
 }

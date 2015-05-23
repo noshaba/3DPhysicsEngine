@@ -1,18 +1,11 @@
--add objects button
--scaling +-
--rotating +-
--drag coefficient slider
--mass slider
--gravity slider
--color button
-
--kugel vs kugel
+﻿-kugel vs kugel
 -kugel vs quader
 -kugel vs prisma
 -kugel vs zylinder
 -kugel vs schiefe ebene
 -skalierung
 -rotating
+-bewegung
 
 extra:
 -quader vs quader
@@ -28,16 +21,24 @@ extra:
 -prisma vs prisma
 -prisma vs schiefe ebene
 
--quaternionen rotation
--gui
--rotating mit quaternionen
+-verschiedene Massen
+-passende Trägheitstensoren
+-rotation der Objekte wenn Kollision anhand des Trägheitstensors
+-Quaternionen Rotation (bessere Performance)
+-add objects buttons
 -3 dimensionen
 -gravitation
--verschiedene massen und trägheits tensoren
 -strömungswiderstand
--realer stoß (restitutioinskoeffizient)
--haftreibung
 -der gesamte käfig lässt sich drehen
 -die kamera lässt sich drehen
 -glFrustum - "kamera-gleichung"
 -mit maus lassen sich sachen auswählen ("kamera-gleichung")
+
+extra extra, weil ich mich schlecht gefühlt hab:
+-realer Stoß (Restitutionskoeffizient)
+-Dämpfung
+-Zeitschritt an Realzeit angepasst und "Spiral of Death" umgangen
+-skalier, rotations und bewegungs buttons
+-verschiedene Farben
+-hübschere GUI
+-eigene Slider zu den Buttons

@@ -32,6 +32,7 @@ class Collision{
 		static Collision_Info poly2plane(Polyhedron* poly, Plane* plane);
 		static Collision_Info poly2sepAxis(Polyhedron* poly1, Polyhedron* poly2, Vec3 n, Vec3 T);
 		static Collision_Info poly2poly(Polyhedron* poly1, Polyhedron* poly2);
+		static void pull(Object* obj1, Object* obj2, Vec3 n, float overlap);
 };
 
 #endif

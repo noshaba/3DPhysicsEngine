@@ -36,10 +36,15 @@ void Game::add_cylinder(Cylinder* cylinder){
 	this->cage->add_object(cylinder);
 	this->physics.add_polyhedron(cylinder);
 }
+void Game::add_target(Target* target){
+	this->object_model->add_object(target);
+	this->cage->add_object(target);
+	this->physics.add_polyhedron(target);
+}
 void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
 	this->object_model->select_object(viewport, camera_position,xpos,ypos);
-	this->physics.frozen = this->object_model->selected_object;
 	if(this->object_model->selected_object){
+		this->physics.frozen = true;
 		this->slider_model->get_slider("Mass")->set_value(this->object_model->selected_object->mass);
 		this->slider_model->get_slider("Drag")->set_value(this->object_model->selected_object->drag_coeff);
 	}

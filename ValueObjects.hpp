@@ -231,5 +231,11 @@
 			void init_index_buffer(void);
 			unsigned int res = 24;
 	};
+	
+	class Target : public Cylinder{
+		public:
+			Target(Vec3 camera_horizontal);
+			~Target(void);
+	};
 
 #endif

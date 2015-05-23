@@ -106,8 +106,7 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	colli.overlap = sph1->radius+sph2->radius-colli.distance;
 	colli.collision = colli.distance <= sph1->radius + sph2->radius;
 	if(colli.collision){
-		sph1->pull(colli.normal,colli.overlap*.5);
-		sph2->pull(-colli.normal,colli.overlap*.5);
+		Collision::pull(sph1,sph2,colli.normal,colli.overlap);
 		colli.point = sph1->mass_center - colli.normal*sph1->radius;
 		sph1->manifold.push_back(colli.point);
 		sph2->manifold.push_back(colli.point);
@@ -128,8 +127,7 @@ Collision::Collision_Info Collision::sphere2poly(Sphere* sph, Polyhedron* poly){
 	colli.overlap = sph->radius - colli.distance;
 	colli.collision = colli.distance <= sph->radius;
 	if(colli.collision){
-		sph->pull(colli.normal,colli.overlap*.5);
-		poly->pull(-colli.normal,colli.overlap*.5);
+		Collision::pull(sph,poly,colli.normal,colli.overlap);
 		colli.point = closest;
 		sph->manifold.push_back(closest);
 		poly->manifold.push_back(closest);
@@ -318,11 +316,20 @@ Collision::Collision_Info Collision::poly2poly(Polyhedron* poly1, Polyhedron* po
 		}
 	}
 	if(colli.collision){
-		poly1->pull(colli.normal,colli.overlap*.5);
-		poly2->pull(-colli.normal,colli.overlap*.5);
+		Collision::pull(poly1,poly2,colli.normal,colli.overlap);
 		colli.point = poly2poly_contact_point(poly1, poly2, colli.normal);
 		colli.r_1 = colli.point - poly1->mass_center;
 		colli.r_2 = colli.point - poly2->mass_center;
 	}
 	return colli;
+}
+
+void Collision::pull(Object* obj1, Object* obj2, Vec3 n, float overlap){
+	if(obj1->inverse_mass != 0 && obj2->inverse_mass != 0){
+		obj1->pull( n,overlap*.5f);
+		obj2->pull(-n,overlap*.5f);
+	} else {
+		obj1->pull( n,overlap*obj1->mass*obj1->inverse_mass);
+		obj2->pull(-n,overlap*obj2->mass*obj2->inverse_mass);
+	}
 }
