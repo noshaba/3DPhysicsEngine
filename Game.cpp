@@ -1,6 +1,7 @@
 #include "Game.hpp"
 
-Game::Game(void){
+Game::Game(unsigned int window_width, unsigned int window_height){
+	this->view = new View(window_width,window_height,Vec3(0,15,40),-25);
 	this->physics = Physics();
 	this->object_model = new Object_Model();
 	this->cage = new Cage({new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
@@ -12,6 +13,7 @@ Game::~Game(void){
 	delete this->object_model;
 	delete this->slider_model;
 	delete this->cage;
+	delete this->view;
 }
 void Game::update(void){
 	this->physics.update();
@@ -41,13 +43,20 @@ void Game::add_target(Target* target){
 	this->cage->add_object(target);
 	this->physics.add_polyhedron(target);
 }
-void Game::select_object(Viewport viewport, Vec3 camera_position, double xpos, double ypos){
-	this->object_model->select_object(viewport, camera_position,xpos,ypos);
+void Game::rotate_camera(Movement m, float value){
+	this->view->camera->rotate(m, value);
+}
+void Game::move_camera(Movement m, float value){
+	this->view->camera->move(m,value);
+}
+Object* Game::select_object(double xpos, double ypos){
+	this->object_model->select_object(this->view->viewport,this->view->camera->position,xpos,ypos);
 	if(this->object_model->selected_object){
 		this->physics.frozen = true;
 		this->slider_model->get_slider("Mass")->set_value(this->object_model->selected_object->mass);
 		this->slider_model->get_slider("Drag")->set_value(this->object_model->selected_object->drag_coeff);
 	}
+	return this->object_model->selected_object;
 }
 void Game::scale_selected_object(float factor){
 	this->object_model->scale_selected_object(this->scale_dir,factor);
@@ -71,9 +80,25 @@ void Game::color_selected_object(Vec3 color){
 		*(this->object_model->selected_object->color) = color;
 }
 void Game::draw(void){
+	this->view->set_3Dviewport_and_lightning();
+	glClearColor(17/255.0, 17/255.0, 17/255.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	this->cage->draw();
 	this->object_model->draw();
 	Collision::draw_manifold();
+	if(this->object_model->selected_object){
+		if(this->object_model->selected_object->horizontal_imp){
+			if(!this->object_model->selected_object->vertical_imp){
+				Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
+				glBegin(GL_LINES);
+				glNormal3f(0,0,1);
+				glVertex3fv(this->object_model->selected_object->mass_center.p);
+				glVertex3fv(this->object_model->selected_object->impulse.p);
+				glEnd();
+				this->object_model->selected_object->impulse = Quaternion(YVec3, 1) * this->object_model->selected_object->impulse;
+			}
+		}
+	}
 }
 void Game::draw_HUD(void){
 	this->slider_model->draw();

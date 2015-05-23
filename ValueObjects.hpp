@@ -109,6 +109,11 @@
 			Vec3 ang_velocity     = Null3;	// angular velocity
 			Vec3 ang_velocity_n   = Null3;  // direction of ang_velocity
 			
+			Vec3 impulse 		  = Null3;
+			
+			bool horizontal_imp	  = false;
+			bool vertical_imp	  = false;
+			
 			std::vector<Vec3> manifold;
 			Matrix<float> inertia_tensor = Matrix<float>({{0,0,0},{0,0,0},{0,0,0}});
 			Matrix<float> inv_inertia_tensor = Matrix<float>({{0,0,0},{0,0,0},{0,0,0}});
