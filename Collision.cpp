@@ -34,6 +34,7 @@ Plane* Collision::get_collided_wall(Object* obj, std::vector<Plane*> walls){
 }
 Vec3 Collision::closest_point_on_poly(Vec3 p, Polyhedron* poly){
 	Vec3 distance_vec = p - poly->mass_center;
+	if(distance_vec == Null3) distance_vec = Vec3(0,0,1);
 	Vec3 closest = poly->mass_center;
 	float distance;
 	for(unsigned int i = 0; i < poly->hl.size(); ++i){
@@ -106,6 +107,7 @@ Collision::Collision_Info Collision::sphere2sphere(Sphere* sph1, Sphere* sph2){
 	colli.overlap = sph1->radius+sph2->radius-colli.distance;
 	colli.collision = colli.distance <= sph1->radius + sph2->radius;
 	if(colli.collision){
+		if(colli.normal == Null3) colli.normal = Vec3(0,0,1);
 		Collision::pull(sph1,sph2,colli.normal,colli.overlap);
 		colli.point = sph1->mass_center - colli.normal*sph1->radius;
 		sph1->manifold.push_back(colli.point);
