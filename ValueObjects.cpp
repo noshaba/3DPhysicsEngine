@@ -815,15 +815,14 @@ void Cylinder::init_inertia_tensor(void){
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 
-Target::Target(Vec3 camera_horizontal) : Cylinder(1,rand() % 3 + 1,1,0,new Vec3(1,1,1),Null3,0){
+Target::Target(Vec3 camera_horizontal) : Cylinder(1,3,1,0,new Vec3(1,1,1),Null3,0){
 	this->mass = 0;
 	this->inverse_mass = 0;
 	for(unsigned int i = 0; i < this->inertia_tensor.rows - 1; ++i)
 		this->inertia_tensor[i][i] = 0;
 	this->inv_inertia_tensor = inertia_tensor;
-	this->rotate(camera_horizontal, rand()%360,this->mass_center);
-	this->rotate(YVec3,rand()%360,this->mass_center);
-	this->pull(Vec3(0,0,1),-10);
+	this->rotate(camera_horizontal, 60,this->mass_center);
+	this->pull(Vec3(0,0,1),-7);
 }
 Target::~Target(void){
 	for(unsigned int i = 0; i < this->planes.size(); ++i)
