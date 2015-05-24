@@ -17,6 +17,10 @@
 		RIGHT,LEFT,UP,DOWN,FRONT,BACK
 	};
 	
+	enum GameState{
+		NONE, HORIZONTAL_IMP, VERTICAL_IMP, LENGTH_IMP, SHOOT
+	};
+	
 	struct Viewport{
 		double model_view_matrix[16], projection_matrix[16]; 
 		int viewport[4];
@@ -110,9 +114,6 @@
 			Vec3 ang_velocity_n   = Null3;  // direction of ang_velocity
 			
 			Vec3 impulse 		  = Null3;
-			
-			bool horizontal_imp	  = false;
-			bool vertical_imp	  = false;
 			
 			std::vector<Vec3> manifold;
 			Matrix<float> inertia_tensor = Matrix<float>({{0,0,0},{0,0,0},{0,0,0}});

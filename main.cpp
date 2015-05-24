@@ -108,13 +108,36 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 			case GLFW_MOD_CONTROL:
 				selected_object = game->select_object(xpos,ypos);
 				if(round_start && selected_object){
-					if(!(dynamic_cast<Target*>(selected_object))){
-						selected_object->horizontal_imp = true;
-						selected_object->impulse = selected_object->mass_center + game->view->camera->direction * 5;
+					if(!(dynamic_cast<Target*>(selected_object)) && game->state == NONE){
+						game->state = HORIZONTAL_IMP;
+						selected_object->impulse = selected_object->mass_center + ZVec3 * 5;
 					}
 				}
 				break;
 			default:
+				if(selected_object){
+					switch(game->state){
+						case HORIZONTAL_IMP:
+							game->state = VERTICAL_IMP;
+							game->horizontal_vec = selected_object->impulse%YVec3;	
+							if(game->horizontal_vec == Null3){
+								selected_object->impulse = Quaternion(YVec3, 1) * selected_object->impulse;
+								game->horizontal_vec = selected_object->impulse%YVec3;
+							}
+							game->horizontal_vec.Normalize();
+							break;
+						case VERTICAL_IMP:
+							game->state = LENGTH_IMP;
+							game->imp_length = selected_object->impulse.Length();
+							selected_object->impulse.Normalize();
+							break;
+						case LENGTH_IMP:
+							game->state = SHOOT;
+							game->physics.frozen = false;
+							selected_object = NULL;
+							break;
+					}
+				}
 				slider = NULL;
 				if(button){
 					button->is_activated = false;

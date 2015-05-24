@@ -109,7 +109,7 @@ void Physics::update(void){
 						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
 						__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 					}
-					// this->frozen = true;
+					this->frozen = true;
 				}
 			}
 			

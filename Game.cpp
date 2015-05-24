@@ -89,18 +89,45 @@ void Game::draw(void){
 	this->object_model->draw();
 	Collision::draw_manifold();
 	if(this->object_model->selected_object){
-		if(this->object_model->selected_object->horizontal_imp){
-			Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
-			glBegin(GL_LINES);
-			glNormal3f(0,0,1);
-			glVertex3fv(this->object_model->selected_object->mass_center.p);
-			if(!this->object_model->selected_object->vertical_imp){
+		switch(state){
+			case HORIZONTAL_IMP:
+				Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
+				glBegin(GL_LINES);
+				glNormal3f(0,0,1);
+				glVertex3fv(this->object_model->selected_object->mass_center.p);
 				glVertex3fv(this->object_model->selected_object->impulse.p);
 				glEnd();
 				this->object_model->selected_object->impulse = Quaternion(YVec3, 1) * this->object_model->selected_object->impulse;
-			} else {
-				
-			}
+				break;
+			case VERTICAL_IMP:
+				Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
+				glBegin(GL_LINES);
+				glNormal3f(0,0,1);
+				glVertex3fv(this->object_model->selected_object->mass_center.p);
+				glVertex3fv(this->object_model->selected_object->impulse.p);
+				glEnd();	
+				this->object_model->selected_object->impulse = Quaternion(this->horizontal_vec, 1) * this->object_model->selected_object->impulse;
+				break;
+			case LENGTH_IMP:
+				Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
+				glBegin(GL_LINES);
+				glNormal3f(0,0,1);
+				glVertex3fv(this->object_model->selected_object->mass_center.p);
+				glVertex3fv((this->object_model->selected_object->mass_center + this->object_model->selected_object->impulse * this->imp_length).p);
+				glEnd();
+				this->imp_length += a;
+				if(this->imp_length > 10)
+					a = -.05f;
+				if(this->imp_length < 0)
+					a = .05f;
+				break;
+			case SHOOT:
+				this->object_model->selected_object->set_lin_velocity(this->object_model->selected_object->impulse * this->imp_length * 10);
+				this->object_model->selected_object->is_selected = false;
+				this->object_model->selected_object = NULL;
+				break;
+			default:
+				break;
 		}
 	}
 	this->view->set_2Dviewport();

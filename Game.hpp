@@ -10,7 +10,11 @@
 			Object_Model* object_model;
 			Slider_Model* slider_model;
 			Button_Model* button_model;
+			float a = .05f;
 		public:
+			float imp_length = 0;
+			GameState state = NONE;
+			Vec3 horizontal_vec = Null3;
 			Physics physics;
 			Game(unsigned int window_width, unsigned int window_height);
 			~Game(void);
