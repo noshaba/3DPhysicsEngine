@@ -114,6 +114,8 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 						selected_object->impulse = selected_object->mass_center + ZVec3 * 5;
 					}
 				}
+				if(button) button->is_activated = false;
+				button = NULL;
 				break;
 			default:
 				if(selected_object){
@@ -329,6 +331,9 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 					break;
 				case GLFW_KEY_4:
 					game->scale_dir = SCALE_A;
+					break;
+				case GLFW_KEY_R:
+					game->reset();
 					break;
 			}
 		}
