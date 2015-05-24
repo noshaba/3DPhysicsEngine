@@ -12,6 +12,7 @@ Game::Game(unsigned int window_width, unsigned int window_height){
 }
 Game::~Game(void){
 	delete this->object_model;
+	delete this->button_model;
 	delete this->slider_model;
 	delete this->cage;
 	delete this->view;
@@ -89,14 +90,16 @@ void Game::draw(void){
 	Collision::draw_manifold();
 	if(this->object_model->selected_object){
 		if(this->object_model->selected_object->horizontal_imp){
+			Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
+			glBegin(GL_LINES);
+			glNormal3f(0,0,1);
+			glVertex3fv(this->object_model->selected_object->mass_center.p);
 			if(!this->object_model->selected_object->vertical_imp){
-				Render_Object::material_color(GL_FRONT_AND_BACK,Vec3(0,1,1));
-				glBegin(GL_LINES);
-				glNormal3f(0,0,1);
-				glVertex3fv(this->object_model->selected_object->mass_center.p);
 				glVertex3fv(this->object_model->selected_object->impulse.p);
 				glEnd();
 				this->object_model->selected_object->impulse = Quaternion(YVec3, 1) * this->object_model->selected_object->impulse;
+			} else {
+				
 			}
 		}
 	}

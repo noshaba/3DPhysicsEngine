@@ -155,7 +155,7 @@ void Physics::update(void){
 			///////////////////////////////////////
 			// Collision against other polyhedra //
 			///////////////////////////////////////
-			
+					
 			for(unsigned int j = 0; j < __polyhedra.size(); ++j){
 				if(i==j) continue;
 				__colli = Collision::poly2poly(__polyhedra[i],__polyhedra[j]);

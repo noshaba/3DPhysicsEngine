@@ -727,9 +727,10 @@ void Triangle_Prism::scale(int scale_dir, float factor){
 Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->length = length;
 	this->circle_radius = circle_radius;
-	this->axis_orientation = { Vec3(0,1,0) };
+	this->axis_orientation = { Vec3(0,1,0), Vec3(0,0,1) };
+	this->edge_orientation = { Vec3(1,0,0) };
 	this->radius = length * .5f;
-	this->hl = { this->radius };
+	this->hl = { this->radius, this->circle_radius };
 	this->init_index_buffer();
 	this->init(mass,drag_coeff,color,orientation,angle);
 }
@@ -789,7 +790,6 @@ void Cylinder::scale(int scale_dir, float factor){
 		}
 		this->length += factor * 2;
 		this->radius += factor;
-		this->hl = { this->radius };
 		this->circle_radius += factor;
 	} else if(scale_dir == SCALE_Y){
 		for(unsigned int i = 0; i < this->res; ++i){
@@ -798,7 +798,6 @@ void Cylinder::scale(int scale_dir, float factor){
 		}
 		this->length += factor * 2;
 		this->radius += factor;
-		this->hl = { this->radius };
 	} else {
 		for(unsigned int i = 2; i < this->planes.size(); ++i){
 			for(unsigned int j = 0; j < this->planes[i]->vertex_buffer.size(); ++j)
@@ -806,6 +805,7 @@ void Cylinder::scale(int scale_dir, float factor){
 		}
 		this->circle_radius += factor;
 	}
+	this->hl = { this->radius, this->circle_radius };
 }
 void Cylinder::init_inertia_tensor(void){
 	float k = 1.0 / 12.0;

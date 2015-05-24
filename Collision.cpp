@@ -42,15 +42,6 @@ Vec3 Collision::closest_point_on_poly(Vec3 p, Polyhedron* poly){
 		if(distance < -poly->hl[i]) distance = -poly->hl[i];
 		closest += distance * poly->axis_orientation[i];
 	}
-	if(Cylinder* cyl = dynamic_cast<Cylinder*>(poly)){
-		Vec3 axis = distance_vec % cyl->axis_orientation[0];
-		axis.Normalize();
-		axis = axis % cyl->axis_orientation[0];
-		distance = distance_vec * axis;
-		if(distance >  cyl->circle_radius) distance =  cyl->circle_radius;
-		if(distance < -cyl->circle_radius) distance = -cyl->circle_radius;
-		closest += distance * axis;
-	}
 	return closest;
 }
 bool Collision::outside_scene(Object* obj, std::vector<Plane*> walls){
@@ -129,6 +120,17 @@ Collision::Collision_Info Collision::sphere2poly(Sphere* sph, Polyhedron* poly){
 	sph->manifold.clear();
 	poly->manifold.clear();
 	Collision_Info colli;
+	if(Cylinder* cyl = dynamic_cast<Cylinder*>(poly)){
+		Vec3 T = cyl->mass_center - sph->mass_center;
+		Vec3 edge = T%cyl->axis_orientation[0];
+		edge.Normalize();
+		if(edge != Null3){
+			cyl->edge_orientation[0] = edge;
+			Vec3 axis = edge%cyl->axis_orientation[0];
+			axis.Normalize();
+			if(axis != Null3) cyl->axis_orientation[1] = axis;
+		}
+	}
 	Vec3 closest = Collision::closest_point_on_poly(sph->mass_center,poly);
 	colli.normal = sph->mass_center - closest;
 	colli.distance = colli.normal.Length();
@@ -291,6 +293,26 @@ Collision::Collision_Info Collision::poly2poly(Polyhedron* poly1, Polyhedron* po
 	Collision_Info colli;
 	colli.overlap = FLT_MAX;
 	Vec3 T = poly2->mass_center - poly1->mass_center;
+	if(Cylinder* cyl1 = dynamic_cast<Cylinder*>(poly1)){
+		Vec3 edge = T%cyl1->axis_orientation[0];
+		edge.Normalize();
+		if(edge != Null3){
+			cyl1->edge_orientation[0] = edge;
+			Vec3 axis = edge%cyl1->axis_orientation[0];
+			axis.Normalize();
+			if(axis != Null3) cyl1->axis_orientation[1] = axis;
+		}
+	}
+	if(Cylinder* cyl2 = dynamic_cast<Cylinder*>(poly2)){
+		Vec3 edge = T%cyl2->axis_orientation[0];
+		edge.Normalize();
+		if(edge != Null3){
+			cyl2->edge_orientation[0] = edge;
+			Vec3 axis = edge%cyl2->axis_orientation[0];
+			axis.Normalize();
+			if(axis != Null3) cyl2->axis_orientation[1] = axis;
+		}
+	}
 	Collision_Info c;
 	for(unsigned int i = 0; i < poly1->axis_orientation.size(); ++i){
 		c = poly2sepAxis(poly1,poly2,poly1->axis_orientation[i],T);

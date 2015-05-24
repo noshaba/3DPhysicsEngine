@@ -90,7 +90,8 @@ float Vec3::Length2() const {
 }
 
 void Vec3::Normalize() {
-  float l = 1.0 / Length();
+  float l = Length();
+  if(l != 0) l = 1.0/l;
 
   for(int i = 0; i < VEC_DIM; i++)
     p[i] *= l;
