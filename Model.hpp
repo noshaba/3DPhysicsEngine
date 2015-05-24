@@ -19,6 +19,7 @@
 			void rotate_selected_object(const Vec3 &n, float theta);
 			void move_selected_object(const Vec3 &n, float factor);
 			void draw(void);
+			void reset(void);
 	};
 
 	class Button_Model{

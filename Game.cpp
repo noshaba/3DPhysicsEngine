@@ -123,7 +123,7 @@ void Game::draw(void){
 				break;
 			case SHOOT:
 				this->object_model->selected_object->set_lin_velocity(this->object_model->selected_object->impulse * this->imp_length * 10);
-				this->object_model->selected_object->is_selected = false;
+				this->object_model->selected_object->select(false);
 				this->object_model->selected_object = NULL;
 				break;
 			default:
@@ -142,4 +142,9 @@ Button* Game::get_button(float xpos, float ypos){
 }
 Button* Game::get_button(std::string name){
 	return this->button_model->get_button(name);
+}
+void Game::reset(void){
+	this->object_model->reset();
+	this->cage->objects.clear();
+	this->physics.reset();
 }

@@ -71,6 +71,11 @@ void Object_Model::draw(void){
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
 		this->objects[i]->draw();
 }
+void Object_Model::reset(void){
+	for(unsigned int i = 0; i < this->objects.size(); ++i)
+		delete this->objects[i];
+	this->objects.clear();
+}
 
 Button_Model::Button_Model(std::string database){
 	this->database = database;
@@ -105,7 +110,7 @@ Button* Button_Model::get_button(double xpos, double ypos){
 	for(unsigned int i = 0; i < this->buttons.size(); i++){
 		// return button when clicked on
 		if((xpos >= buttons[i]->xpos) && (xpos <= buttons[i]->xpos + buttons[i]->tile_width) &&
-		   (ypos >= buttons[i]->ypos) && (ypos <= buttons[i]->ypos + buttons[i]->tile_height)) return buttons[i];
+		   (ypos >= buttons[i]->ypos) && (ypos <= buttons[i]->ypos + buttons[i]->tile_height) && buttons[i]->is_displayed) return buttons[i];
 	}
 	return NULL;
 }
@@ -158,7 +163,7 @@ Slider* Slider_Model::get_slider(double xpos, double ypos){
 	for(unsigned int i = 0; i < this->sliders.size(); i++){
 		// return slider when clicked on
 		if((xpos >= sliders[i]->xpos) && (xpos <= sliders[i]->xpos + sliders[i]->width) &&
-		   (ypos >= sliders[i]->ypos) && (ypos <= sliders[i]->ypos + sliders[i]->height)) return sliders[i];
+		   (ypos >= sliders[i]->ypos) && (ypos <= sliders[i]->ypos + sliders[i]->height) && sliders[i]->is_displayed) return sliders[i];
 	}
 	return NULL;
 }

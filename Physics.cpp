@@ -7,6 +7,10 @@ Physics::Physics(void){
 	this->gravity = Vec3(0,-9.81,0);
 }
 Physics::~Physics(void){}
+void Physics::reset(void){
+	__spheres.clear();
+	__polyhedra.clear();
+}
 void Physics::add_cage(Cage* cage){
 	__cage = cage;
 }
@@ -109,7 +113,7 @@ void Physics::update(void){
 						__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
 						__polyhedra[j]->update_velocities(__colli.normal,__colli.r_2,-__P);
 					}
-					this->frozen = true;
+					// this->frozen = true;
 				}
 			}
 			

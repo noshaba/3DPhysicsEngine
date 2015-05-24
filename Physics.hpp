@@ -23,6 +23,7 @@
 			void add_sphere(Sphere* sphere);
 			void add_polyhedron(Polyhedron* polyhedron);
 			void update(void);
+			void reset(void);
 	};
 
 #endif

@@ -8,6 +8,7 @@ unsigned int window_width = 1366;
 unsigned int window_height = 700;
 
 bool round_start = false;
+bool ready = false;
 
 Game* game;
 
@@ -107,7 +108,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 		switch(mods){
 			case GLFW_MOD_CONTROL:
 				selected_object = game->select_object(xpos,ypos);
-				if(round_start && selected_object){
+				if(round_start && selected_object && ready){
 					if(!(dynamic_cast<Target*>(selected_object)) && game->state == NONE){
 						game->state = HORIZONTAL_IMP;
 						selected_object->impulse = selected_object->mass_center + ZVec3 * 5;
@@ -156,14 +157,20 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
 							break;
 						case str2int("Start_Game"):
+							game->reset();
 							button->is_activated = true;
 							round_start = true;
 							game->physics.frozen = true;
 							game->get_button("Ready")->is_displayed = true;
 							break;
 						case str2int("Ready"):
+							ready = true;
 							game->add_target(new Target(game->view->camera->horizontal));
 							game->get_button("Ready")->is_displayed = false;
+							game->get_button("Ready")->is_activated = false;
+							game->get_button("Start_Game")->is_activated = false;
+							game->state = NONE;
+							game->imp_length = 0;
 							break;
 						case str2int("X_Dir"):
 							button->is_activated = true;

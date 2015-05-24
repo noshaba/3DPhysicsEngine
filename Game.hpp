@@ -37,6 +37,7 @@
 			void set_drag_selected_object(float drag);
 			void color_selected_object(Vec3 color);
 			void draw(void);
+			void reset(void);
 			Slider* get_slider(float xpos, float ypos);
 			Button* get_button(float xpos, float ypos);
 			Button* get_button(std::string name);
