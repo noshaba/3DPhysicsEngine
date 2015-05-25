@@ -361,11 +361,11 @@ void Cage::rotate(const Vec3 &n, float theta){
 	for(unsigned int i = 0; i < this->objects.size(); ++i)
 		this->objects[i]->rotate(n,theta*100,Null3);
 }
-Sphere::Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color){
-	this->init(radius,mass_center,mass,drag_coeff,color);
+Sphere::Sphere(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color){
+	this->init(radius,mass_center,mass,restitution,drag_coeff,color);
 }
-Sphere::Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity){
-	this->init(radius,mass_center,mass,drag_coeff,color);
+Sphere::Sphere(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 init_lin_velocity){
+	this->init(radius,mass_center,mass,restitution,drag_coeff,color);
 	this->set_lin_velocity(init_lin_velocity);
 }
 Sphere::~Sphere(void){
@@ -373,11 +373,12 @@ Sphere::~Sphere(void){
 		delete this->vertex_buffer[i];
 	delete this->color;
 }
-void Sphere::init(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color){
+void Sphere::init(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color){
 	this->radius = radius;
 	this->mass_center = mass_center;
 	this->mass = mass;
 	if(this->mass) this->inverse_mass = 1.0/mass;
+	this->restitution = restitution;
 	this->drag_coeff = drag_coeff;
 	this->color = color;
 	this->init_inertia_tensor();
@@ -401,14 +402,6 @@ void Sphere::rotate(const Vec3 &n, float theta, const Vec3 rotation_point){
 	}
 }
 void Sphere::rotate(const Matrix<float> &R, const Vec3 rotation_point){
-	// Quaternion q(this->ang_velocity);
-	// for(unsigned int i = 0; i < this->vertex_buffer.size(); ++i){
-		// *(this->vertex_buffer[i]) = q*(*(this->vertex_buffer[i]) - rotation_point) + rotation_point;
-	// }
-	// for(unsigned int i = 0; i < this->normals.size(); ++i){
-		// this->normals[i] = q*this->normals[i];
-	// }
-	// this->mass_center = R*(this->mass_center - rotation_point) + rotation_point;
 	this->inertia_tensor = R*this->inertia_tensor*~R;
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
@@ -488,9 +481,10 @@ void Sphere::draw(void){
 	}
 }
 
-void Polyhedron::init(float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+void Polyhedron::init(float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->mass = mass;
 	if(this->mass) this->inverse_mass = 1.0/mass;
+	this->restitution = restitution;
 	this->drag_coeff = drag_coeff;
 	this->color = color;
 	this->init_vertex_buffer();
@@ -561,7 +555,7 @@ void Polyhedron::draw(void){
 		this->planes[i]->draw();
 }
 
-Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->pmin = pmin;
 	this->pmax = pmax;
 	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
@@ -571,10 +565,10 @@ Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, 
 	}
 	// left, right, top, bottom, back, front
 	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 	this->radius = (this->pmax - this->mass_center).Length();
 }
-Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float restitution,float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
 	this->pmin = pmin;
 	this->pmax = pmax;
 	this->axis_orientation = {Vec3(1,0,0),Vec3(0,1,0),Vec3(0,0,1)};
@@ -584,7 +578,7 @@ Cuboid::Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, 
 	}
 	// left, right, top, bottom, back, front
 	this->index_buffer = {{0,1,5,4},{3,7,6,2},{4,5,6,7},{0,3,2,1},{0,4,7,3},{1,2,6,5}};
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 	this->radius = (this->pmax - this->mass_center).Length();
 	this->set_lin_velocity(impulse);
 }
@@ -636,7 +630,7 @@ void Cuboid::scale(int scale_dir, float factor){
 	this->radius = (this->pmax - this->mass_center).Length();
 }
 
-Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+Triangle_Prism::Triangle_Prism(float length, float side, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->length = length;
 	this->side = side;
 	this->height = sqrt(3)*0.5f*side;
@@ -644,14 +638,14 @@ Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_
 	this->hl = {length*0.5f, h, h, h};
 	// bottom, front, back, left, right
 	this->index_buffer = {{2,3,1,0},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
 	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
 	for(unsigned int i = 0; i < this->edge_orientation.size(); ++i)
 		this->edge_orientation[i].Normalize();
 	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
 }
-Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+Triangle_Prism::Triangle_Prism(float length, float side, float mass, float restitution,float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
 	this->length = length;
 	this->side = side;
 	this->height = sqrt(3)*0.5f*side;
@@ -659,7 +653,7 @@ Triangle_Prism::Triangle_Prism(float length, float side, float mass, float drag_
 	this->hl = {length*0.5f, h, h, h};
 	// bottom, front, back, left, right
 	this->index_buffer = {{2,3,1,0},{0,1,5,4},{4,5,3,2},{2,0,4},{1,3,5}};
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 	this->axis_orientation = {planes[4]->normal, planes[0]->normal, planes[1]->normal, planes[2]->normal};
 	this->edge_orientation = {planes[4]->normal, Vec3(0,0,1), *(vertex_buffer[4])-*(vertex_buffer[0]), *(vertex_buffer[4])-*(vertex_buffer[2])};
 	for(unsigned int i = 0; i < this->edge_orientation.size(); ++i)
@@ -729,7 +723,7 @@ void Triangle_Prism::scale(int scale_dir, float factor){
 	this->radius = (*(this->vertex_buffer[0]) - this->mass_center).Length();
 }
 
-Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle){
+Cylinder::Cylinder(float length, float circle_radius, float mass, float restitution,float drag_coeff, Vec3* color, Vec3 orientation, float angle){
 	this->length = length;
 	this->circle_radius = circle_radius;
 	this->axis_orientation = { Vec3(0,1,0), Vec3(0,0,1) };
@@ -737,16 +731,16 @@ Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coe
 	this->radius = length * .5f;
 	this->hl = { this->radius, this->circle_radius };
 	this->init_index_buffer();
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 }
-Cylinder::Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
+Cylinder::Cylinder(float length, float circle_radius, float mass, float restitution,float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse){
 	this->length = length;
 	this->circle_radius = circle_radius;
 	this->axis_orientation = { Vec3(0,1,0) };
 	this->radius = length * .5f;
 	this->hl = { this->radius };
 	this->init_index_buffer();
-	this->init(mass,drag_coeff,color,orientation,angle);
+	this->init(mass,restitution,drag_coeff,color,orientation,angle);
 	this->set_lin_velocity(impulse);
 }
 Cylinder::~Cylinder(void){
@@ -820,7 +814,7 @@ void Cylinder::init_inertia_tensor(void){
 	this->inv_inertia_tensor = !this->inertia_tensor;
 }
 
-Target::Target(Vec3 camera_horizontal) : Cylinder(1,3,1,0,new Vec3(1,1,1),Null3,0){
+Target::Target(Vec3 camera_horizontal) : Cylinder(1,3,1,1,0,new Vec3(1,1,1),Null3,0){
 	this->mass = 0;
 	this->inverse_mass = 0;
 	for(unsigned int i = 0; i < this->inertia_tensor.rows - 1; ++i)

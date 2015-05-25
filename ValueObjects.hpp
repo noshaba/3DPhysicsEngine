@@ -127,6 +127,7 @@
 			float omega           = 0;
 			float velocity        = 0;
 			float radius 		  = 0;
+			float restitution	  = 0;
 			void update_velocities(Vec3 n, Vec3 r, float P);
 			void set_lin_velocity(Vec3 velocity);
 			void set_ang_velocity(Vec3 ang_velocity);
@@ -163,8 +164,8 @@
 	
 	class Sphere : public Object{
 		public:
-			Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color);
-			Sphere(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color, Vec3 init_lin_velocity);
+			Sphere(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color);
+			Sphere(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 init_lin_velocity);
 			~Sphere(void);
 			void rotate(const Vec3 &n, float theta, const Vec3 rotation_point);
 			void rotate(const Matrix<float> &R, const Vec3 rotation_point);
@@ -173,7 +174,7 @@
 			void draw(void);
 		private:
 			unsigned int res = 24;
-			void init(float radius, Vec3 mass_center, float mass, float drag_coeff, Vec3* color);
+			void init(float radius, Vec3 mass_center, float mass, float restitution, float drag_coeff, Vec3* color);
 			void init_inertia_tensor(void);
 			void init_vertex_buffer(void);
 			std::vector<Vec3> normals;
@@ -194,15 +195,15 @@
 			std::vector<std::vector<unsigned int> > index_buffer;
 			void init_planes(void);
 			void init_mass_center(void);
-			void init(float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			void init(float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
 			virtual void init_vertex_buffer(void) = 0;
 			virtual void init_inertia_tensor(void) = 0;
 	};
 	
 	class Cuboid : public Polyhedron{
 		public:
-			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
-			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Cuboid(Vec3 pmin, Vec3 pmax, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
 			~Cuboid(void);
 			Vec3 pmin = Null3;
 			Vec3 pmax = Null3;
@@ -214,8 +215,8 @@
 	
 	class Triangle_Prism : public Polyhedron{
 		public:
-			Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
-			Triangle_Prism(float length, float side, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			Triangle_Prism(float length, float side, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Triangle_Prism(float length, float side, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
 			~Triangle_Prism(void);
 			float length = 0;
 			float side = 0;
@@ -228,8 +229,8 @@
 	
 	class Cylinder : public Polyhedron{
 		public:
-			Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
-			Cylinder(float length, float circle_radius, float mass, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
+			Cylinder(float length, float circle_radius, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle);
+			Cylinder(float length, float circle_radius, float mass, float restitution, float drag_coeff, Vec3* color, Vec3 orientation, float angle, Vec3 impulse);
 			~Cylinder(void);
 			float length = 0;
 			float circle_radius = 0;

@@ -147,17 +147,17 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 					button->is_activated = false;
 					switch(str2int(button->name.c_str())){
 						case str2int("Cuboid"):
-							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,new Vec3(0,1,0),Null3,0));
+							game->add_cuboid(new Cuboid(Vec3(-3,-1,-2),Vec3(3,1,2),8,1,1,new Vec3(0,1,0),Null3,0));
 							break;
 						case str2int("Sphere"):
 							// Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))
-							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
+							game->add_sphere(new Sphere(1,Vec3(0,0,0),1,1,.45,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
 							break;
 						case str2int("Triangle_Prism"):
-							game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
+							game->add_triangle_prism(new Triangle_Prism(6,6,6,1,.82f,new Vec3(1,.5f,0),Null3,0));
 							break;
 						case str2int("Cylinder"):
-							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+							game->add_cylinder(new Cylinder(2,1,6,1,.82f,new Vec3(1,0,1),Null3,0));
 							break;
 						case str2int("Yay"):
 							selected_object = NULL;
@@ -286,16 +286,16 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 		if(mods == GLFW_MOD_SHIFT){
 			switch(key){
 				case GLFW_KEY_S:
-					game->add_sphere(new Sphere(1,Vec3(0,0,0),1,.45f,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
+					game->add_sphere(new Sphere(1,Vec3(0,0,0),1,1,.45f,new Vec3(1,0,0),Vec3((double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX),(double) rand() / (RAND_MAX))));
 					break;
 				case GLFW_KEY_Q:
-					game->add_cuboid(new Cuboid(Vec3(-3,-2,-1),Vec3(3,2,1),1,1,new Vec3(0,1,0),Vec3(1,0,0),90,Null3));
+					game->add_cuboid(new Cuboid(Vec3(-3,-2,-1),Vec3(3,2,1),1,1,1,new Vec3(0,1,0),Vec3(1,0,0),90,Null3));
 					break;
 				case GLFW_KEY_T:
-					game->add_triangle_prism(new Triangle_Prism(6,6,6,.82f,new Vec3(1,.5f,0),Null3,0));
+					game->add_triangle_prism(new Triangle_Prism(6,6,6,1,.82f,new Vec3(1,.5f,0),Null3,0));
 					break;
 				case GLFW_KEY_C:
-					game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
+					game->add_cylinder(new Cylinder(2,1,6,1,.82f,new Vec3(1,0,1),Null3,0));
 					break;
 			}
 		} else if(mods == GLFW_MOD_CONTROL) {
