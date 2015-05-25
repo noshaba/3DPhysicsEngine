@@ -29,11 +29,10 @@ float Physics::relative_momentum(Object* obj1, Object* obj2, Vec3 r_1, Vec3 r_2,
 	float m_2 = obj2->inverse_mass;
 	Matrix<float> I_1 = obj1->inv_inertia_tensor;
 	Matrix<float> I_2 = obj2->inv_inertia_tensor;
+	float e = std::min(obj1->restitution, obj2->restitution);
 	
 	float rv = n*(v_1+(w_1%r_1)-v_2-(w_2%r_2));
-	return -2*rv/(m_1+m_2+n*(((I_1*(r_1%n))%r_1)+((I_2*(r_2%n))%r_2)));
-	// float v = n*(v_1-v_2);
-	// return -2*v/(m_1+m_2);
+	return -(1+e)*rv/(m_1+m_2+n*(((I_1*(r_1%n))%r_1)+((I_2*(r_2%n))%r_2)));
 }
 float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	Vec3 v = obj->lin_velocity;
@@ -43,7 +42,7 @@ float Physics::relative_momentum(Object* obj, Vec3 r, Vec3 n){
 	
 	float rv    = n*(v+(w%r));
 	float imsum = (m+n*(((I*(r%n))%r)));
-	return -2*rv/imsum;
+	return -(1+obj->restitution)*rv/imsum;
 }
 void Physics::update(void){
 	
