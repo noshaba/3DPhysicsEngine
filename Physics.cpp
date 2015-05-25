@@ -107,6 +107,7 @@ void Physics::update(void){
 				if(__polyhedra[j]->inverse_mass == 0){
 					__P = this->relative_momentum(__spheres[i],__colli.r_1,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__spheres[i]->react_to_collision(__polyhedra[j]);
 				} else {
 					__P = this->relative_momentum(__spheres[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__spheres[i]->update_velocities(__colli.normal,__colli.r_1,__P);
@@ -170,6 +171,7 @@ void Physics::update(void){
 					__P = this->relative_momentum(__polyhedra[i],__colli.r_1,__colli.normal);
 					__P*=.1;
 					__polyhedra[i]->update_velocities(__colli.normal,__colli.r_1,__P);
+					__polyhedra[i]->react_to_collision(__polyhedra[j]);
 				} else {
 					__P = this->relative_momentum(__polyhedra[i],__polyhedra[j],__colli.r_1,__colli.r_2,__colli.normal);
 					__P*=.1;

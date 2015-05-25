@@ -111,6 +111,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 				if(round_start && selected_object && ready){
 					if(!(dynamic_cast<Target*>(selected_object)) && game->state == NONE){
 						game->state = HORIZONTAL_IMP;
+						selected_object->special = true;
 						selected_object->impulse = selected_object->mass_center + ZVec3 * 5;
 					}
 				}
@@ -158,12 +159,29 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 						case str2int("Cylinder"):
 							game->add_cylinder(new Cylinder(2,1,6,.82f,new Vec3(1,0,1),Null3,0));
 							break;
+						case str2int("Yay"):
+							selected_object = NULL;
+							game->state = NONE;
+							game->reset();
+							ready = false;
+							round_start = false;
+							game->imp_length = 0;
+							game->horizontal_vec = Null3;
+							game->get_button("Yay")->is_displayed = false;
+							game->get_button("Yay")->is_activated = false;
+							Object::won = false;
+							game->physics.frozen = false;
+							break;
 						case str2int("Start_Game"):
+							selected_object = NULL;
+							game->state = NONE;
 							game->reset();
 							button->is_activated = true;
 							round_start = true;
 							game->physics.frozen = true;
 							game->get_button("Ready")->is_displayed = true;
+							game->imp_length = 0;
+							game->horizontal_vec = Null3;
 							break;
 						case str2int("Ready"):
 							ready = true;
@@ -204,6 +222,7 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							break;
 						case str2int("Reset"):
 							game->reset();
+							selected_object = NULL;
 							break;
 						case str2int("Move_Front"):
 							game->move_selected_object(game->view->camera->direction,.1);
@@ -337,6 +356,7 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 					break;
 				case GLFW_KEY_R:
 					game->reset();
+					selected_object = NULL;
 					break;
 			}
 		}
@@ -440,6 +460,10 @@ int main() {
 	
 	while(!glfwWindowShouldClose(window)) {
 		game->update();
+		if(Object::won) {
+			game->get_button("Yay")->is_displayed = true;
+			game->physics.frozen = true;
+		}
 		game->draw();
 		// make it appear (before this, it's hidden in the rear buffer)
 		glfwSwapBuffers(window);
