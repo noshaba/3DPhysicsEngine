@@ -259,6 +259,7 @@ void Plane::draw(void){
 	}
 }
 
+bool Object::won = false;
 void Object::set_lin_velocity(Vec3 velocity){
 	this->lin_velocity = velocity;
 	this->velocity = velocity.Length();
@@ -304,8 +305,12 @@ void Object::integrate(float dt, Vec3 acceleration, Vec3 ang_acceleration){
 	this->set_ang_velocity(this->ang_velocity+dt*ang_acceleration);
 	if(this->ang_velocity != Null3) this->rotate(Matrix<float>(this->ang_velocity_n,this->omega*dt),this->mass_center);
 }
-// {new Vec3(0,-10,-10),new Vec3(-10,-10,0),new Vec3(0,-10,10),new Vec3(10,-10,0),new Vec3(0,10,-10),new Vec3(10,10,0),
- // new Vec3(0,10,10),new Vec3(-10,10,0),new Vec3(10,0,-10),new Vec3(10,0,10),new Vec3(-10,0,-10),new Vec3(-10,0,10)}
+void Object::react_to_collision(Object* obj){
+	if(this->special && dynamic_cast<Target*>(obj)){
+		Object::won = true;
+	}
+}
+
 Cage::Cage(std::vector<Vec3*> vertex_buffer){
 	this->color = NULL;
 	this->vertex_buffer = vertex_buffer;

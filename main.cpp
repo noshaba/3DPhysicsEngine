@@ -202,6 +202,9 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 							game->get_button("X_Dir")->is_activated = false;
 							game->scale_dir = SCALE_A;
 							break;
+						case str2int("Reset"):
+							game->reset();
+							break;
 						case str2int("Move_Front"):
 							game->move_selected_object(game->view->camera->direction,.1);
 							break;

@@ -103,6 +103,8 @@
 	
 	class Object : public Render_Object{
 		public:
+			static bool won;
+			bool special = false;
 			/// primary physics state
 			Vec3 mass_center_old  = Null3;	// position of the mass center in previous frame
 			Vec3 mass_center      = Null3;	// position of mass center
@@ -134,6 +136,7 @@
 			void pull(Vec3 n, float overlap);
 			void set_mass(float m);
 			void set_intertia_tensor(Matrix<float> tensor);
+			void react_to_collision(Object* obj);
 			virtual void select(bool selection) = 0;
 			virtual void scale(int scale_dir, float factor) = 0;
 			virtual void rotate(const Vec3 &n, float theta, const Vec3 rotation_point) = 0;
