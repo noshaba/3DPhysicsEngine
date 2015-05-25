@@ -1,6 +1,6 @@
 Mass
 1065
-440
+450
 images/sliderButton.bmp
 1
 1
@@ -8,11 +8,11 @@ images/sliderButton.bmp
 1
 horizontal
 1065
-445
+455
 images/sliderBar.bmp
 Drag
 1065
-470
+490
 images/sliderButton.bmp
 1
 0
@@ -20,11 +20,11 @@ images/sliderButton.bmp
 0
 horizontal
 1065
-475
+495
 images/sliderBar.bmp
 Shade
 1033
-505
+525
 images/sliderButton2.bmp
 1
 0
@@ -32,5 +32,5 @@ images/sliderButton2.bmp
 1
 vertical
 1035
-505
+525
 images/Shade.bmp
