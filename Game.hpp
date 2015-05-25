@@ -35,6 +35,7 @@
 			void move_selected_object(const Vec3 &n, float factor);
 			void set_mass_selected_object(float mass);
 			void set_drag_selected_object(float drag);
+			void set_restitution_selected_object(float restitution);
 			void color_selected_object(Vec3 color);
 			void draw(void);
 			void reset(void);

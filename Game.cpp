@@ -57,6 +57,7 @@ Object* Game::select_object(double xpos, double ypos){
 		this->physics.frozen = true;
 		this->slider_model->get_slider("Mass")->set_value(this->object_model->selected_object->mass);
 		this->slider_model->get_slider("Drag")->set_value(this->object_model->selected_object->drag_coeff);
+		this->slider_model->get_slider("Restitution")->set_value(this->object_model->selected_object->restitution);
 	}
 	return this->object_model->selected_object;
 }
@@ -76,6 +77,10 @@ void Game::set_mass_selected_object(float mass){
 void Game::set_drag_selected_object(float drag){
 	if(this->object_model->selected_object)
 		this->object_model->selected_object->drag_coeff = drag;
+}
+void Game::set_restitution_selected_object(float restitution){
+	if(this->object_model->selected_object)
+		this->object_model->selected_object->restitution = restitution;
 }
 void Game::color_selected_object(Vec3 color){
 	if(this->object_model->selected_object)
