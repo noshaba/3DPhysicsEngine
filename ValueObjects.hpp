@@ -133,6 +133,7 @@
 			void set_ang_velocity(Vec3 ang_velocity);
 			void old_mass_center(void);
 			void move(float dt, Vec3 acceleration);
+			
 			void integrate(float dt, Vec3 acceleration,Vec3 ang_acceleration);
 			void pull(Vec3 n, float overlap);
 			void set_mass(float m);

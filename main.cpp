@@ -226,6 +226,17 @@ void glfwSetMouseButton(GLFWwindow* window, int mouse_button, int action, int mo
 						case str2int("Reset"):
 							game->reset();
 							selected_object = NULL;
+							game->get_button("Start_Game")->is_activated = false;
+							game->get_button("Ready")->is_activated = false;
+							game->get_button("Ready")->is_displayed = false;
+							round_start = false;
+							ready = false;
+							game->state = NONE;
+							game->imp_length = 0;
+							break;
+						case str2int("Pause"):
+							game->physics.frozen = !game->physics.frozen || round_start;
+							if(game->physics.frozen) button->is_activated = true;
 							break;
 						case str2int("Move_Front"):
 							game->move_selected_object(game->view->camera->direction,.1);
@@ -360,6 +371,13 @@ void glfwSetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 				case GLFW_KEY_R:
 					game->reset();
 					selected_object = NULL;
+					game->get_button("Start_Game")->is_activated = false;
+					game->get_button("Ready")->is_activated = false;
+					game->get_button("Ready")->is_displayed = false;
+					round_start = false;
+					ready = false;
+					game->state = NONE;
+					game->imp_length = 0;
 					break;
 			}
 		}

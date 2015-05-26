@@ -5,6 +5,7 @@ Physics::Physics(void){
 	this->frozen = false;
 	this->dt = 1/120.0;
 	this->gravity = Vec3(0,-9.81,0);
+	this->damping = -.1f;
 }
 Physics::~Physics(void){}
 void Physics::reset(void){
@@ -189,8 +190,9 @@ void Physics::update(void){
 			__drag = -(__polyhedra[i]->drag_coeff*__polyhedra[i]->inverse_mass*__polyhedra[i]->lin_velocity.Length2())*__polyhedra[i]->lin_velocity_n;
 
 			__acceleration = this->gravity+__drag;
+			__ang_acceleration = this->damping*__polyhedra[i]->ang_velocity;
 			
-			__polyhedra[i]->integrate(this->dt,__acceleration,Null3);
+			__polyhedra[i]->integrate(this->dt,__acceleration,__ang_acceleration);
 		}
 	}
 }

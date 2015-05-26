@@ -7,7 +7,8 @@
 	class Physics{
 		private:
 			float __P;
-			Vec3 gravity, __force, __torque, __acceleration, __ang_acceleration, __drag;
+			Vec3 gravity, __acceleration, __ang_acceleration, __drag;
+			float damping;
 			Collision::Collision_Info __colli;
 			Cage* __cage;
 			std::vector<Sphere*> __spheres;

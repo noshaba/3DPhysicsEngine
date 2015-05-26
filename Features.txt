@@ -37,8 +37,8 @@ extra:
 extra extra, weil ich mich schlecht gefühlt hab:
 -realer Stoß (Restitutionskoeffizient)
 -Dämpfung
--Zeitschritt an Realzeit angepasst und "Spiral of Death" umgangen
 -skalier, rotations und bewegungs buttons
 -verschiedene Farben
 -hübschere GUI
 -eigene Slider zu den Buttons
+-GUI aus Datei eingelesen
